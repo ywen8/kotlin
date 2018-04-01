@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.psi2ir.startOffsetOrUndefined
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.typeUtil.isEquivalentTo
 
 class DataClassMembersGenerator(
     declarationGenerator: DeclarationGenerator
@@ -194,11 +194,11 @@ class DataClassMembersGenerator(
         private val intType = context.builtIns.intType
 
         private val intTimes =
-            intClass.findFirstFunction("times") { KotlinTypeChecker.DEFAULT.equalTypes(it.valueParameters[0].type, intType) }
+            intClass.findFirstFunction("times") { it.valueParameters[0].type.isEquivalentTo(intType) }
                 .let { context.symbolTable.referenceFunction(it) }
 
         private val intPlus =
-            intClass.findFirstFunction("plus") { KotlinTypeChecker.DEFAULT.equalTypes(it.valueParameters[0].type, intType) }
+            intClass.findFirstFunction("plus") { it.valueParameters[0].type.isEquivalentTo(intType) }
                 .let { context.symbolTable.referenceFunction(it) }
 
 

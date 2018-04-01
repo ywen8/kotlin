@@ -51,7 +51,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.typeUtil.isEquivalentTo
 import org.jetbrains.kotlin.utils.DFS
 import org.jetbrains.org.objectweb.asm.Label
 import org.jetbrains.org.objectweb.asm.Opcodes.*
@@ -295,8 +295,8 @@ fun FunctionDescriptor.isGenericToArray(): Boolean {
     if (!KotlinBuiltIns.isArray(returnType) || !KotlinBuiltIns.isArray(paramType)) return false
 
     val elementType = typeParameters[0].defaultType
-    return KotlinTypeChecker.DEFAULT.equalTypes(elementType, builtIns.getArrayElementType(returnType)) &&
-            KotlinTypeChecker.DEFAULT.equalTypes(elementType, builtIns.getArrayElementType(paramType))
+    return elementType.isEquivalentTo(builtIns.getArrayElementType(returnType)) &&
+            elementType.isEquivalentTo(builtIns.getArrayElementType(paramType))
 }
 
 fun FunctionDescriptor.isNonGenericToArray(): Boolean {

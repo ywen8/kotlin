@@ -1102,7 +1102,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
         KotlinType rightType = context.trace.getType(expression.getRight());
         if (leftType == null || rightType == null) return;
 
-        if (KotlinTypeChecker.DEFAULT.equalTypes(leftType, rightType)) {
+        if (TypeUtils.equalTypes(leftType, rightType)) {
             if (KotlinBuiltIns.isPrimitiveType(leftType)) {
                 context.trace.report(DEPRECATED_IDENTITY_EQUALS.on(expression, leftType, rightType));
             }
@@ -1212,7 +1212,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
         KotlinType compareToReturnType = typeInfo.getType();
         KotlinType type = null;
         if (compareToReturnType != null && !KotlinTypeKt.isError(compareToReturnType)) {
-            if (KotlinTypeChecker.DEFAULT.equalTypes(components.builtIns.getIntType(), compareToReturnType)) {
+            if (TypeUtils.equalTypes(components.builtIns.getIntType(), compareToReturnType)) {
                 type = components.builtIns.getBooleanType();
             }
             else {
