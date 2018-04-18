@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyDelegate
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.psiUtil.startOffsetSkippingComments
 import org.jetbrains.kotlin.resolve.BindingContext
 
 class PropertyGenerator(declarationGenerator: DeclarationGenerator) : DeclarationGeneratorExtension(declarationGenerator) {
@@ -46,7 +46,7 @@ class PropertyGenerator(declarationGenerator: DeclarationGenerator) : Declaratio
 
         val irPropertyType = propertyDescriptor.type.toIrType()
         return IrPropertyImpl(
-            ktParameter.startOffset, ktParameter.endOffset,
+            ktParameter.startOffsetSkippingComments, ktParameter.endOffset,
             IrDeclarationOrigin.DEFINED, false,
             propertyDescriptor
         ).also { irProperty ->
@@ -54,7 +54,7 @@ class PropertyGenerator(declarationGenerator: DeclarationGenerator) : Declaratio
                     generatePropertyBackingField(ktParameter, propertyDescriptor) {
                         IrExpressionBodyImpl(
                             IrGetValueImpl(
-                                ktParameter.startOffset, ktParameter.endOffset,
+                                ktParameter.startOffsetSkippingComments, ktParameter.endOffset,
                                 irPropertyType,
                                 irValueParameter.symbol,
                                 IrStatementOrigin.INITIALIZE_PROPERTY_FROM_PARAMETER
@@ -82,7 +82,7 @@ class PropertyGenerator(declarationGenerator: DeclarationGenerator) : Declaratio
         generateInitializer: (IrField) -> IrExpressionBody?
     ): IrField =
         context.symbolTable.declareField(
-            ktPropertyElement.startOffset, ktPropertyElement.endOffset,
+            ktPropertyElement.startOffsetSkippingComments, ktPropertyElement.endOffset,
             IrDeclarationOrigin.PROPERTY_BACKING_FIELD,
             propertyDescriptor, propertyDescriptor.type.toIrType()
         ).also {
@@ -100,7 +100,7 @@ class PropertyGenerator(declarationGenerator: DeclarationGenerator) : Declaratio
 
     private fun generateSimpleProperty(ktProperty: KtProperty, propertyDescriptor: PropertyDescriptor): IrProperty =
         IrPropertyImpl(
-            ktProperty.startOffset, ktProperty.endOffset,
+            ktProperty.startOffsetSkippingComments, ktProperty.endOffset,
             IrDeclarationOrigin.DEFINED,
             false,
             propertyDescriptor
