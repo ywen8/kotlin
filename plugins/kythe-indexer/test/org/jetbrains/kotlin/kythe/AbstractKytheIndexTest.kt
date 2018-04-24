@@ -12,6 +12,7 @@ import com.intellij.execution.process.ProcessOutput
 import com.intellij.execution.util.ExecUtil
 import junit.framework.TestCase
 import org.jetbrains.kotlin.analyzer.AnalysisResult
+import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.ir.AbstractIrGeneratorTestCase
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.kythe.indexer.IrBasedKytheIndexer
@@ -76,7 +77,7 @@ abstract class AbstractKytheIndexTest : AbstractIrGeneratorTestCase() {
 
     private fun generateIr() {
         analysisResult = JvmResolveUtil.analyze(myFiles.psiFiles, myEnvironment)
-        val translator = Psi2IrTranslator()
+        val translator = Psi2IrTranslator(LanguageVersionSettingsImpl.DEFAULT)
         generatorContext = translator.createGeneratorContext(analysisResult.moduleDescriptor, analysisResult.bindingContext)
         generatedIrRoot = translator.generateModuleFragment(generatorContext, myFiles.psiFiles)
     }
