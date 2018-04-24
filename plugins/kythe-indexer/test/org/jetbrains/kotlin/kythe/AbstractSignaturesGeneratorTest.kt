@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.kythe
 
 import org.jetbrains.kotlin.analyzer.AnalysisResult
+import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.ir.AbstractIrGeneratorTestCase
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.*
@@ -54,7 +55,7 @@ open class AbstractSignaturesGeneratorTest : AbstractIrGeneratorTestCase() {
 
     private fun generateIr() {
         analysisResult = JvmResolveUtil.analyze(myFiles.psiFiles, myEnvironment)
-        val translator = Psi2IrTranslator()
+        val translator = Psi2IrTranslator(LanguageVersionSettingsImpl.DEFAULT)
         generatorContext = translator.createGeneratorContext(analysisResult.moduleDescriptor, analysisResult.bindingContext)
         generatedIrRoot = translator.generateModuleFragment(generatorContext, myFiles.psiFiles)
     }
