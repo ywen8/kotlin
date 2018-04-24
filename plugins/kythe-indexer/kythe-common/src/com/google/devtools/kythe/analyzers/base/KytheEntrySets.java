@@ -122,6 +122,11 @@ public class KytheEntrySets {
     return new NodeBuilder(kind, language);
   }
 
+  public NodeBuilder newNode(NodeKind kind, VName source) {
+    getStatisticsCollector().incrementCounter("new-node-" + kind);
+    return new NodeBuilder(kind, source);
+  }
+
   /** Returns (and emits) a new builtin node. */
   public EntrySet newBuiltinAndEmit(String name) {
     return newBuiltinAndEmit(name, Optional.empty());
@@ -394,6 +399,11 @@ public class KytheEntrySets {
     public NodeBuilder(NodeKind kind, VName name) {
       super(name, null, null);
       setupNode(kind.getKind(), kind.getSubkind());
+    }
+
+    public NodeBuilder(String kind, Optional<String> subkind, VName name) {
+      super(name, null, null);
+      setupNode(kind, subkind);
     }
 
     private NodeBuilder(String kind, Optional<String> subkind, String language) {
