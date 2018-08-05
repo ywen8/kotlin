@@ -247,7 +247,8 @@ class TypeOperatorLowering(val context: JsIrBackendContext) : FileLoweringPass {
                 JsIrBuilder.buildCall(isArraySymbol).apply { putValueArgument(0, argument) }
 
             private fun generatePrimitiveArrayTypeCheck(argument: IrExpression, toType: IrType): IrExpression {
-                TODO("Implement Typed Array check")
+                val f = context.intrinsics.isPrimitiveArray[toType.getPrimitiveArrayElementType()]!!
+                return JsIrBuilder.buildCall(f).apply { putValueArgument(0, argument) }
             }
 
             private fun generateInterfaceCheck(argument: IrExpression, toType: IrType): IrExpression {

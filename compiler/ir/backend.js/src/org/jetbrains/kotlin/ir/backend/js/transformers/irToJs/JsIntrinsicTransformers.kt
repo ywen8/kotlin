@@ -95,6 +95,11 @@ class JsIntrinsicTransformers(backendContext: JsIrBackendContext) {
                 typeName.makeRef()
             }
 
+            add(intrinsics.jsClass) { call, context ->
+                val typeName = context.getNameForSymbol(call.getTypeArgument(0)!!.classifierOrFail)
+                typeName.makeRef()
+            }
+
             add(backendContext.sharedVariablesManager.closureBoxConstructorTypeSymbol) { call, context ->
                 val args = translateCallArguments(call, context)
                 val initializer = args[0]

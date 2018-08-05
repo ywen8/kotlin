@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.ir.backend.js
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
@@ -118,6 +119,17 @@ class JsIntrinsics(
     //    val isCharSymbol = getInternalFunction("isChar")
     val isObjectSymbol = getInternalFunction("isObject")
 
+    val isPrimitiveArray = mapOf(
+        PrimitiveType.BOOLEAN to getInternalFunction("isBooleanArray"),
+        PrimitiveType.BYTE to getInternalFunction("isByteArray"),
+        PrimitiveType.SHORT to getInternalFunction("isShortArray"),
+        PrimitiveType.CHAR to getInternalFunction("isCharArray"),
+        PrimitiveType.INT to getInternalFunction("isIntArray"),
+        PrimitiveType.FLOAT to getInternalFunction("isFloatArray"),
+        PrimitiveType.LONG to getInternalFunction("isLongArray"),
+        PrimitiveType.DOUBLE to getInternalFunction("isLongArray")
+    )
+
     // Other:
 
     val jsObjectCreate = defineObjectCreateIntrinsic() // Object.create
@@ -139,6 +151,10 @@ class JsIntrinsics(
         val f = getInternalFunctions("getContinuation")
         symbolTable.referenceSimpleFunction(f.single())
     }
+    val jsGetKClass = getInternalFunction("getKClass")
+    val jsGetKClassFromExpression = getInternalFunction("getKClassFromExpression")
+    val jsClass = getInternalFunction("jsClass")
+
     val jsNumberRangeToNumber = getInternalFunction("numberRangeToNumber")
     val jsNumberRangeToLong = getInternalFunction("numberRangeToLong")
 

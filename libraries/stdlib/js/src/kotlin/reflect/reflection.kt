@@ -4,6 +4,7 @@
  */
 
 // a package is omitted to get declarations directly under the module
+package kotlin.js
 
 import kotlin.reflect.KClass
 import kotlin.reflect.js.internal.*
