@@ -1,17 +1,18 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.2.60-dev-286"
+    kotlin("jvm") version "1.1.2"
 }
-group = "testgroup"
-version = "1.0-SNAPSHOT"
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
+    compile(kotlin("stdlib-jre8"))
 }
 repositories {
-    maven {
-        setUrl("https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:(id:Kotlin_dev_Compiler),number:1.2.60-dev-286,branch:default:any/artifacts/content/maven/")
-    }
     mavenCentral()
 }
 val compileKotlin: KotlinCompile by tasks

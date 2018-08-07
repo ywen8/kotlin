@@ -19,9 +19,9 @@ import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.jetbrains.kotlin.test.testFramework.runInEdtAndWait
 import org.jetbrains.kotlin.test.testFramework.runWriteAction
+import org.jetbrains.plugins.gradle.tooling.annotation.TargetVersions
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 
@@ -61,6 +61,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         )
     }
 
+    @TargetVersions("3.5")
     @Test
     fun testConfigure10() {
         val files = configureByFiles()
@@ -78,6 +79,25 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         }
     }
 
+    @TargetVersions("4.5+")
+    @Test
+    fun testConfigure1045() {
+        val files = configureByFiles()
+
+        importProject()
+
+        runInEdtAndWait {
+            runWriteAction {
+                val configurator = findGradleModuleConfigurator()
+                val collector = createConfigureKotlinNotificationCollector(myProject)
+                configurator.configureWithVersion(myProject, listOf(myTestFixture.module), "1.0.6", collector)
+
+                checkFiles(files)
+            }
+        }
+    }
+
+    @TargetVersions("3.5")
     @Test
     fun testConfigureKotlinWithPluginsBlock() {
         val files = configureByFiles()
@@ -95,6 +115,25 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         }
     }
 
+    @TargetVersions("4.5+")
+    @Test
+    fun testConfigureKotlinWithPluginsBlock45() {
+        val files = configureByFiles()
+
+        importProject()
+
+        runInEdtAndWait {
+            runWriteAction {
+                val configurator = findGradleModuleConfigurator()
+                val collector = createConfigureKotlinNotificationCollector(myProject)
+                configurator.configureWithVersion(myProject, listOf(myTestFixture.module), "1.0.6", collector)
+
+                checkFiles(files)
+            }
+        }
+    }
+
+    @TargetVersions("4.4+")
     @Test
     fun testConfigureKotlinDevVersion() {
         val files = configureByFiles()
@@ -112,6 +151,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         }
     }
 
+    @TargetVersions("4.4+")
     @Test
     fun testConfigureGradleKtsKotlinDevVersion() {
         val files = configureByFiles()
@@ -130,7 +170,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJvmWithBuildGradle() {
         val files = configureByFiles()
 
@@ -148,7 +188,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJvmWithBuildGradleKts() {
         val files = configureByFiles()
 
@@ -166,7 +206,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJvmEAPWithBuildGradle() {
         val files = configureByFiles()
 
@@ -184,7 +224,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJvmEAPWithBuildGradleKts() {
         val files = configureByFiles()
 
@@ -202,7 +242,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJsWithBuildGradle() {
         val files = configureByFiles()
 
@@ -220,7 +260,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJsWithBuildGradleKts() {
         val files = configureByFiles()
 
@@ -238,7 +278,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJsEAPWithBuildGradle() {
         val files = configureByFiles()
 
@@ -256,7 +296,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
     }
 
     @Test
-    @Ignore // Enable in Gradle 4.4+
+    @TargetVersions("4.4+")
     fun testConfigureJsEAPWithBuildGradleKts() {
         val files = configureByFiles()
 
@@ -283,8 +323,27 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         KotlinJsGradleModuleConfigurator::class.java
     )
 
+    @TargetVersions("3.5")
     @Test
     fun testConfigureGSK() {
+        val files = configureByFiles()
+
+        importProject()
+
+        runInEdtAndWait {
+            runWriteAction {
+                val configurator = findGradleModuleConfigurator()
+                val collector = createConfigureKotlinNotificationCollector(myProject)
+                configurator.configureWithVersion(myProject, listOf(myTestFixture.module), "1.1.2", collector)
+
+                checkFiles(files)
+            }
+        }
+    }
+
+    @TargetVersions("4.5+")
+    @Test
+    fun testConfigureGSK45() {
         val files = configureByFiles()
 
         importProject()
@@ -397,8 +456,37 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         }
     }
 
+    @TargetVersions("3.5")
     @Test
     fun testAddTestLibraryGSK() {
+        val files = configureByFiles()
+
+        importProject()
+
+        runInEdtAndWait {
+            myTestFixture.project.executeWriteCommand("") {
+                KotlinWithGradleConfigurator.addKotlinLibraryToModule(
+                    myTestFixture.module,
+                    DependencyScope.TEST,
+                    object : ExternalLibraryDescriptor("junit", "junit", "4.12", "4.12") {
+                        override fun getLibraryClassesRoots() = emptyList<String>()
+                    })
+
+                KotlinWithGradleConfigurator.addKotlinLibraryToModule(
+                    myTestFixture.module,
+                    DependencyScope.TEST,
+                    object : ExternalLibraryDescriptor("org.jetbrains.kotlin", "kotlin-test", "1.1.2", "1.1.2") {
+                        override fun getLibraryClassesRoots() = emptyList<String>()
+                    })
+            }
+
+            checkFiles(files)
+        }
+    }
+
+    @TargetVersions("4.5+")
+    @Test
+    fun testAddTestLibraryGSK45() {
         val files = configureByFiles()
 
         importProject()
