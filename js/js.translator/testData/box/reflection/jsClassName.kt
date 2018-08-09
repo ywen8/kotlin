@@ -24,7 +24,7 @@ fun testWithClassReference() {
 
 fun box(): String {
     testWithInstance()
- //   testWithClassReference()
+    testWithClassReference()
 
     return "OK"
 }
