@@ -91,4 +91,8 @@ class GradleUpdateConfigurationQuickFixTest : GradleImportingTestCase() {
             throw FileComparisonFailure("build.gradle doesn't match", expectedContent, actualContent, expectedPath.path)
         }
     }
+
+    override fun testDataDirName(): String {
+        return "updateQuickfix"
+    }
 }

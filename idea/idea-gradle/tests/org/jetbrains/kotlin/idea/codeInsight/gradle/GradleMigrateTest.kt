@@ -81,4 +81,8 @@ class GradleMigrateTest : GradleImportingTestCase() {
             MigrationInfo.create("1.1.0", ApiVersion.KOTLIN_1_2, LanguageVersion.KOTLIN_1_2, newStdlibVersion = "1.2.0"),
             actualMigrationInfo)
     }
+
+    override fun testDataDirName(): String {
+        return "migrate"
+    }
 }

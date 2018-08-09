@@ -26,7 +26,6 @@ import org.junit.Test
 import java.io.File
 
 class GradleConfiguratorTest : GradleImportingTestCase() {
-    private val testDir = PluginTestCaseBase.getTestDataPathBase() + "/gradle/configurator/"
 
     @Test
     fun testProjectWithModule() {
@@ -672,39 +671,7 @@ class GradleConfiguratorTest : GradleImportingTestCase() {
         }
     }
 
-    private fun configureByFiles(): List<VirtualFile> {
-        val rootDir = rootDir()
-        assert(rootDir.exists()) { "Directory ${rootDir.path} doesn't exist" }
-
-        return rootDir.walk().mapNotNull {
-            when {
-                it.isDirectory -> null
-                !it.name.endsWith(SUFFIX) -> {
-                    createProjectSubFile(it.path.substringAfter(rootDir.path + File.separator), it.readText())
-                }
-                else -> null
-            }
-        }.toList()
-    }
-
-    private fun checkFiles(files: List<VirtualFile>) {
-        FileDocumentManager.getInstance().saveAllDocuments()
-
-        files.filter {
-            it.name == GradleConstants.DEFAULT_SCRIPT_NAME
-                    || it.name == GradleConstants.KOTLIN_DSL_SCRIPT_NAME
-                    || it.name == GradleConstants.SETTINGS_FILE_NAME
-        }
-            .forEach {
-                if (it.name == GradleConstants.SETTINGS_FILE_NAME && !File(rootDir(), it.name + SUFFIX).exists()) return@forEach
-                val actualText = LoadTextUtil.loadText(it).toString()
-                KotlinTestUtils.assertEqualsToFile(File(rootDir(), it.name + SUFFIX), actualText)
-            }
-    }
-
-    private fun rootDir() = File(testDir, getTestName(true).substringBefore("_"))
-
-    companion object {
-        private val SUFFIX = ".after"
+    override fun testDataDirName(): String {
+        return "configurator"
     }
 }

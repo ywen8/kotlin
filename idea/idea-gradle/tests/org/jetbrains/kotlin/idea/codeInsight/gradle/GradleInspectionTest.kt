@@ -404,4 +404,8 @@ class GradleInspectionTest : GradleImportingTestCase() {
 
         return resultRef.get()
     }
+
+    override fun testDataDirName(): String {
+        return "inspections"
+    }
 }

@@ -78,7 +78,7 @@ class GradleFacetImportTest : GradleImportingTestCase() {
     }
 
     override fun tearDown() {
-        currentExternalProjectSettings.isCreateEmptyContentRootDirectories = isCreateEmptyContentRootDirectories
+        projectSettings.isCreateEmptyContentRootDirectories = isCreateEmptyContentRootDirectories
         super.tearDown()
     }
 
@@ -2277,6 +2277,10 @@ compileTestKotlin {
         val moduleDescriptor = resolutionFacade.moduleDescriptor
 
         Assert.assertEquals("<$expectedName>", moduleDescriptor.stableName?.asString())
+    }
+
+    override fun testDataDirName(): String {
+        return "facet"
     }
 
     private fun assertAllModulesConfigured() {

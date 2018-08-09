@@ -925,6 +925,8 @@ class MultiplatformProjectImportingTest : GradleImportingTestCase() {
         """
         )
 
+
+
         importProject()
 
         TestCase.assertEquals(
@@ -1015,5 +1017,9 @@ class MultiplatformProjectImportingTest : GradleImportingTestCase() {
             projectPath + "/project2/build/classes/test/project2_test.js",
             PathUtil.toSystemIndependentName(KotlinFacet.get(getModule("project2"))!!.configuration.settings.testOutputPath)
         )
+    }
+
+    override fun testDataDirName(): String {
+        return "multiplatform"
     }
 }
