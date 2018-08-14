@@ -99,4 +99,4 @@ internal inline fun copyArrayType(from: dynamic, to: dynamic) {
     }
 }
 
-fun jsIsType(obj: dynamic, jsClass: dynamic) = js("Kotlin").isType(obj, jsClass)
+internal inline fun jsIsType(obj: dynamic, jsClass: dynamic) = js("Kotlin").isType(obj, jsClass)

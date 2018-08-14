@@ -108,7 +108,7 @@ public fun isCharArray(a: dynamic) = js("a instanceof Uint16Array")
 public fun isIntArray(a: dynamic) = js("a instanceof Int32Array")
 public fun isFloatArray(a: dynamic) = js("a instanceof Float32Array")
 public fun isDoubleArray(a: dynamic) = js("a instanceof Float64Array")
-public fun isLongArray(a: dynamic) = isArray(a)  // FIXME: Implement
+public fun isLongArray(a: dynamic) = isArray(a)  // TODO: Implement
 
 
 internal fun jsIn(x: String, y: dynamic): Boolean = js("x in y")
@@ -138,7 +138,7 @@ public fun jsIsType(obj: dynamic, jsClass: dynamic): Boolean {
 
     var klassMetadata = jsClass.`$metadata$`
 
-    // In WebKit (JavaScriptCore) for some interfaces from DOM typeof returns "obj", nevertheless they can be used in RHS of instanceof
+    // In WebKit (JavaScriptCore) for some interfaces from DOM typeof returns "object", nevertheless they can be used in RHS of instanceof
     if (klassMetadata == null) {
         return instanceOf(obj, jsClass)
     }

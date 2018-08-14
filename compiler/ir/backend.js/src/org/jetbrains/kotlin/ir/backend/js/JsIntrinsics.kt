@@ -134,7 +134,6 @@ class JsIntrinsics(
 
     val jsObjectCreate = defineObjectCreateIntrinsic() // Object.create
     val jsSetJSField = defineSetJSPropertyIntrinsic() // till we don't have dynamic type we use intrinsic which sets a field with any name
-    val jsToJsType = defineToJsType() // creates name reference to KotlinType
     val jsCode = getInternalFunction("js") // js("<code>")
     val jsHashCode = getInternalFunction("hashCode")
     val jsGetObjectHashCode = getInternalFunction("getObjectHashCode")
@@ -151,8 +150,8 @@ class JsIntrinsics(
         val f = getInternalFunctions("getContinuation")
         symbolTable.referenceSimpleFunction(f.single())
     }
-    val jsGetKClass = getInternalFunction("getKClass")
-    val jsGetKClassFromExpression = getInternalFunction("getKClassFromExpression")
+    val jsGetKClass = getInternalWithoutPackage("getKClass")
+    val jsGetKClassFromExpression = getInternalWithoutPackage("getKClassFromExpression")
     val jsClass = getInternalFunction("jsClass")
 
     val jsNumberRangeToNumber = getInternalFunction("numberRangeToNumber")
@@ -178,28 +177,9 @@ class JsIntrinsics(
     private fun getInternalFunction(name: String) =
         context.symbolTable.referenceSimpleFunction(context.getInternalFunctions(name).single())
 
-    private fun defineToJsType(): IrSimpleFunction {
-        val desc = SimpleFunctionDescriptorImpl.create(
-            module,
-            Annotations.EMPTY,
-            Name.identifier("\$toJSType\$"),
-            CallableMemberDescriptor.Kind.SYNTHESIZED,
-            SourceElement.NO_SOURCE
-        ).apply {
+    private fun getInternalWithoutPackage(name: String) =
+        context.symbolTable.referenceSimpleFunction(context.getFunctions(FqName(name)).single())
 
-            val typeParameter = TypeParameterDescriptorImpl.createWithDefaultBound(
-                this,
-                Annotations.EMPTY,
-                false,
-                Variance.INVARIANT,
-                Name.identifier("T"),
-                0
-            )
-            initialize(null, null, listOf(typeParameter), emptyList(), builtIns.anyType, Modality.FINAL, Visibilities.PUBLIC)
-        }
-
-        return stubBuilder.generateFunctionStub(desc)
-    }
 
     // TODO: unify how we create intrinsic symbols
     private fun defineObjectCreateIntrinsic(): IrSimpleFunction {
