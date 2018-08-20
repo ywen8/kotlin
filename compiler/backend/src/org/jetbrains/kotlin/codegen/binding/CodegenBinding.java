@@ -183,7 +183,7 @@ public class CodegenBinding {
         MutableClosure closure = new MutableClosure(classDescriptor, enclosing);
 
         if (classDescriptor.isInner()) {
-            closure.setCaptureThis();
+            closure.setNeedsCaptureOuterClass();
         }
 
         trace.record(ASM_TYPE, classDescriptor, asmType);

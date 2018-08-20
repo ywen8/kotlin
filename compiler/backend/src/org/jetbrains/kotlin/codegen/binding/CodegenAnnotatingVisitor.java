@@ -400,7 +400,7 @@ class CodegenAnnotatingVisitor extends KtVisitorVoid {
         }
 
         if (receiverType != null) {
-            closure.setCaptureReceiverType(receiverType);
+            closure.setCustomCapturedReceiverType(receiverType);
         }
 
         super.visitCallableReferenceExpression(expression);
