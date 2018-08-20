@@ -21,7 +21,7 @@ public final class test/TopLevel$InnerObject {
 
 @kotlin.Metadata
 public final class test/TopLevel$NestedClass$NestedInnerClass {
-    synthetic final field this$0: test.TopLevel$NestedClass
+    synthetic final field $this: test.TopLevel$NestedClass
     inner class test/TopLevel$NestedClass
     inner class test/TopLevel$NestedClass$NestedInnerClass
     public method <init>(p0: test.TopLevel$NestedClass): void

@@ -493,7 +493,8 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
         }
         KotlinType captureReceiverType = closure.getCapturedReceiverFromOuterContext();
         if (captureReceiverType != null) {
-            args.add(FieldInfo.createForHiddenField(ownerType, typeMapper.mapType(captureReceiverType), CAPTURED_RECEIVER_FIELD));
+            String fieldName = closure.getCapturedReceiverLabel(typeMapper.getBindingContext());
+            args.add(FieldInfo.createForHiddenField(ownerType, typeMapper.mapType(captureReceiverType), fieldName));
         }
 
         for (EnclosedValueDescriptor enclosedValueDescriptor : closure.getCaptureVariables().values()) {

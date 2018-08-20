@@ -325,6 +325,8 @@ class CodegenAnnotatingVisitor extends KtVisitorVoid {
         // working around a problem with shallow analysis
         if (functionDescriptor == null) return;
 
+        CodegenUtilKt.recordCallLabelForLambdaArgument(lambdaExpression.getFunctionLiteral(), bindingTrace);
+
         String name = inventAnonymousClassName();
         Collection<KotlinType> supertypes = runtimeTypes.getSupertypesForClosure(functionDescriptor);
         ClassDescriptor classDescriptor = recordClassForCallable(functionLiteral, functionDescriptor, supertypes, name);

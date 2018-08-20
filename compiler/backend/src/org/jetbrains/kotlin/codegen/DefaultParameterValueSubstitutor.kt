@@ -37,9 +37,9 @@ import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
  * parameter values substituted.
  */
 class DefaultParameterValueSubstitutor(val state: GenerationState) {
-    private companion object {
+    companion object {
         // rename -> JvmOverloads
-        private val ANNOTATION_TYPE_DESCRIPTOR_FOR_JVM_OVERLOADS_GENERATED_METHODS: String =
+        val ANNOTATION_TYPE_DESCRIPTOR_FOR_JVM_OVERLOADS_GENERATED_METHODS: String =
             Type.getObjectType("synthetic/kotlin/jvm/GeneratedByJvmOverloads").descriptor
     }
 
@@ -149,7 +149,7 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
 
         if (!state.classBuilderMode.generateBodies) {
             FunctionCodegen.generateLocalVariablesForParameters(
-                mv, signature, null, Label(), Label(), remainingParameters, isStatic, typeMapper
+                mv, signature, functionDescriptor, null, Label(), Label(), remainingParameters, isStatic, typeMapper
             )
             mv.visitEnd()
             return
@@ -234,7 +234,7 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
         mv.visitLabel(methodEnd)
 
         FunctionCodegen.generateLocalVariablesForParameters(
-            mv, signature, null, methodBegin, methodEnd, remainingParameters, isStatic, typeMapper
+            mv, signature, functionDescriptor, null, methodBegin, methodEnd, remainingParameters, isStatic, typeMapper
         )
 
         FunctionCodegen.endVisit(mv, null, methodElement)
