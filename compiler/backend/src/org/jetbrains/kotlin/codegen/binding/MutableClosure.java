@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.codegen.AsmUtil;
 import org.jetbrains.kotlin.codegen.context.EnclosedValueDescriptor;
 import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.name.NameUtils;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.org.objectweb.asm.Type;
@@ -105,7 +106,11 @@ public final class MutableClosure implements CalculatedClosure {
             // Should effectively be returned only for callable references
             return AsmUtil.CAPTURED_RECEIVER_FIELD;
         } else if (enclosingFunWithReceiverDescriptor != null) {
-            return AsmUtil.getCapturedFieldName(AsmUtil.getLabeledThisNameForCallable(enclosingFunWithReceiverDescriptor, bindingContext));
+            if (!NameUtils.hasName(enclosingFunWithReceiverDescriptor.getName())) {
+                return AsmUtil.CAPTURED_THIS_FIELD;
+            }
+            String labeledThis = AsmUtil.getLabeledThisNameForCallable(enclosingFunWithReceiverDescriptor, bindingContext);
+            return AsmUtil.getCapturedFieldName(labeledThis);
         } else {
             throw new IllegalStateException("Closure does not capture an outer receiver");
         }
