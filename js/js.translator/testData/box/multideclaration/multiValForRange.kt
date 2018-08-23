@@ -1,5 +1,5 @@
-// IGNORE_BACKEND: JS_IR
 // EXPECTED_REACHABLE_NODES: 1236
+>>>>>>> [JS IR BE] Unmute tests after adding stdlib
 package foo
 
 class C(val i: Int) : Comparable<C>, A() {
