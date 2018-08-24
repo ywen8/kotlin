@@ -75,9 +75,9 @@ class SimpleNameGenerator : NameGenerator {
         // global identifiers usually declared in a typical JS interpreter
         "NaN", "isNaN", "Infinity", "undefined",
 
-        "Error", "Object",
+        "Error", "Object", "Number",
 
-        // "Math", "String", "Number", "Boolean", "Date", "Array", "RegExp", "JSON",
+        // "Math", "String", "Boolean", "Date", "Array", "RegExp", "JSON",
 
         // global identifiers usually declared in know environments (node.js, browser, require.js, WebWorkers, etc)
         // "require", "define", "module", "window", "self",

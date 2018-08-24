@@ -167,11 +167,11 @@ private class ReplaceThisByStaticReference(
 ) : IrElementTransformer<Nothing?> {
     override fun visitGetValue(expression: IrGetValue, data: Nothing?): IrExpression {
         if (expression.symbol == oldThisReceiverParameter.symbol) {
-            val instanceSymbol = context.declarationFactory.getFieldForObjectInstance(irClass)
+            val instanceField = context.declarationFactory.getFieldForObjectInstance(irClass)
             return IrGetFieldImpl(
                 expression.startOffset,
                 expression.endOffset,
-                instanceSymbol.symbol,
+                instanceField.symbol,
                 irClass.defaultType
             )
         }
