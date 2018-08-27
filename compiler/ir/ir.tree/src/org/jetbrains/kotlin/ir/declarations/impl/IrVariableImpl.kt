@@ -55,7 +55,6 @@ class IrVariableImpl(
         isLateinit = symbol.descriptor.isLateInit
     )
 
-    @Deprecated("Use constructor which takes symbol instead of descriptor")
     constructor(
         startOffset: Int,
         endOffset: Int,
@@ -64,7 +63,6 @@ class IrVariableImpl(
         type: IrType
     ) : this(startOffset, endOffset, origin, IrVariableSymbolImpl(descriptor), type)
 
-    @Deprecated("Use constructor which takes symbol instead of descriptor")
     constructor(
         startOffset: Int,
         endOffset: Int,

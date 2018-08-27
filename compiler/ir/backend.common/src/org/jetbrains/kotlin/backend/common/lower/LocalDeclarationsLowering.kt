@@ -596,11 +596,8 @@ class LocalDeclarationsLowering(
 
             newDeclaration.parent = localClassContext.declaration
             newDeclaration.returnType = oldDeclaration.returnType
-            newDeclaration.dispatchReceiverParameter = oldDeclaration.dispatchReceiverParameter?.run {
-                copyTo(newDeclaration).also {
-                    newParameterToOld.putAbsentOrSame(it, this)
-                }
-            }
+            // TODO: should dispatch receiver be copied?
+            newDeclaration.dispatchReceiverParameter = oldDeclaration.dispatchReceiverParameter
             newDeclaration.extensionReceiverParameter = oldDeclaration.extensionReceiverParameter?.run {
                 throw AssertionError("constructors can't have extension receiver")
             }

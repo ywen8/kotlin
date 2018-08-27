@@ -158,7 +158,6 @@ fun IrFunction.createParameterDeclarations() {
 
     assert(valueParameters.isEmpty())
     descriptor.valueParameters.mapTo(valueParameters) { it.irValueParameter() }
-//    valueParameters.mapTo(valueParameters) { it.descriptor.irValueParameter() }
 
     assert(typeParameters.isEmpty())
     descriptor.typeParameters.mapTo(typeParameters) {
@@ -338,7 +337,7 @@ fun IrDeclaration.isEffectivelyExternal(): Boolean {
     }
 }
 
-val IrDeclaration.isDynamic get() = this is IrFunction && dispatchReceiverParameter?.type is IrDynamicType
+fun IrDeclaration.isDynamic() = this is IrFunction && dispatchReceiverParameter?.type is IrDynamicType
 
 fun IrValueParameter.copy(newDescriptor: ParameterDescriptor): IrValueParameter {
     assert(this.descriptor.type == newDescriptor.type)
