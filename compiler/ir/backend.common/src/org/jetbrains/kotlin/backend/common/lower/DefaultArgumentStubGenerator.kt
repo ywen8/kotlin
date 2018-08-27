@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.backend.common.descriptors.WrappedValueParameterDesc
 import org.jetbrains.kotlin.backend.common.descriptors.synthesizedName
 import org.jetbrains.kotlin.backend.common.ir.copyTo
 import org.jetbrains.kotlin.backend.common.ir.ir2string
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -377,7 +378,7 @@ private fun IrFunction.generateDefaultsFunctionImpl(context: CommonBackendContex
     val newTypeParameters = typeParameters.map { it.copyTo(newFunction) }
 
     newFunction.returnType = returnType
-    newFunction.dispatchReceiverParameter = dispatchReceiverParameter?.copyTo(newFunction)
+    newFunction.dispatchReceiverParameter = dispatchReceiverParameter/*?.copyTo(newFunction)*/
     newFunction.extensionReceiverParameter = extensionReceiverParameter?.copyTo(newFunction)
     newFunction.valueParameters += newValueParameters
     newFunction.typeParameters += newTypeParameters
@@ -399,7 +400,7 @@ private fun buildFunctionDeclaration(irFunction: IrFunction): IrFunction {
                 irFunction.name,
                 irFunction.visibility,
                 irFunction.isInline,
-                irFunction.isExternal,
+                false,
                 false
             ).also {
                 descriptor.bind(it)
@@ -417,10 +418,10 @@ private fun buildFunctionDeclaration(irFunction: IrFunction): IrFunction {
                 IrSimpleFunctionSymbolImpl(descriptor),
                 name,
                 irFunction.visibility,
-                irFunction.modality,
+                Modality.FINAL,
                 irFunction.isInline,
-                irFunction.isExternal,
-                irFunction.isTailrec,
+                false,
+                false,
                 irFunction.isSuspend
             ).also {
                 descriptor.bind(it)

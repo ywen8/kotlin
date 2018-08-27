@@ -331,7 +331,6 @@ fun IrCall.isSuperToAny() = superQualifier?.let { this.symbol.owner.isFakeOverri
 
 fun IrDeclaration.isEffectivelyExternal(): Boolean {
     return when (this) {
-        is IrConstructor -> isExternal || parent is IrDeclaration && parent.isEffectivelyExternal()
         is IrFunction -> isExternal || parent is IrDeclaration && parent.isEffectivelyExternal()
         is IrField -> isExternal || parent is IrDeclaration && parent.isEffectivelyExternal()
         is IrClass -> isExternal || parent is IrDeclaration && parent.isEffectivelyExternal()
