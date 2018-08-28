@@ -295,7 +295,7 @@ open class WrappedClassConstructorDescriptor(
     override fun getContainingDeclaration() = (owner.parent as IrClass).descriptor
 
     override fun getDispatchReceiverParameter() = owner.dispatchReceiverParameter?.run {
-        containingDeclaration.thisAsReceiverParameter
+        (containingDeclaration.containingDeclaration as ClassDescriptor).thisAsReceiverParameter
     }
     override fun getTypeParameters() = owner.typeParameters.map { it.descriptor }
     override fun getValueParameters() = owner.valueParameters.asSequence()
