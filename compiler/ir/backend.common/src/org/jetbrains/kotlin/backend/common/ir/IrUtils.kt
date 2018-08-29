@@ -170,7 +170,11 @@ fun IrTypeParameter.copyTo(irFunction: IrFunction, shift: Int = 0): IrTypeParame
 fun IrFunction.copyParameterDeclarationsFrom(from: IrFunction) {
 
     // TODO: should dispatch receiver be copied?
-    dispatchReceiverParameter = from.dispatchReceiverParameter
+    dispatchReceiverParameter = from.dispatchReceiverParameter?.let {
+        IrValueParameterImpl(it.startOffset, it.endOffset, it.origin, it.descriptor, it.type, it.varargElementType).also {
+            it.parent = this
+        }
+    }
     extensionReceiverParameter = from.extensionReceiverParameter?.copyTo(this)
 
     val shift = valueParameters.size

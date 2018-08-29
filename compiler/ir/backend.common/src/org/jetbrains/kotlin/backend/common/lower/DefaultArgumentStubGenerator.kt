@@ -378,7 +378,9 @@ private fun IrFunction.generateDefaultsFunctionImpl(context: CommonBackendContex
     val newTypeParameters = typeParameters.map { it.copyTo(newFunction) }
 
     newFunction.returnType = returnType
-    newFunction.dispatchReceiverParameter = dispatchReceiverParameter/*?.copyTo(newFunction)*/
+    newFunction.dispatchReceiverParameter = dispatchReceiverParameter?.run {
+        IrValueParameterImpl(startOffset, endOffset, origin, descriptor, type, varargElementType).also { it.parent = newFunction }
+    }
     newFunction.extensionReceiverParameter = extensionReceiverParameter?.copyTo(newFunction)
     newFunction.valueParameters += newValueParameters
     newFunction.typeParameters += newTypeParameters
