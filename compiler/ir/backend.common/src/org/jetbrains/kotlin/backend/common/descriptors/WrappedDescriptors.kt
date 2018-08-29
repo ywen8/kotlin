@@ -451,7 +451,7 @@ open class WrappedClassDescriptor(
     override fun isActual() = false
 
     private val _typeConstructor: TypeConstructor by lazy {
-        ClassTypeConstructorImpl(this, emptyList(), emptyList(), LockBasedStorageManager.NO_LOCKS)
+        ClassTypeConstructorImpl(this, emptyList(), owner.superTypes.map { it.toKotlinType() }, LockBasedStorageManager.NO_LOCKS)
     }
 
     override fun getTypeConstructor(): TypeConstructor = _typeConstructor
