@@ -82,6 +82,10 @@ open class UninitializedPropertyAccessException(message: String?, cause: Throwab
     constructor(cause: Throwable?) : this(undefined, cause)
 }
 
+@SinceKotlin("1.3")
+open class ArithmeticException constructor(message: String?) : RuntimeException(message) {
+    constructor() : this(null)
+}
 
 // TODO: fix function names to satisfy style convention (depends on built-in names)
 fun THROW_ISE() {

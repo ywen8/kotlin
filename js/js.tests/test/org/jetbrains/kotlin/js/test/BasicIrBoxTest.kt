@@ -33,6 +33,14 @@ private val runtimeSources = listOfKtFilesFrom(
 
     BasicBoxTest.COMMON_FILES_DIR_PATH
 ) - listOfKtFilesFrom(
+    "libraries/stdlib/src/kotlin/random/Random.kt",
+
+    "libraries/stdlib/common/src/generated/_UArrays.kt",
+    "libraries/stdlib/common/src/generated/_URanges.kt",
+
+
+    "libraries/stdlib/js/src/kotlin/random/PlatformRandom.kt",
+
     // TODO: Unify exceptions
     "libraries/stdlib/common/src/kotlin/ExceptionsH.kt",
 
