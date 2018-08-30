@@ -13,7 +13,9 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.types.toKotlinType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
+import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.resolve.scopes.TypeIntersectionScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.types.*
@@ -135,26 +137,25 @@ open class WrappedTypeParameterDescriptor(
 
     override fun getUpperBounds() = owner.superTypes.map { it.toKotlinType() }
 
-    override fun getTypeConstructor(): TypeConstructor {
-        return object : TypeConstructor {
-            override fun getParameters(): List<TypeParameterDescriptor> {
-                TODO("not implemented")
-            }
+    private val _typeConstryuctor: TypeConstructor by lazy {
+        object : AbstractTypeConstructor(LockBasedStorageManager.NO_LOCKS) {
+            override fun computeSupertypes() = upperBounds
 
-            override fun getSupertypes() = upperBounds
+            override val supertypeLoopChecker = SupertypeLoopChecker.EMPTY
+
+            override fun getParameters() = emptyList()
 
             override fun isFinal() = false
 
-            override fun isDenotable() = false
+            override fun isDenotable() = true
 
-            override fun getDeclarationDescriptor() = owner.descriptor
+            override fun getDeclarationDescriptor() = this@WrappedTypeParameterDescriptor
 
-            override fun getBuiltIns(): KotlinBuiltIns {
-                TODO("not implemented")
-            }
-
+            override fun getBuiltIns() = module.builtIns
         }
     }
+
+    override fun getTypeConstructor() = _typeConstryuctor
 
     override fun getOriginal() = this
 
@@ -162,9 +163,17 @@ open class WrappedTypeParameterDescriptor(
 
     override fun isCapturedFromOuterDeclaration() = false
 
-    override fun getDefaultType(): SimpleType {
-        TODO("not implemented")
+    private val _defaultType: SimpleType by lazy {
+        KotlinTypeFactory.simpleTypeWithNonTrivialMemberScope(
+            Annotations.EMPTY, typeConstructor, emptyList(), false,
+            TypeIntersectionScope.create(
+                "Scope for type parameter " + name.asString(),
+                upperBounds
+            )
+        )
     }
+
+    override fun getDefaultType() = _defaultType
 
     override fun getContainingDeclaration() = (owner.parent as IrDeclaration).descriptor
 
