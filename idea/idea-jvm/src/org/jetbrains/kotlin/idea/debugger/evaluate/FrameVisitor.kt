@@ -134,6 +134,13 @@ class FrameVisitor(val context: EvaluationContextImpl) {
             }
         }
 
+        // Captured labeled 'this'
+        frame.visibleVariables()
+            .filter { it.name().startsWith(AsmUtil.LABELED_THIS_FIELD) }
+            .takeIf { it.isNotEmpty() }
+            ?.maxBy { it.variable }
+            ?.let { return frame.getValue(it).asValue() }
+
         val thisObject = frame.thisObject()
         if (thisObject != null) {
             val eval4jValue = thisObject.asValue()
