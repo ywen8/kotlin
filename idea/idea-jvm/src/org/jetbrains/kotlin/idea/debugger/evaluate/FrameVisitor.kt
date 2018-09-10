@@ -19,14 +19,17 @@ package org.jetbrains.kotlin.idea.debugger.evaluate
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.openapi.diagnostic.Attachment
+import com.intellij.patterns.uast.capture
 import com.sun.jdi.ClassType
 import com.sun.jdi.InvalidStackFrameException
 import com.sun.jdi.ObjectReference
+import com.sun.jdi.StackFrame
 import org.jetbrains.eval4j.Value
 import org.jetbrains.eval4j.jdi.asJdiValue
 import org.jetbrains.eval4j.jdi.asValue
 import org.jetbrains.eval4j.obj
 import org.jetbrains.kotlin.codegen.AsmUtil
+import org.jetbrains.kotlin.codegen.inline.CAPTURED_FIELD_PREFIX
 import org.jetbrains.kotlin.codegen.inline.INLINE_FUN_VAR_SUFFIX
 import org.jetbrains.kotlin.codegen.inline.INLINE_TRANSFORMATION_SUFFIX
 import org.jetbrains.kotlin.codegen.inline.NUMBERED_FUNCTION_PREFIX
@@ -49,12 +52,12 @@ class FrameVisitor(val context: EvaluationContextImpl) {
     }
 
     fun findValue(name: String, asmType: Type?, checkType: Boolean, failIfNotFound: Boolean): Value? {
-        if (frame == null) return null
+        val frame = this.frame?.stackFrame ?: return null
 
         try {
             when (name) {
                 THIS_NAME -> {
-                    val thisValue = findThis(asmType)
+                    val thisValue = findThis(frame, asmType)
                     if (thisValue != null) {
                         return thisValue
                     }
@@ -125,8 +128,8 @@ class FrameVisitor(val context: EvaluationContextImpl) {
         throw EvaluateExceptionUtil.createEvaluateException(message)
     }
 
-    private fun findThis(asmType: Type?): Value? {
-        if (isInsideInlineFunctionBody(frame!!.visibleVariables())) {
+    private fun findThis(frame: StackFrame, asmType: Type?): Value? {
+        if (isInsideInlineFunctionBody(frame.visibleVariables())) {
             val number = numberOfInlinedFunctions(frame.visibleVariables())
             val inlineFunVar = findLocalVariableForInlineArgument("this_", number, asmType, true)
             if (inlineFunVar != null) {
@@ -138,7 +141,7 @@ class FrameVisitor(val context: EvaluationContextImpl) {
         frame.visibleVariables()
             .filter { it.name().startsWith(AsmUtil.LABELED_THIS_FIELD) }
             .takeIf { it.isNotEmpty() }
-            ?.maxBy { it.variable }
+            ?.maxBy { it }
             ?.let { return frame.getValue(it).asValue() }
 
         val thisObject = frame.thisObject()
@@ -147,12 +150,17 @@ class FrameVisitor(val context: EvaluationContextImpl) {
             if (isValueOfCorrectType(eval4jValue, asmType, true)) return eval4jValue
         }
 
+        frame.thisObject()?.let { findThisInCapturedThis(it, asmType) }?.let { return it }
+
+        // TODO this is probably not needed anymore (covered by 'findThisInCapturedThis')
         val receiver = findValue(RECEIVER_NAME, asmType, checkType = true, failIfNotFound = false)
         if (receiver != null) return receiver
 
+        // TODO this is probably not needed anymore (covered by 'findThisInCapturedThis')
         val this0 = findValue(AsmUtil.CAPTURED_THIS_FIELD, asmType, checkType = true, failIfNotFound = false)
         if (this0 != null) return this0
 
+        // TODO this is probably not needed anymore (used only in JS)
         val `$this` = findValue("\$this", asmType, checkType = false, failIfNotFound = false)
         if (`$this` != null) return `$this`
 
@@ -165,6 +173,27 @@ class FrameVisitor(val context: EvaluationContextImpl) {
 
     private fun findLocalVariableForInlineArgument(name: String, number: Int, asmType: Type?, checkType: Boolean): Value? {
         return findLocalVariable(name + INLINE_FUN_VAR_SUFFIX.repeat(number), asmType, checkType)
+    }
+
+    private fun findThisInCapturedThis(capturedThis: ObjectReference, asmType: Type?): Value? {
+        for (field in capturedThis.referenceType().fields()) {
+            val name = field.name()
+            if (name == AsmUtil.CAPTURED_THIS_FIELD) {
+                val value = capturedThis.getValue(field)
+                if (value is ObjectReference) {
+                    findThisInCapturedThis(value, asmType)?.let { return it }
+                }
+            } else if (name.startsWith(CAPTURED_FIELD_PREFIX + AsmUtil.LABELED_THIS_FIELD) || name == AsmUtil.CAPTURED_RECEIVER_FIELD) {
+                val value = capturedThis.getValue(field)
+                val evalValue = value.asValue()
+
+                if (isValueOfCorrectType(evalValue, asmType, true)) {
+                    return evalValue
+                }
+            }
+        }
+
+        return null
     }
 
     private fun isFunctionType(type: Type?): Boolean {
