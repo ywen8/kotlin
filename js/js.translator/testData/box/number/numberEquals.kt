@@ -1,3 +1,5 @@
+// !LANGUAGE: +ProperIeee754Comparisons
+// IGNORE_BACKEND: JS
 // EXPECTED_REACHABLE_NODES: 1112
 package foo
 
@@ -49,7 +51,7 @@ fun box(): String {
 
     val nullableRes = testNullable()
     if (nullableRes != "OK")
-        return nullableRes
+        return "Nullable" + nullableRes
 
     return "OK"
 }
