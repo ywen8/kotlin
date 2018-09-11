@@ -508,16 +508,26 @@ internal class DeepCopyIrTreeWithDescriptors(val targetDescriptor: FunctionDescr
 
         //---------------------------------------------------------------------//
 
-        override fun visitFunction(declaration: IrFunction): IrFunction =
-            IrFunctionImpl(
+        override fun visitFunction(declaration: IrFunction): IrFunction {
+
+            val newDescriptor = mapFunctionDeclaration(declaration.descriptor)
+
+            context.symbolTable.enterScope(newDescriptor)
+
+            val newFunction = IrFunctionImpl(
                 startOffset = declaration.startOffset,
-                endOffset   = declaration.endOffset,
-                origin      = mapDeclarationOrigin(declaration.origin),
-                descriptor  = mapFunctionDeclaration(declaration.descriptor),
-                body        = declaration.body?.transform(this, null)
+                endOffset = declaration.endOffset,
+                origin = mapDeclarationOrigin(declaration.origin),
+                descriptor = newDescriptor,
+                body = declaration.body?.transform(this, null)
             ).also {
                 it.setOverrides(context.symbolTable)
             }.transformParameters(declaration)
+
+            context.symbolTable.leaveScope(newDescriptor)
+
+            return newFunction
+        }
 
         //---------------------------------------------------------------------//
 
