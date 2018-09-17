@@ -503,7 +503,7 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
             lhs.isNullConst() || rhs.isNullConst() ->
                 irCall(call, intrinsics.jsEqeq.symbol)
 
-            // For non-float primitives of the same type use JS `==` since it works as needed for
+            // For non-float primitives of the same type use JS `==`
             isLhsPrimitive && lhsJsType == rhsJsType && lhsJsType != PrimitiveType.FLOATING_POINT_NUMBER ->
                 irCall(call, intrinsics.jsEqeq.symbol)
 
@@ -532,7 +532,7 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
             function.isMethodOfPrimitiveJSType() || function.isFakeOverriddenFromComparable() ->
                 irCall(call, intrinsics.jsCompareTo, dispatchReceiverAsFirstArgument = true)
 
-            // Valid `equals` method must be present at this point
+            // Valid `compareTo` method must be present at this point
             else ->
                 call
         }

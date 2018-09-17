@@ -24,7 +24,7 @@ fun compareTo(a: dynamic, b: dynamic): Int {
 }
 
 // TODO: Use @DoNotIntrincify annotation
-fun <T : Comparable<T>> compareToDoNotIntrinsicify(a: Comparable<T>, b: T) =
+private fun <T : Comparable<T>> compareToDoNotIntrinsicify(a: Comparable<T>, b: T) =
     a.compareTo(b)
 
 fun primitiveCompareTo(a: dynamic, b: dynamic): Int =
