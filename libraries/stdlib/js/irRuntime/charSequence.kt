@@ -10,7 +10,7 @@ internal annotation class DoNotIntrinsify
 @PublishedApi
 @DoNotIntrinsify
 internal fun charSequenceGet(a: CharSequence, index: Int): Char {
-    return  if (a is String) {
+    return if (a is String) {
         Char(a.asDynamic().charCodeAt(index).unsafeCast<Int>())
     } else {
         a[index]
@@ -21,7 +21,7 @@ internal fun charSequenceGet(a: CharSequence, index: Int): Char {
 @DoNotIntrinsify
 internal fun charSequenceLength(a: CharSequence): Int {
     return if (a is String) {
-        a.asDynamic().length.unsafeCast<Int>()
+        js("a.length").unsafeCast<Int>()
     } else {
         a.length
     }
