@@ -258,6 +258,9 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
 
             put(Name.identifier("compareTo"), ::transformCompareToMethodCall)
             put(Name.identifier("equals"), ::transformEqualsMethodCall)
+
+            put(Name.identifier("enumValueOfIntrinsic"), ::transformEnumValueOfIntrinsic)
+            put(Name.identifier("enumValuesIntrinsic"), ::transformEnumValuesIntrinsic)
         }
 
         dynamicCallOriginToIrFunction.run {
@@ -599,6 +602,29 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
             isArray() || isAny() || isNullable() || this is IrDynamicType || isString()
         }
     }
+
+    private fun transformEnumTopLevelIntrinsic(
+        call: IrCall,
+        staticMethodPredicate: (IrSimpleFunction) -> Boolean
+    ): IrExpression {
+        val enum = call.getTypeArgument(0)?.getClass() ?: return call
+        if (!enum.isEnumClass) return call
+        enum.findDeclaration(staticMethodPredicate)?.let {
+            return irCall(call, it.symbol)
+        }
+        return call
+    }
+
+    private fun transformEnumValueOfIntrinsic(call: IrCall) = transformEnumTopLevelIntrinsic(call) {
+        it.name == Name.identifier("valueOf") &&
+                it.valueParameters.count() == 1 &&
+                it.valueParameters[0].type.isString()
+    }
+
+    private fun transformEnumValuesIntrinsic(call: IrCall) = transformEnumTopLevelIntrinsic(call) {
+        it.name == Name.identifier("values") && it.valueParameters.count() == 0
+    }
+
 }
 
 enum class PrimitiveType {
