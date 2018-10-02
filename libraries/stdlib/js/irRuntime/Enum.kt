@@ -5,6 +5,8 @@
 
 package kotlin
 
+import kotlin.js.*
+
 abstract class Enum<E : Enum<E>>(val name: String, val ordinal: Int) : Comparable<E> {
 
     override fun compareTo(other: E) = ordinal.compareTo(other.ordinal)
@@ -20,7 +22,6 @@ abstract class Enum<E : Enum<E>>(val name: String, val ordinal: Int) : Comparabl
 
 // Use non-inline calls to enumValuesIntrinsic and enumValueOfIntrinsic calls in order
 // for compiler to replace them with method calls of concrete enum classes after inlining.
-// This is temporary solution that pollutes public API.
 // TODO: Figure out better solution (Inline hacks? Dynamic calls to stable mangled names?)
 
 @SinceKotlin("1.1")
@@ -28,9 +29,3 @@ public inline fun <reified T : Enum<T>> enumValues(): Array<T> = enumValuesIntri
 
 @SinceKotlin("1.1")
 public inline fun <reified T : Enum<T>> enumValueOf(name: String): T = enumValueOfIntrinsic<T>(name)
-
-public fun <T : Enum<T>> enumValuesIntrinsic(): Array<T> =
-    throw IllegalStateException("Should be replaced by compiler")
-
-public fun <T : Enum<T>> enumValueOfIntrinsic(name: String): T =
-    throw IllegalStateException("Should be replaced by compiler")
