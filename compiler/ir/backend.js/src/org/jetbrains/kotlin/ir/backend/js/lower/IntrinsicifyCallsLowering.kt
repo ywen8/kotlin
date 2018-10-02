@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.ir.JsIrBuilder
 import org.jetbrains.kotlin.ir.backend.js.ir.irCall
+import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.isStatic
 import org.jetbrains.kotlin.ir.backend.js.utils.ConversionNames
 import org.jetbrains.kotlin.ir.backend.js.utils.Namer
 import org.jetbrains.kotlin.ir.backend.js.utils.OperatorNames
@@ -164,6 +165,8 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
             add(intrinsics.charSequenceLengthPropertyGetterSymbol, intrinsics.jsCharSequenceLength.owner, true)
             add(intrinsics.charSequenceGetFunctionSymbol, intrinsics.jsCharSequenceGet.owner, true)
             add(intrinsics.charSequenceSubSequenceFunctionSymbol, intrinsics.jsCharSequenceSubSequence.owner, true)
+            add(intrinsics.enumValueOfIntrinsic, ::transformEnumValueOfIntrinsic)
+            add(intrinsics.enumValuesIntrinsic, ::transformEnumValuesIntrinsic)
         }
 
         memberToTransformer.run {
@@ -259,8 +262,6 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
             put(Name.identifier("compareTo"), ::transformCompareToMethodCall)
             put(Name.identifier("equals"), ::transformEqualsMethodCall)
 
-            put(Name.identifier("enumValueOfIntrinsic"), ::transformEnumValueOfIntrinsic)
-            put(Name.identifier("enumValuesIntrinsic"), ::transformEnumValuesIntrinsic)
         }
 
         dynamicCallOriginToIrFunction.run {
@@ -609,10 +610,11 @@ class IntrinsicifyCallsLowering(private val context: JsIrBackendContext) : FileL
     ): IrExpression {
         val enum = call.getTypeArgument(0)?.getClass() ?: return call
         if (!enum.isEnumClass) return call
-        enum.findDeclaration(staticMethodPredicate)?.let {
-            return irCall(call, it.symbol)
-        }
-        return call
+        val staticMethod = enum.findDeclaration(staticMethodPredicate)
+        if (staticMethod == null || !staticMethod.isStatic)
+            throw IllegalStateException("Enum class should have static method for ${call.symbol.owner.name}")
+
+        return irCall(call, staticMethod.symbol)
     }
 
     private fun transformEnumValueOfIntrinsic(call: IrCall) = transformEnumTopLevelIntrinsic(call) {
