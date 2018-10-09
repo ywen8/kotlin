@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.js.test
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 import jdk.nashorn.api.scripting.ScriptObjectMirror
-import jdk.nashorn.internal.runtime.ScriptRuntime
 import org.junit.Assert
 import javax.script.Invocable
 import javax.script.ScriptEngine
@@ -69,7 +68,7 @@ fun ScriptEngine.runAndRestoreContext(
 
 
         diff.forEach {
-            globalObject.put(it.key, before[it.key] ?: ScriptRuntime.UNDEFINED)
+            globalObject.put(it.key, before[it.key])
         }
     }
 }

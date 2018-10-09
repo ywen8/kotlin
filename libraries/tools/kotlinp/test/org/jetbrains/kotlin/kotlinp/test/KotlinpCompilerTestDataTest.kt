@@ -12,7 +12,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
-import kotlin.coroutines.experimental.buildSequence
 
 @RunWith(Parameterized::class)
 class KotlinpCompilerTestDataTest(private val file: File) {
@@ -41,7 +40,7 @@ class KotlinpCompilerTestDataTest(private val file: File) {
                 "compiler/testData/serialization/builtinsSerializer"
             )
 
-            return buildSequence<Array<*>> {
+            return sequence<Array<*>> {
                 for (baseDir in baseDirs) {
                     for (file in File(baseDir).walkTopDown()) {
                         if (file.extension == "kt") {

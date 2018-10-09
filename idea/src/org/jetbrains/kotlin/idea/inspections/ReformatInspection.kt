@@ -31,10 +31,10 @@ import org.jetbrains.kotlin.idea.formatter.collectFormattingChanges
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.psi.KtFile
 import javax.swing.JComponent
-import javax.xml.bind.annotation.XmlAttribute
+//import javax.xml.bind.annotation.XmlAttribute
 
 class ReformatInspection : LocalInspectionTool() {
-    @XmlAttribute
+//    @XmlAttribute
     var processChangedFilesOnly: Boolean = false
 
     override fun runForWholeFile(): Boolean = true
