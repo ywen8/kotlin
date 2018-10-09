@@ -43,11 +43,34 @@
         <option value="$PROJECT_DIR$/libraries/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/libraries/examples/browser-example-with-library/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/examples/browser-example/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/examples/js-example/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/examples/kotlin-java-example/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/examples/kotlin-js-library-example/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/idl2k/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-annotation-processing-maven/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-allopen/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-noarg/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-plugin-test/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-plugin/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-sam-with-receiver/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-maven-serialization/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/kotlin-osgi-bundle/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/maven-archetypes/kotlin-archetype-js/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/maven-archetypes/kotlin-archetype-jvm/pom.xml" />
+        <option value="$PROJECT_DIR$/libraries/tools/maven-archetypes/pom.xml" />
+      </set>
+    </option>
   </component>
   <component name="NullableNotNullManager">
+    <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
+    <option name="myDefaultNotNull" value="org.jetbrains.annotations.NotNull" />
     <option name="myNullables">
       <value>
-        <list size="9">
+        <list size="10">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
           <item index="2" class="java.lang.String" itemvalue="javax.annotation.CheckForNull" />
@@ -57,12 +80,13 @@
           <item index="6" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.Nullable" />
           <item index="7" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableDecl" />
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableType" />
+          <item index="9" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNullable" />
         </list>
       </value>
     </option>
     <option name="myNotNulls">
       <value>
-        <list size="9">
+        <list size="10">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
           <item index="2" class="java.lang.String" itemvalue="javax.validation.constraints.NotNull" />
@@ -72,6 +96,7 @@
           <item index="6" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.NonNull" />
           <item index="7" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullDecl" />
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullType" />
+          <item index="9" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNonNull" />
         </list>
       </value>
     </option>
@@ -79,7 +104,7 @@
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="9" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="SuppressABINotification">
