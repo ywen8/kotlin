@@ -53,16 +53,19 @@ class KotlinSourceRootProvider : AdditionalRootsProviderService<JavaSourceRootDe
             )
         }
 
-        // new multiplatform model support:
+        // include multiplatform source roots only if that module exists in Gradle model
+        // (for example something_main has only production source roots,
+        // and something_main - only test source root)
         if (target.isTests == module.isTestModule) {
+            // new multiplatform model support:
             module.sourceSetModules.forEach { sourceSetModule ->
                 addModuleSourceRoots(result, sourceSetModule, target)
             }
-        }
 
-        // legacy multiplatform model support:
-        module.expectedByModules.forEach { commonModule ->
-            addModuleSourceRoots(result, commonModule, target)
+            // legacy multiplatform model support:
+            module.expectedByModules.forEach { commonModule ->
+                addModuleSourceRoots(result, commonModule, target)
+            }
         }
 
         return result
