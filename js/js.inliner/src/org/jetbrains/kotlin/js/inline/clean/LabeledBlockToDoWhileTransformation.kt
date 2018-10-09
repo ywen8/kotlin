@@ -67,7 +67,9 @@ object LabeledBlockToDoWhileTransformation {
             }
 
             fun endVisitLoopOrSwitch(x: JsStatement, ctx: JsContext<JsNode>) {
-                loopOrSwitchStack.pop()
+                val top = loopOrSwitchStack.pop()
+                assert(top === x)
+
                 if (loopsAndSwitchesToLabel.contains(x)) {
                     // Reuse loop label if present. Otherwise create new label.
                     var label = statementsLabels[x]
