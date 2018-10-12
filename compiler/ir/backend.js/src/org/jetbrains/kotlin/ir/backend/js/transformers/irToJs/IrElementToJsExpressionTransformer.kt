@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.isFunctionTypeOrSubtype
 import org.jetbrains.kotlin.js.backend.ast.*
 import org.jetbrains.kotlin.util.OperatorNameConventions
@@ -51,10 +52,19 @@ class IrElementToJsExpressionTransformer : BaseIrElementToJsNodeTransformer<JsEx
     override fun visitStringConcatenation(expression: IrStringConcatenation, context: JsGenerationContext): JsExpression {
         // TODO revisit
         return expression.arguments.fold<IrExpression, JsExpression>(JsStringLiteral("")) { jsExpr, irExpr ->
+            var translatedExpression = irExpr.accept(this, context)
+
+            val type = irExpr.type.makeNotNull()
+            // These types can have valueOf method which would be implicitly called instead of toString
+            // Add explicit toString calls
+            if (type.isChar() || type.isLong() || type.isNumber() || type.isComparable() || type.isAny()) {
+                translatedExpression = JsInvocation(JsNameRef("toString", translatedExpression))
+            }
+
             JsBinaryOperation(
                 JsBinaryOperator.ADD,
                 jsExpr,
-                irExpr.accept(this, context)
+                translatedExpression
             )
         }
     }
