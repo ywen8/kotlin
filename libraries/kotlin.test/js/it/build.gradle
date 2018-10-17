@@ -17,7 +17,8 @@ buildDir = "$projectDir/build"
     kotlinOptions.moduleKind = "commonjs"
 }
 
-task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+tasks.register("populateNodeModules", Copy) {
+    dependsOn compileKotlin2Js
     from compileKotlin2Js.destinationDir
 
     configurations.testCompile.each {
@@ -31,8 +32,8 @@ node {
     download = true
 }
 
-def createFrameworkTest(def name) {
-    return tasks.create("test$name", NpmTask) {
+def registerFrameworkTest(def name) {
+    return tasks.register("test$name", NpmTask) {
         dependsOn(compileTestKotlin2Js, populateNodeModules, npmInstall)
         def lowerName = name.toLowerCase()
         args = ['run', "test-$lowerName"]
@@ -53,5 +54,5 @@ def createFrameworkTest(def name) {
 }
 
 ['Jest', 'Jasmine', 'Mocha', 'Qunit', 'Tape'].each {
-    check.dependsOn createFrameworkTest(it)
+    check.dependsOn registerFrameworkTest(it)
 }

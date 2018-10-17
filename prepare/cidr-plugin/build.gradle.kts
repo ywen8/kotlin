@@ -19,6 +19,7 @@ dependencies {
     kotlinPlugin(project(":prepare:idea-plugin", configuration = "runtimeJar"))
 }
 
+//TODO migrate to task registration
 val pluginXml by tasks.creating {
     val kotlinVersion: String by rootProject.extra
     val pluginFullVersionNumber = findProperty("pluginVersion") as? String

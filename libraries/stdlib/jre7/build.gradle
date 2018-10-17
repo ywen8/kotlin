@@ -43,6 +43,7 @@ artifacts {
     archives javadocJar
 }
 
+//TODO migrate to task registration
 task distForTest(type: Copy) {
     rename "-${java.util.regex.Pattern.quote(version)}", ''
     from jar
@@ -77,7 +78,7 @@ test {
     executable = "$JDK_17/bin/java"
 }
 
-task testJre6Tests(type: Test) {
+tasks.register("testJre6Tests", Test) {
     dependsOn(':kotlin-stdlib:testClasses')
     group = "verification"
 

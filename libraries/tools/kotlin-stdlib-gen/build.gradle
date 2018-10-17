@@ -15,6 +15,7 @@ compileKotlin {
     }
 }
 
+//TODO migrate to task registration
 task run(type: JavaExec) {
     group 'application'
     main 'generators.GenerateStandardLibKt'

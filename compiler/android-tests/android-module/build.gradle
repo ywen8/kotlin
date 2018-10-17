@@ -74,7 +74,7 @@ android {
     }
 }
 
-task jarTestFolders() {
+tasks.register("jarTestFolders") {
     println "Jar folders..."
     new File("${projectDir}/libs/").listFiles().each { File file ->
         if (file.isDirectory()) {

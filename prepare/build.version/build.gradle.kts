@@ -7,6 +7,7 @@ val buildVersion by configurations.creating
 val buildNumber: String by rootProject.extra
 val kotlinVersion: String by rootProject.extra
 
+//TODO migrate to task registration
 val writeBuildNumber by tasks.creating {
     val versionFile = File(buildVersionFilePath)
     inputs.property("version", buildNumber)

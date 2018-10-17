@@ -42,7 +42,7 @@ jar {
     manifestAttributes(manifest, project, "internal")
 }
 
-task java9Jar(type: Jar) {
+tasks.register("java9Jar", Jar) {
     classifier = "java9"
     // TODO: enable as soon as this doesn't cause D8/DX to crash
     // from sourceSets.java9.output

@@ -20,7 +20,8 @@ jar {
     manifestAttributes(manifest, project, 'Test')
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register("sourcesJar", Jar) {
+    dependsOn classes
     classifier = 'sources'
     from sourceSets.main.kotlin
 }

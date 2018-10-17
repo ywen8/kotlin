@@ -299,7 +299,7 @@ allprojects {
         enabled = false
     }
 
-    task<Jar>("javadocJar") {
+    tasks.register<Jar>("javadocJar") {
         classifier = "javadoc"
     }
 
@@ -307,11 +307,11 @@ allprojects {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    task("listArchives") { listConfigurationContents("archives") }
+    tasks.register("listArchives") { listConfigurationContents("archives") }
 
-    task("listRuntimeJar") { listConfigurationContents("runtimeJar") }
+    tasks.register("listRuntimeJar") { listConfigurationContents("runtimeJar") }
 
-    task("listDistJar") { listConfigurationContents("distJar") }
+    tasks.register("listDistJar") { listConfigurationContents("distJar") }
 
     afterEvaluate {
         logger.info("configuring project $name to compile to the target jvm version $jvmTarget using jdk: $javaHome")
@@ -383,14 +383,14 @@ val ideaPlugin by task<Task> {
 }
 
 tasks {
-    create("clean") {
+    register("clean") {
         doLast {
             delete("$buildDir/repo")
             delete(distDir)
         }
     }
 
-    create("cleanupArtifacts") {
+    register("cleanupArtifacts") {
         doLast {
             delete(ideaPluginDir)
             delete(ideaUltimatePluginDir)
@@ -398,7 +398,7 @@ tasks {
         }
     }
 
-    create("coreLibsTest") {
+    register("coreLibsTest") {
         (coreLibProjects + listOf(
                 ":kotlin-stdlib:samples",
                 ":kotlin-test:kotlin-test-js:kotlin-test-js-it",
@@ -409,17 +409,17 @@ tasks {
         }
     }
 
-    create("gradlePluginTest") {
+    register("gradlePluginTest") {
         gradlePluginProjects.forEach {
             dependsOn(it + ":check")
         }
     }
 
-    create("gradlePluginIntegrationTest") {
+    register("gradlePluginIntegrationTest") {
         dependsOn(":kotlin-gradle-plugin-integration-tests:check")
     }
 
-    create("jvmCompilerTest") {
+    register("jvmCompilerTest") {
         dependsOn("dist")
         dependsOn(":compiler:test",
                   ":compiler:container:test",
@@ -427,17 +427,17 @@ tasks {
                   ":compiler:tests-spec:remoteRunTests")
     }
 
-    create("jsCompilerTest") {
+    register("jsCompilerTest") {
         dependsOn(":js:js.tests:test")
         dependsOn(":js:js.tests:runMocha")
     }
 
-    create("scriptingTest") {
+    register("scriptingTest") {
         dependsOn("dist")
         dependsOn(":kotlin-script-util:test")
     }
 
-    create("compilerTest") {
+    register("compilerTest") {
         dependsOn("jvmCompilerTest")
         dependsOn("jsCompilerTest")
 
@@ -446,44 +446,44 @@ tasks {
         dependsOn(":compiler:incremental-compilation-impl:test")
     }
 
-    create("toolsTest") {
+    register("toolsTest") {
         dependsOn(":tools:kotlinp:test")
     }
 
-    create("examplesTest") {
+    register("examplesTest") {
         dependsOn("dist")
         (project(":examples").subprojects + project(":kotlin-gradle-subplugin-example")).forEach { p ->
             dependsOn("${p.path}:check")
         }
     }
 
-    create("distTest") {
+    register("distTest") {
         dependsOn("compilerTest")
         dependsOn("toolsTest")
         dependsOn("gradlePluginTest")
         dependsOn("examplesTest")
     }
 
-    create("specTest") {
+    register("specTest") {
         dependsOn("dist")
         dependsOn(":compiler:tests-spec:test")
     }
 
-    create("androidCodegenTest") {
+    register("androidCodegenTest") {
         dependsOn(":compiler:android-tests:test")
     }
 
-    create("jps-tests") {
+    register("jps-tests") {
         dependsOn("dist")
         dependsOn(":jps-plugin:test")
     }
 
-    create("idea-plugin-main-tests") {
+    register("idea-plugin-main-tests") {
         dependsOn("dist")
         dependsOn(":idea:test")
     }
 
-    create("idea-plugin-additional-tests") {
+    register("idea-plugin-additional-tests") {
         dependsOn("dist")
         dependsOn(":idea:idea-gradle:test",
                   ":idea:idea-maven:test",
@@ -491,20 +491,20 @@ tasks {
                   ":eval4j:test")
     }
 
-    create("idea-plugin-tests") {
+    register("idea-plugin-tests") {
         dependsOn("dist")
         dependsOn("idea-plugin-main-tests",
                   "idea-plugin-additional-tests")
     }
 
-    create("android-ide-tests") {
+    register("android-ide-tests") {
         dependsOn("dist")
         dependsOn(":plugins:android-extensions-ide:test",
                   ":idea:idea-android:test",
                   ":kotlin-annotation-processing:test")
     }
 
-    create("plugins-tests") {
+    register("plugins-tests") {
         dependsOn("dist")
         dependsOn(":kotlin-annotation-processing:test",
                   ":kotlin-source-sections-compiler-plugin:test",
@@ -517,7 +517,7 @@ tasks {
     }
 
 
-    create("ideaPluginTest") {
+    register("ideaPluginTest") {
         dependsOn(
                 "idea-plugin-tests",
                 "jps-tests",
@@ -528,13 +528,13 @@ tasks {
     }
 
 
-    create("test") {
+    register("test") {
         doLast {
             throw GradleException("Don't use directly, use aggregate tasks *-check instead")
         }
     }
 
-    create("check") {
+    register("check") {
         dependsOn("test")
     }
 }
@@ -673,40 +673,42 @@ fun Project.configureJvmProject(javaHome: String, javaVersion: String) {
     }
 }
 
-tasks.create("findShadowJarsInClasspath").doLast {
-    fun Collection<File>.printSorted(indent: String = "    ") {
-        sortedBy { it.path }.forEach { println(indent + it.relativeTo(rootProject.projectDir)) }
-    }
+tasks.register("findShadowJarsInClasspath") {
+    doLast {
+        fun Collection<File>.printSorted(indent: String = "    ") {
+            sortedBy { it.path }.forEach { println(indent + it.relativeTo(rootProject.projectDir)) }
+        }
 
-    val shadowJars = hashSetOf<File>()
-    for (project in rootProject.allprojects) {
-        for (task in project.tasks) {
-            when (task) {
-                is ShadowJar -> {
-                    shadowJars.add(fileFrom(task.archivePath))
-                }
-                is ProGuardTask -> {
-                    shadowJars.addAll(task.outputs.files.toList())
+        val shadowJars = hashSetOf<File>()
+        for (project in rootProject.allprojects) {
+            for (task in project.tasks) {
+                when (task) {
+                    is ShadowJar -> {
+                        shadowJars.add(fileFrom(task.archivePath))
+                    }
+                    is ProGuardTask -> {
+                        shadowJars.addAll(task.outputs.files.toList())
+                    }
                 }
             }
         }
-    }
 
-    println("Shadow jars:")
-    shadowJars.printSorted()
+        println("Shadow jars:")
+        shadowJars.printSorted()
 
-    fun Project.checkConfig(configName: String) {
-        val config = configurations.findByName(configName) ?: return
-        val shadowJarsInConfig = config.resolvedConfiguration.files.filter { it in shadowJars }
-        if (shadowJarsInConfig.isNotEmpty()) {
-            println()
-            println("Project $project contains shadow jars in configuration '$configName':")
-            shadowJarsInConfig.printSorted()
+        fun Project.checkConfig(configName: String) {
+            val config = configurations.findByName(configName) ?: return
+            val shadowJarsInConfig = config.resolvedConfiguration.files.filter { it in shadowJars }
+            if (shadowJarsInConfig.isNotEmpty()) {
+                println()
+                println("Project $project contains shadow jars in configuration '$configName':")
+                shadowJarsInConfig.printSorted()
+            }
         }
-    }
 
-    for (project in rootProject.allprojects) {
-        project.checkConfig("compileClasspath")
-        project.checkConfig("testCompileClasspath")
+        for (project in rootProject.allprojects) {
+            project.checkConfig("compileClasspath")
+            project.checkConfig("testCompileClasspath")
+        }
     }
 }

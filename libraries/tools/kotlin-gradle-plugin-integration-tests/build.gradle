@@ -139,12 +139,12 @@ test {
     exclude jpsIncrementalTestsClass
 }
 
-task testsFromJps(type: Test) {
+tasks.register("testsFromJps", Test) {
     include jpsIncrementalTestsClass
     dependsOn = test.dependsOn
 }
 
-task testAdvanceGradleVersion(type: Test) {
+tasks.register("testAdvanceGradleVersion", Test) {
     def gradleVersionForTests = "4.5.1"
     systemProperty("kotlin.gradle.version.for.tests", gradleVersionForTests)
     dependsOn = test.dependsOn

@@ -81,7 +81,7 @@ test {
     executable = "$JDK_17/bin/java"
 }
 
-task testJdk6Tests(type: Test) {
+tasks.register("testJdk6Tests", Test) {
     dependsOn(':kotlin-stdlib:testClasses')
     group = "verification"
 

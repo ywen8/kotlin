@@ -101,7 +101,7 @@ ext.manifestAttributes = { Manifest manifest, Project project, String component 
     }
 }
 
-task preparePublication {
+tasks.register("preparePublication") {
     def properties = project.properties
     assert project.version != 'unspecified'
 

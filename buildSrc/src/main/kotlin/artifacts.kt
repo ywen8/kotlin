@@ -103,17 +103,19 @@ fun Project.sourcesJar(sourceSet: String? = "main", body: Jar.() -> Unit = {}): 
             project.addArtifact("archives", this, this)
         }
 
-fun Project.javadocJar(body: Jar.() -> Unit = {}): Jar =
-        getOrCreateTask("javadocJar") {
-            setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-            classifier = "javadoc"
-            tasks.findByName("javadoc")?.let{ it as Javadoc }?.takeIf { it.enabled }?.let {
-                dependsOn(it)
-                from(it.destinationDir)
-            }
-            body()
-            project.addArtifact("archives", this, this)
+fun Project.javadocJar(body: Jar.() -> Unit = {}): Unit {
+    val action : Action<Jar> = Action {
+        setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+        classifier = "javadoc"
+        tasks.findByName("javadoc")?.let{ it as Javadoc }?.takeIf { it.enabled }?.let {
+            dependsOn(it)
+            from(it.destinationDir)
         }
+        body()
+        project.addArtifact("archives", this, this)
+    }
+    getOrRegisterTask("javadocJar", action)
+}
 
 
 fun Project.standardPublicJars(): Unit {

@@ -18,9 +18,12 @@
 // usages in build scripts are not tracked properly
 @file:Suppress("unused")
 
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.project
@@ -105,6 +108,15 @@ private inline fun String.isFirstChar(f: (Char) -> Boolean) = isNotEmpty() && f(
 
 inline fun <reified T : Task> Project.getOrCreateTask(taskName: String, body: T.() -> Unit): T =
     (tasks.findByName(taskName)?.let { it as T } ?: task<T>(taskName)).apply { body() }
+
+inline fun <T : Task> Project.getOrRegisterTask(taskName: String, body: Action<T>): TaskProvider<T> {
+    try {
+        return tasks.named(taskName).let { it as TaskProvider<T>};
+    } catch (e: UnknownTaskException) {
+        return tasks.register(taskName, body as Action<Task>).let { it as TaskProvider<T>};
+    }
+}
+
 
 object TaskUtils {
     fun useAndroidSdk(task: Task) {

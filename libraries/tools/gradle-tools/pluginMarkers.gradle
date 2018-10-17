@@ -22,7 +22,7 @@ ext.pluginMarkerProject = { String pluginProjectId ->
 
     configurePublishing(project)
 
-    task emptyJar(type: Jar)
+    tasks.register("emptyJar" ,Jar)
 
     version = project.version + (findProperty('marker_version_suffix') ?: "")
 
