@@ -13,6 +13,6 @@ fun myIf(cond: Boolean): Any {
 
 fun test(x: Any?) {
     if (myIf(x is String) is Boolean) {
-        <!DEBUG_INFO_SMARTCAST!>x<!>.length
+        x.<!UNRESOLVED_REFERENCE!>length<!>
     }
 }

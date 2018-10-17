@@ -1,4 +1,6 @@
 package
 
 public fun myIf(/*0*/ cond: kotlin.Boolean): kotlin.Any
+    Returns(TRUE) -> cond
+
 public fun test(/*0*/ x: kotlin.Any?): kotlin.Unit
