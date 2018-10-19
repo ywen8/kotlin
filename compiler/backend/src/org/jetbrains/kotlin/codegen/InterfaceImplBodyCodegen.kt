@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.codegen
 
 import com.intellij.util.ArrayUtil
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.backend.common.bridges.findImplementationFromInterface
 import org.jetbrains.kotlin.backend.common.bridges.firstSuperMethodFromKotlin
 import org.jetbrains.kotlin.codegen.context.ClassContext
@@ -162,13 +164,13 @@ class InterfaceImplBodyCodegen(
         override fun getDelegate() = v
 
         override fun newMethod(
-                origin: JvmDeclarationOrigin,
-                access: Int,
-                name: String,
-                desc: String,
-                signature: String?,
-                exceptions: Array<out String>?
-        ): MethodVisitor {
+            origin: @NotNull JvmDeclarationOrigin,
+            access: Int,
+            name: @NotNull String,
+            desc: @NotNull String,
+            signature: @Nullable String?,
+            exceptions: Array<out @Nullable String?>?
+        ): @NotNull MethodVisitor {
             if (shouldCount) {
                 isAnythingGenerated = true
             }

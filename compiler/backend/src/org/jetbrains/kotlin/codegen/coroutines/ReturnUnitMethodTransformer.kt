@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.utils.keysToMap
 import org.jetbrains.kotlin.utils.sure
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.tree.*
+import org.jetbrains.org.objectweb.asm.tree.analysis.Frame
 import org.jetbrains.org.objectweb.asm.tree.analysis.SourceInterpreter
+import org.jetbrains.org.objectweb.asm.tree.analysis.SourceValue
 
 /*
  * Replace POP with ARETURN iff
@@ -145,7 +147,7 @@ internal fun findSourceInstructions(
     )
     return insns.keysToMap {
         val index = methodNode.instructions.indexOf(it)
-        if (isUnreachable(index, frames)) return@keysToMap emptySet<AbstractInsnNode>()
+        if (isUnreachable(index, frames as Array<Frame<SourceValue?>?>)) return@keysToMap emptySet<AbstractInsnNode>()
         frames[index].getStack(0).insns
     }
 }

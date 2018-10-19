@@ -5,6 +5,8 @@
 
 package org.jetbrains.kotlin.codegen
 
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
 import org.jetbrains.org.objectweb.asm.*
 import org.jetbrains.org.objectweb.asm.tree.*
@@ -37,13 +39,13 @@ class OriginCollectingClassBuilderFactory(private val builderMode: ClassBuilderM
         }
 
         override fun newMethod(
-                origin: JvmDeclarationOrigin,
-                access: Int,
-                name: String,
-                desc: String,
-                signature: String?,
-                exceptions: Array<out String>?
-        ): MethodVisitor {
+            origin: @NotNull JvmDeclarationOrigin,
+            access: Int,
+            name: @NotNull String,
+            desc: @NotNull String,
+            signature: @Nullable String?,
+            exceptions: Array<out @Nullable String?>?
+        ): @NotNull MethodVisitor {
             val methodNode = super.newMethod(origin, access, name, desc, signature, exceptions) as MethodNode
             origins[methodNode] = origin
 
