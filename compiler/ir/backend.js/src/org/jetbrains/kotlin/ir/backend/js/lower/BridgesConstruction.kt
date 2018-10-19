@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.ir.JsIrBuilder
-import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.isStatic
 import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -56,7 +55,7 @@ class BridgesConstruction(val context: JsIrBackendContext) : ClassLoweringPass {
         irClass.declarations
             .asSequence()
             .filterIsInstance<IrSimpleFunction>()
-            .filter { !it.isStatic }
+            .filter { !it.isStaticMethodOfClass }
             .toList()
             .forEach { generateBridges(it, irClass) }
 
