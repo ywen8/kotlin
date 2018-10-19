@@ -57,3 +57,6 @@ fun IrFunction.getDefault(parameter: ValueParameterDescriptor): IrExpressionBody
 fun IrFunction.putDefault(parameter: ValueParameterDescriptor, expressionBody: IrExpressionBody) {
     getIrValueParameter(parameter).defaultValue = expressionBody
 }
+
+val IrFunction.isStaticMethodOfClass: Boolean
+    get() = parent is IrClass && dispatchReceiverParameter == null

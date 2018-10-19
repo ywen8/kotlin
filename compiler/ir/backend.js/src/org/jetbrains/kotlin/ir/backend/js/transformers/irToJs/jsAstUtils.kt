@@ -82,7 +82,6 @@ fun translateCallArguments(expression: IrMemberAccessExpression, context: JsGene
 fun JsStatement.asBlock() = this as? JsBlock ?: JsBlock(this)
 
 fun JsName.objectInstanceName() = "${ident}_instance"
-
 fun defineProperty(receiver: JsExpression, name: String, value: () -> JsExpression): JsInvocation {
     val objectDefineProperty = JsNameRef("defineProperty", Namer.JS_OBJECT)
     return JsInvocation(objectDefineProperty, receiver, JsStringLiteral(name), value())
