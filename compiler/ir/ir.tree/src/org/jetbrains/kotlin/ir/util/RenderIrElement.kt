@@ -56,7 +56,7 @@ class RenderIrElementVisitor : IrElementVisitor<String, Nothing?> {
                     "name:$name visibility:$visibility modality:$modality " +
                     renderTypeParameters() + " " +
                     renderValueParameterTypes() + " " +
-                    "returnType:${returnType.render()} " +
+                    "returnType:${safelyRenderReturnType()} " +
                     "flags:${renderSimpleFunctionFlags()}"
         }
 
@@ -87,7 +87,7 @@ class RenderIrElementVisitor : IrElementVisitor<String, Nothing?> {
                     "visibility:$visibility " +
                     renderTypeParameters() + " " +
                     renderValueParameterTypes() + " " +
-                    "returnType:${returnType.render()} " +
+                    "returnType:${safelyRenderReturnType()} " +
                     "flags:${renderConstructorFlags()}"
         }
 
@@ -378,3 +378,10 @@ class RenderIrElementVisitor : IrElementVisitor<String, Nothing?> {
             if (origin != IrDeclarationOrigin.DEFINED) origin.toString() + " " else ""
     }
 }
+
+fun IrFunction.safelyRenderReturnType() =
+    try {
+        returnType.render()
+    } catch (e: UninitializedPropertyAccessException) {
+        "RETURN_TYPE_IS_NOT_INITIALIZED"
+    }
