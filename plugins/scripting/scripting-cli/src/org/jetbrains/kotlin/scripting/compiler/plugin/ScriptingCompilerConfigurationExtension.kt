@@ -65,7 +65,7 @@ class ScriptingCompilerConfigurationExtension(val project: MockProject) : Compil
 
 class ScriptingCompilerConfigurationComponentRegistrar : ComponentRegistrar {
     override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) {
-        CompilerConfigurationExtension.registerExtension(project, ScriptingCompilerConfigurationExtension(project))
+//        CompilerConfigurationExtension.registerExtension(project, ScriptingCompilerConfigurationExtension(project))
     }
 }
 
