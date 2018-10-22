@@ -1,14 +1,10 @@
-
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Project
-import java.util.*
 import java.io.File
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
-import org.jetbrains.kotlin.ir.backend.js.compile
 import proguard.gradle.ProGuardTask
 
 buildscript {
@@ -254,35 +250,36 @@ val ignoreTestFailures by extra(project.findProperty("ignoreTestFailures")?.toSt
 allprojects {
     afterEvaluate {
         val curProj = this
-//        println("- project: $this")
-        configurations.forEach { configuration ->
-//            println("    $configuration")
-            try {
-                val stdLibDeps = configuration.dependencies.filter {
-                    it is ProjectDependency && it.dependencyProject.path.startsWith(":kotlin-stdlib")
+        if (curProj.path.startsWith(":kotlin-stdlib")) {
+        } else {
+            configurations.forEach { configuration ->
+                try {
+                    if (
+                        configuration.dependencies.removeAll {
+                            it is ProjectDependency && it.dependencyProject.path.startsWith(":kotlin-stdlib-common")
+                        }
+                    ) {
+                        configuration.dependencies.add(curProj.dependencies.module("org.jetbrains.kotlin:kotlin-stdlib-common:$bootstrapKotlinVersion"))
+                    } else if (
+                        configuration.dependencies.removeAll {
+                            it is ProjectDependency && it.dependencyProject.path.startsWith(":kotlin-stdlib-js")
+                        }
+                    ) {
+                        configuration.dependencies.add(curProj.dependencies.module("org.jetbrains.kotlin:kotlin-stdlib-js:$bootstrapKotlinVersion"))
+                    } else if (
+                        configuration.dependencies.removeAll {
+                            it is ProjectDependency && if (it.dependencyProject.path.startsWith(":kotlin-stdlib")) {
+                                println("     $curProj:$configuration -> ${it.dependencyProject}")
+                                true
+                            } else false
+                        }
+                    ) {
+                        configuration.dependencies.add(curProj.dependencies.module("org.jetbrains.kotlin:kotlin-stdlib:$bootstrapKotlinVersion"))
+                        configuration.dependencies.add(curProj.dependencies.module("org.jetbrains:annotations:16.0.3"))
+                    }
+                } catch (t: Throwable) {
+                    println("      skipped $curProj:$configuration : $t")
                 }
-
-                if (stdLibDeps.isNotEmpty()) {
-                    configuration.dependencies.removeAll(stdLibDeps)
-
-                    configuration.dependencies.add(
-                        curProj.dependencies.module("org.jetbrains.kotlin:kotlin-stdlib:$bootstrapKotlinVersion")
-                    )
-
-                    configuration.dependencies.add(
-                        curProj.dependencies.module("org.jetbrains:annotations:16.0.3")
-                    )
-                }
-
-//                it.resolutionStrategy.dependencySubstitution {
-//                    substitute(project(":kotlin-stdlib"))
-//                        .with(module("org.jetbrains.kotlin:kotlin-stdlib:$bootstrapKotlinVersion"))
-//
-//                    substitute(project(":kotlin-stdlib-common"))
-//                        .with(module("org.jetbrains.kotlin:kotlin-stdlib-common:$bootstrapKotlinVersion"))
-//                }
-            } catch (t: Throwable) {
-                println("      skipped: $t")
             }
         }
     }
