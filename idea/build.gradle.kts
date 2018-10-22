@@ -54,6 +54,7 @@ dependencies {
     compileOnly(intellijPluginDep("properties"))
     compileOnly(intellijPluginDep("java-i18n"))
 
+    testCompileOnly(project(":kotlin-reflect-api")) // TODO(JPS): fix import
     testCompile(project(":kotlin-test:kotlin-test-junit"))
     testCompile(projectTests(":compiler:tests-common"))
     testCompile(projectTests(":idea:idea-test-framework")) { isTransitive = false }
