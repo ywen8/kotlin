@@ -85,6 +85,8 @@ repositories {
     }
 
     jcenter()
+
+    maven("https://plugins.gradle.org/m2/")
 }
 
 dependencies {
@@ -95,6 +97,8 @@ dependencies {
 
     compile("com.github.jengelman.gradle.plugins:shadow:${property("versions.shadow")}")
     compile("org.ow2.asm:asm-all:6.0_BETA")
+
+    compile("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:0.4.2")
 }
 
 samWithReceiver {
