@@ -16,6 +16,7 @@ dependencies {
     compileOnly(intellijCoreDep())
     runtime(projectRuntimeJar(":kotlin-compiler"))
     testCompile(commonDep("junit"))
+    testCompile(project(":compiler:daemon-common")) // TODO(JPS): fix import
 }
 
 sourceSets {
