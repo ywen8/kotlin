@@ -8,8 +8,8 @@ plugins {
 jvmTarget = "1.6"
 
 tasks.withType<JavaCompile> {
-    sourceCompatibility = "1.6"
-    targetCompatibility = "1.6"
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 }
 
 sourceSets {
