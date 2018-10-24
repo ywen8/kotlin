@@ -37,7 +37,7 @@ class KotlinConstraintSystemCompleter(
         // mutable operations
         fun addError(error: KotlinCallDiagnostic)
 
-        fun fixVariable(variable: NewTypeVariable, resultType: UnwrappedType)
+        fun fixVariable(variable: NewTypeVariable, resultType: UnwrappedType, topLevelAtoms: List<ResolvedAtom>)
     }
 
     fun runCompletion(
@@ -82,7 +82,7 @@ class KotlinConstraintSystemCompleter(
                 if (variableForFixation.hasProperConstraint || completionMode == ConstraintSystemCompletionMode.FULL) {
                     val variableWithConstraints = c.notFixedTypeVariables[variableForFixation.variable]!!
 
-                    fixVariable(c, topLevelType, variableWithConstraints, postponedKtPrimitives)
+                    fixVariable(c, topLevelType, variableWithConstraints, topLevelAtoms, postponedKtPrimitives)
 
                     if (!variableForFixation.hasProperConstraint) {
                         c.addError(NotEnoughInformationForTypeParameter(variableWithConstraints.typeVariable))
@@ -204,18 +204,20 @@ class KotlinConstraintSystemCompleter(
         c: Context,
         topLevelType: UnwrappedType,
         variableWithConstraints: VariableWithConstraints,
+        topLevelAtoms: List<ResolvedAtom>,
         postponedResolveKtPrimitives: List<PostponedResolvedAtom>
     ) {
         val direction = TypeVariableDirectionCalculator(c, postponedResolveKtPrimitives, topLevelType).getDirection(variableWithConstraints)
-        fixVariable(c, variableWithConstraints, direction)
+        fixVariable(c, variableWithConstraints, direction, topLevelAtoms)
     }
 
     fun fixVariable(
         c: Context,
         variableWithConstraints: VariableWithConstraints,
-        direction: TypeVariableDirectionCalculator.ResolveDirection
+        direction: TypeVariableDirectionCalculator.ResolveDirection,
+        topLevelAtoms: List<ResolvedAtom>
     ) {
         val resultType = resultTypeResolver.findResultType(c, variableWithConstraints, direction)
-        c.fixVariable(variableWithConstraints.typeVariable, resultType)
+        c.fixVariable(variableWithConstraints.typeVariable, resultType, topLevelAtoms)
     }
 }

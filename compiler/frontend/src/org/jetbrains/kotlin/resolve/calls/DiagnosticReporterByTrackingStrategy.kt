@@ -224,15 +224,30 @@ class DiagnosticReporterByTrackingStrategy(
             }
             CapturedTypeFromSubtyping::class.java -> {
                 val capturedError = diagnostic as CapturedTypeFromSubtyping
-                (capturedError.position as? ArgumentConstraintPosition)?.let {
-                    val expression = it.argument.psiExpression ?: return
-                    trace.report(
-                        NEW_INFERENCE_ERROR.on(
-                            expression,
-                            "Capture type from subtyping ${capturedError.constraintType} for variable ${capturedError.typeVariable}"
-                        )
-                    )
+                val position = capturedError.position.let {
+                    if (it is IncorporationConstraintPosition) it.from else it
                 }
+
+                val reportOn = when (position) {
+                    is ArgumentConstraintPosition -> position.argument.psiExpression
+
+                    is FixVariableConstraintPosition -> {
+                        val atom = position.topLevelAtoms.firstOrNull()?.atom ?: return
+                        if (atom !is KotlinCall) {
+                            error("Unexpected atom, should be a call: $atom")
+                        }
+                        atom.psiKotlinCall.psiCall.callElement
+                    }
+
+                    else -> error("Unexpected position for CapturedTypeFromSubtyping error: $position")
+                } ?: return
+
+                trace.report(
+                    NEW_INFERENCE_ERROR.on(
+                        reportOn,
+                        "Capture type from subtyping ${capturedError.constraintType} for variable ${capturedError.typeVariable}"
+                    )
+                )
             }
         }
     }

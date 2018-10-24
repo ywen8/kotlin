@@ -47,7 +47,7 @@ class ReceiverConstraintPosition(val argument: KotlinCallArgument) : ConstraintP
     override fun toString() = "Receiver $argument"
 }
 
-class FixVariableConstraintPosition(val variable: NewTypeVariable) : ConstraintPosition() {
+class FixVariableConstraintPosition(val variable: NewTypeVariable, val topLevelAtoms: List<ResolvedAtom>) : ConstraintPosition() {
     override fun toString() = "Fix variable $variable"
 }
 
