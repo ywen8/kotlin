@@ -8065,6 +8065,11 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     runTest("compiler/testData/diagnostics/tests/generics/capturedParameters/localWithTypeParameter.kt");
                 }
 
+                @TestMetadata("newInferenceCapturedTypesModel.kt")
+                public void testNewInferenceCapturedTypesModel() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/generics/capturedParameters/newInferenceCapturedTypesModel.kt");
+                }
+
                 @TestMetadata("objectLiteral.kt")
                 public void testObjectLiteral() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/generics/capturedParameters/objectLiteral.kt");

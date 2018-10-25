@@ -1,0 +1,83 @@
+package
+
+public object CapturedFromSubtyping {
+    private constructor CapturedFromSubtyping()
+    public final fun </*0*/ Y, /*1*/ Z, /*2*/ T : kotlin.collections.MutableMap<in Y, out Z>> associateByTo(/*0*/ destination: T): CapturedFromSubtyping.Inv3<Y, Z, T>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public final fun </*0*/ V, /*1*/ R, /*2*/ M : kotlin.collections.MutableMap<in R, out V>> mapKeysTo(/*0*/ destination: M): CapturedFromSubtyping.Inv3<R, V, M>
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+    public interface Inv3</*0*/ A, /*1*/ B, /*2*/ C> {
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+public object CapturedTypeWithTypeVariable {
+    private constructor CapturedTypeWithTypeVariable()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public final fun </*0*/ T> foo(/*0*/ x: T): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public final fun test(/*0*/ i: CapturedTypeWithTypeVariable.Inv<out kotlin.Any?>): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    public final fun </*0*/ T> CapturedTypeWithTypeVariable.Inv<T>.superclass(): CapturedTypeWithTypeVariable.Inv<in T>
+
+    public final class Inv</*0*/ T> {
+        public constructor Inv</*0*/ T>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+public object InnerAndTopLevelCapturedTypes {
+    private constructor InnerAndTopLevelCapturedTypes()
+    public final fun bar(/*0*/ b: InnerAndTopLevelCapturedTypes.B<in InnerAndTopLevelCapturedTypes.A<out kotlin.Number>>, /*1*/ bOut: InnerAndTopLevelCapturedTypes.B<out InnerAndTopLevelCapturedTypes.A<out kotlin.Number>>, /*2*/ bOut2: InnerAndTopLevelCapturedTypes.B<out InnerAndTopLevelCapturedTypes.A<kotlin.Number>>): kotlin.Unit
+    public final fun </*0*/ E> baz(/*0*/ b: InnerAndTopLevelCapturedTypes.B<out InnerAndTopLevelCapturedTypes.A<E>>): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public final fun </*0*/ E> foo(/*0*/ b: InnerAndTopLevelCapturedTypes.B<in InnerAndTopLevelCapturedTypes.A<E>>): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+    public final class A</*0*/ T> {
+        public constructor A</*0*/ T>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+
+    public final class B</*0*/ T> {
+        public constructor B</*0*/ T>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+public object InnerCapturedTypeWithTypeVariable {
+    private constructor InnerCapturedTypeWithTypeVariable()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public final fun </*0*/ T> foo(/*0*/ x: T): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public final fun test(/*0*/ i: InnerCapturedTypeWithTypeVariable.Inv<InnerCapturedTypeWithTypeVariable.Inv<out kotlin.Any?>>): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    public final fun </*0*/ T> InnerCapturedTypeWithTypeVariable.Inv<InnerCapturedTypeWithTypeVariable.Inv<T>>.superclass(): InnerCapturedTypeWithTypeVariable.Inv<InnerCapturedTypeWithTypeVariable.Inv<in T>>
+
+    public final class Inv</*0*/ T> {
+        public constructor Inv</*0*/ T>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+public object InnerCapturedTypes {
+    private constructor InnerCapturedTypes()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public final fun </*0*/ T> foo(/*0*/ array: kotlin.Array<kotlin.Array<T>>): kotlin.Array<kotlin.Array<T>>
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public final fun test(/*0*/ array: kotlin.Array<kotlin.Array<out kotlin.Int>>): kotlin.Unit
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
