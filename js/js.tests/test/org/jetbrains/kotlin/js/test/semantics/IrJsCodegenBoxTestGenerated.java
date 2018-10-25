@@ -10582,6 +10582,11 @@ public class IrJsCodegenBoxTestGenerated extends AbstractIrJsCodegenBoxTest {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/inlineClasses/callableReferences"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JS_IR, true);
             }
 
+            @TestMetadata("boundCallableReferencePassedToInlineFunction.kt")
+            public void testBoundCallableReferencePassedToInlineFunction() throws Exception {
+                runTest("compiler/testData/codegen/box/inlineClasses/callableReferences/boundCallableReferencePassedToInlineFunction.kt");
+            }
+
             @TestMetadata("boundInlineClassExtensionFun.kt")
             public void testBoundInlineClassExtensionFun() throws Exception {
                 runTest("compiler/testData/codegen/box/inlineClasses/callableReferences/boundInlineClassExtensionFun.kt");
