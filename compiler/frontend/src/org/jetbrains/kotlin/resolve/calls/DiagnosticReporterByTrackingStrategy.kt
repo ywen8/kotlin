@@ -231,6 +231,8 @@ class DiagnosticReporterByTrackingStrategy(
                 val reportOn = when (position) {
                     is ArgumentConstraintPosition -> position.argument.psiExpression
 
+                    is ReceiverConstraintPosition -> position.argument.psiExpression
+
                     is FixVariableConstraintPosition -> {
                         val atom = position.topLevelAtoms.firstOrNull()?.atom ?: return
                         if (atom !is KotlinCall) {
