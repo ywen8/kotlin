@@ -15,7 +15,7 @@ object CapturedTypeWithTypeVariable {
 
 object InnerCapturedTypeWithTypeVariable {
     fun test(i: Inv<Inv<out Any?>>) {
-        i.superclass()
+        <!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>i<!>.superclass()
     }
 
     fun <T> foo(x: T) {}
@@ -29,8 +29,8 @@ object InnerCapturedTypes {
     fun <T> foo(array: Array<Array<T>>): Array<Array<T>> = array
 
     fun test(array: Array<Array<out Int>>) {
-        foo(array)
-        val f: Array<out Array<out Int>> = foo(array)
+        foo(<!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>array<!>)
+        val f: Array<out Array<out Int>> = foo(<!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>array<!>)
     }
 }
 
@@ -46,8 +46,8 @@ object InnerAndTopLevelCapturedTypes {
         foo(b)
         foo<Number>(b)
 
-        baz(bOut)
-        baz<Number>(bOut)
+        baz(<!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>bOut<!>)
+        baz<Number>(<!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>bOut<!>)
 
         baz(bOut2)
         baz<Number>(bOut2)
@@ -56,7 +56,7 @@ object InnerAndTopLevelCapturedTypes {
 
 object CapturedFromSubtyping {
     fun <V, R, M : MutableMap<in R, out V>> mapKeysTo(destination: M): Inv3<R, V, M> {
-        val foo = associateByTo(destination)
+        val foo = <!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>associateByTo(<!NEW_INFERENCE_ERROR, NEW_INFERENCE_ERROR!>destination<!>)<!>
 
         return <!TYPE_MISMATCH, TYPE_MISMATCH!>foo<!>
     }
