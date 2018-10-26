@@ -105,7 +105,7 @@ public class Emulator {
             commandLine.setExePath("taskkill");
             commandLine.addParameter("/F");
             commandLine.addParameter("/IM");
-            commandLine.addParameter("emulator-" + platform + ".exe");
+            commandLine.addParameter("emulator.exe");
             return commandLine;
         }
         return null;
