@@ -116,15 +116,11 @@ object SMAPTestUtil {
     private class SMAPAndFile(val smap: String?, val sourceFile: String, val outputFile: String) {
         companion object {
             fun SMAPAndFile(smap: String?, sourceFile: File, outputFile: String) =
-                    SMAPAndFile(smap, getPath(sourceFile), outputFile)
+                SMAPAndFile(smap, getPath(sourceFile.absolutePath), outputFile)
 
-            fun getPath(file: File): String {
-                return getPath(file.canonicalPath)
-            }
-
-            fun getPath(canonicalPath: String): String {
+            fun getPath(path: String): String {
                 //There are some problems with disk name on windows cause LightVirtualFile return it without disk name
-                return FileUtil.toSystemIndependentName(canonicalPath).substringAfter(":")
+                return FileUtil.toSystemIndependentName(path).substringAfter(":")
             }
         }
     }
