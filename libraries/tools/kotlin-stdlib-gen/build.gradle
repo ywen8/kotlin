@@ -7,6 +7,7 @@ sourceSets {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$bootstrapKotlinVersion"
     compile "org.jetbrains.kotlin:kotlin-reflect:$bootstrapKotlinVersion"
+    compile group: 'org.jetbrains', name: 'annotations', version:'16.0.3'
 }
 
 compileKotlin {

@@ -30,8 +30,9 @@ dependencies {
     testCompile(commonDep("junit:junit"))
     testCompile(androidDxJar()) { isTransitive = false }
     testCompileOnly(intellijCoreDep()) { includeJars("intellij-core") }
+    compile("org.jetbrains:annotations:16.0.3")
     testCompile(intellijDep()) {
-        includeJars("openapi", "platform-api", "platform-impl", "idea", "idea_rt", "guava", "trove4j", "picocontainer-1.2", "asm-all", "log4j", "jdom", "bootstrap", "annotations", rootProject = rootProject)
+        includeJars("openapi", "platform-api", "platform-impl", "idea", "idea_rt", "guava", "trove4j", "picocontainer-1.2", "asm-all", "log4j", "jdom", "bootstrap", rootProject = rootProject)
         isTransitive = false
     }
 }
