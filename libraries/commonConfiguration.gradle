@@ -22,17 +22,17 @@ ext.configureJvmProject = { Project project ->
 
 ext.configureJavaOnlyJvm6Project = { Project project ->
     project.tasks.withType(JavaCompile) {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
         options.fork = true
-        options.forkOptions.javaHome = file(JDK_18)
+        options.forkOptions.javaHome = file(JDK_16)
     }
 }
 
 ext.configureJvm6Project = { Project project ->
     project.configure(project) {
-        project.ext.jvmTarget = "1.8"
-        project.ext.javaHome = JDK_18
+        project.ext.jvmTarget = "1.6"
+        project.ext.javaHome = JDK_16
 
         task sourcesJar(type: Jar, dependsOn: classes) {
             classifier = 'sources'
@@ -42,12 +42,12 @@ ext.configureJvm6Project = { Project project ->
         configureJavaOnlyJvm6Project(project)
 
         tasks.withType(project.compileKotlin.class) {
-            kotlinOptions.jdkHome = JDK_18
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jdkHome = JDK_16
+            kotlinOptions.jvmTarget = "1.6"
         }
 
         test {
-            executable = "$JDK_18/bin/java"
+            executable = "$JDK_16/bin/java"
         }
     }
 }

@@ -19,8 +19,8 @@ sourceSets {
 }
 
 val compileJava by tasks.getting(JavaCompile::class) {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
+    sourceCompatibility = "1.6"
+    targetCompatibility = "1.6"
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
