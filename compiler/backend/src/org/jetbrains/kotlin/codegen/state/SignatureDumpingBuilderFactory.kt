@@ -17,8 +17,6 @@
 package org.jetbrains.kotlin.codegen.state
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.codegen.ClassBuilder
 import org.jetbrains.kotlin.codegen.ClassBuilderFactory
 import org.jetbrains.kotlin.codegen.DelegatingClassBuilder
@@ -85,14 +83,7 @@ class SignatureDumpingBuilderFactory(
             super.defineClass(origin, version, access, name, signature, superName, interfaces)
         }
 
-        override fun newMethod(
-            origin: @NotNull JvmDeclarationOrigin,
-            access: Int,
-            name: @NotNull String,
-            desc: @NotNull String,
-            signature: @Nullable String?,
-            exceptions: Array<out @Nullable String?>?
-        ): @NotNull MethodVisitor {
+        override fun newMethod(origin: JvmDeclarationOrigin, access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor {
             signatures += RawSignature(name, desc, MemberKind.METHOD) to origin.descriptor?.let {
                 if (it is CallableDescriptor) it.unwrapInitialDescriptorForSuspendFunction() else it
             }

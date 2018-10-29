@@ -927,7 +927,7 @@ private fun allSuspensionPointsAreTailCalls(
     suspensionPoints: List<SuspensionPoint>
 ): Boolean {
     val sourceFrames = MethodTransformer.analyze(thisName, methodNode, IgnoringCopyOperationSourceInterpreter())
-    val safelyReachableReturns = findSafelyReachableReturns(methodNode, sourceFrames as Array<Frame<SourceValue?>?>)
+    val safelyReachableReturns = findSafelyReachableReturns(methodNode, sourceFrames)
 
     val instructions = methodNode.instructions
     return suspensionPoints.all { suspensionPoint ->

@@ -18,8 +18,6 @@ package org.jetbrains.kotlin.backend.jvm.codegen
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.codegen.ClassBuilder
 import org.jetbrains.kotlin.codegen.OwnerKind
 import org.jetbrains.kotlin.codegen.inline.*
@@ -194,13 +192,13 @@ class IrSourceCompilerForInline(
                 }
 
                 override fun newMethod(
-                    origin: @NotNull JvmDeclarationOrigin,
+                    origin: JvmDeclarationOrigin,
                     access: Int,
-                    name: @NotNull String,
-                    desc: @NotNull String,
-                    signature: @Nullable String?,
-                    exceptions: Array<out @Nullable String?>?
-                ): @NotNull MethodVisitor {
+                    name: String,
+                    desc: String,
+                    signature: String?,
+                    exceptions: Array<out String>?
+                ): MethodVisitor {
                     TODO("not implemented")
                 }
 
