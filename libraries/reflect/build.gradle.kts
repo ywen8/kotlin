@@ -139,7 +139,15 @@ val stripMetadata by tasks.creating {
     }
 }
 
-val proguardOutput = "$libsDir/${property("archivesBaseName")}-proguard.jar"
+val proguardOutputFileName = "${property("archivesBaseName")}-proguard.jar"
+val proguardOutput = "$libsDir/$proguardOutputFileName"
+
+val proguard by task<Copy> {
+    dependsOn(stripMetadata)
+    from(File("$libsDir/kotlin-reflect-stripped.jar"))
+    into(libsDir!!)
+    rename("kotlin-reflect-stripped.jar", proguardOutputFileName)
+}
 
 val proguard by task<ProGuardTask> {
     dependsOn(stripMetadata)
