@@ -189,12 +189,8 @@ val sourcesJar = sourcesJar(sourceSet = null) {
 }
 
 val result by task<Jar> {
-//    dependsOn(proguard)
-//    from(zipTree(file(proguardOutput)))
-
-    dependsOn(stripMetadata)
-    from(stripMetadata)
-
+    dependsOn(proguard)
+    from(zipTree(file(proguardOutput)))
     from(zipTree(reflectShadowJar.archivePath)) {
         include("META-INF/versions/**")
     }

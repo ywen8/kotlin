@@ -17,7 +17,7 @@ dependencies {
     compile(project(":kotlin-build-common"))
     compile(project(":compiler:daemon-common"))
     compileOnly(intellijCoreDep()) { includeJars("intellij-core") }
-    compile("org.jetbrains:annotations:16.0.3")
+    compileOnly(intellijDep()) { includeJars("annotations") }
 
     testCompile(commonDep("junit:junit"))
     testCompile(project(":kotlin-test:kotlin-test-junit"))

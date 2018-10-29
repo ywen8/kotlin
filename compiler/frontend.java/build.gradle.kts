@@ -13,8 +13,7 @@ dependencies {
     compile("javax.annotation:jsr250-api:1.0")
     compile(project(":compiler:frontend"))
     compileOnly(intellijCoreDep()) { includeJars("intellij-core") }
-    compileOnly(intellijDep()) { includeJars("asm-all", "trove4j", "guava", rootProject = rootProject) }
-    compile("org.jetbrains:annotations:16.0.3")
+    compileOnly(intellijDep()) { includeJars("annotations", "asm-all", "trove4j", "guava", rootProject = rootProject) }
 }
 
 sourceSets {

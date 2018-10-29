@@ -16,8 +16,7 @@ dependencies {
     compile(project(":compiler:ir.psi2ir"))
     compile(project(":compiler:ir.backend.common"))
     compile(project(":compiler:serialization"))
-    compile("org.jetbrains:annotations:16.0.3")
-    compileOnly(intellijCoreDep()) { includeJars("intellij-core", "asm-all", rootProject = rootProject) }
+    compileOnly(intellijCoreDep()) { includeJars("intellij-core", "annotations", "asm-all", rootProject = rootProject) }
 }
 
 sourceSets {
