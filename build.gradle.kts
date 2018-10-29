@@ -104,7 +104,7 @@ extra["ideaUltimatePluginDir"] = project.file(ideaUltimatePluginDir)
 extra["cidrPluginDir"] = project.file(cidrPluginDir)
 extra["isSonatypeRelease"] = false
 
-extra["JDK_18"] = jdkPath("1.8")
+extra["JDK_16"] = jdkPath("1.6")
 extra["JDK_17"] = jdkPath("1.7")
 extra["JDK_18"] = jdkPath("1.8")
 extra["JDK_9"] = jdkPath("9")

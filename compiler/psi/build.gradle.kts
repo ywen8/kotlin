@@ -13,7 +13,7 @@ repositories.withRedirector(project) {
     maven("https://jetbrains.bintray.com/intellij-third-party-dependencies")
 }
 
-jvmTarget = "1.8"
+jvmTarget = "1.6"
 
 val jflexPath by configurations.creating
 

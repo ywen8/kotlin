@@ -6,8 +6,8 @@ plugins {
     kotlin("jvm")
 }
 
-jvmTarget = "1.8"
-javaHome = rootProject.extra["JDK_18"] as String
+jvmTarget = "1.6"
+javaHome = rootProject.extra["JDK_16"] as String
 
 dependencies {
     compileOnly(project(":kotlin-stdlib"))
@@ -39,8 +39,8 @@ val copySources by task<Sync> {
 }
 
 tasks.withType<JavaCompile> {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
+    sourceCompatibility = "1.6"
+    targetCompatibility = "1.6"
 }
 
 tasks.withType<KotlinCompile> {

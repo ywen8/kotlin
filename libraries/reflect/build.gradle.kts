@@ -51,7 +51,7 @@ dependencies {
 
     proguardDeps(project(":kotlin-stdlib"))
     proguardAdditionalInJars(project(":kotlin-annotations-jvm"))
-    proguardDeps(files(firstFromJavaHomeThatExists("jre/lib/rt.jar", "../Classes/classes.jar", jdkHome = File(property("JDK_18") as String))))
+    proguardDeps(files(firstFromJavaHomeThatExists("jre/lib/rt.jar", "../Classes/classes.jar", jdkHome = File(property("JDK_16") as String))))
 
     shadows(project(":kotlin-reflect-api"))
     shadows(project(":core:metadata"))

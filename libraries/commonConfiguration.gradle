@@ -15,7 +15,7 @@ ext.configureJvmProject = { Project project ->
         }
 
         test {
-            executable = "$JDK_18/bin/java"
+            executable = "$JDK_16/bin/java"
         }
     }
 }

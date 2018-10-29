@@ -6,8 +6,8 @@ plugins {
     kotlin("jvm")
 }
 
-jvmTarget = "1.8"
-javaHome = rootProject.extra["JDK_18"] as String
+jvmTarget = "1.6"
+javaHome = rootProject.extra["JDK_16"] as String
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += listOf(

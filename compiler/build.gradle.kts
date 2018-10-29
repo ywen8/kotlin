@@ -8,7 +8,7 @@ plugins {
     id("jps-compatible")
 }
 
-jvmTarget = "1.8"
+jvmTarget = "1.6"
 
 val compilerModules: Array<String> by rootProject.extra
 val otherCompilerModules = compilerModules.filter { it != path }
@@ -151,7 +151,7 @@ codegenTest(target = 6, jvm = 6, jdk = "JDK_18") {
 
     doFirst {
         logger.info("Configuring JDK 6 server...")
-        val jdkPath = project.findProperty("JDK_18") ?: error("JDK_18 is not optional to run this test")
+        val jdkPath = project.findProperty("JDK_16") ?: error("JDK_16 is not optional to run this test")
         val executable = "$jdkPath/bin/java"
         val main = "org.jetbrains.kotlin.test.clientserver.TestProcessServer"
         val classpath = testJvm6ServerRuntime.asPath
@@ -168,8 +168,8 @@ codegenTest(target = 6, jvm = 6, jdk = "JDK_18") {
         jdkProcess = builder.start()
 
     }
-    systemProperty("kotlin.test.default.jvm.target", "1.8")
-    systemProperty("kotlin.test.java.compilation.target", "1.8")
+    systemProperty("kotlin.test.default.jvm.target", "1.6")
+    systemProperty("kotlin.test.java.compilation.target", "1.6")
     systemProperty("kotlin.test.box.in.separate.process.port", port)
 
     doLast {
@@ -179,7 +179,7 @@ codegenTest(target = 6, jvm = 6, jdk = "JDK_18") {
 }
 
 codegenTest(target = 6, jvm = 9) {
-    systemProperty("kotlin.test.default.jvm.target", "1.8")
+    systemProperty("kotlin.test.default.jvm.target", "1.6")
 }
 
 codegenTest(target = 8, jvm = 8) {

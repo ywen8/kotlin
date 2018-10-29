@@ -29,8 +29,8 @@ dist {
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions.jdkHome = JDK_18
-    kotlinOptions.jvmTarget = 1.8
+    kotlinOptions.jdkHome = JDK_16
+    kotlinOptions.jvmTarget = 1.6
 }
 
 compileKotlin {
