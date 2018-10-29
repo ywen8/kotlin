@@ -141,19 +141,19 @@ val stripMetadata by tasks.creating {
 
 val proguardOutput = "$libsDir/${property("archivesBaseName")}-proguard.jar"
 
-val proguard by task<ProGuardTask> {
-    dependsOn(stripMetadata)
-    inputs.files(stripMetadata.outputs.files)
-    outputs.file(proguardOutput)
-
-    injars(mapOf("filter" to "!META-INF/versions/**"), stripMetadata.outputs.files)
-    injars(mapOf("filter" to "!META-INF/**"), proguardAdditionalInJars)
-    outjars(proguardOutput)
-
-    libraryjars(mapOf("filter" to "!META-INF/versions/**"), proguardDeps)
-
-    configuration("$core/reflection.jvm/reflection.pro")
-}
+//val proguard by task<ProGuardTask> {
+//    dependsOn(stripMetadata)
+//    inputs.files(stripMetadata.outputs.files)
+//    outputs.file(proguardOutput)
+//
+//    injars(mapOf("filter" to "!META-INF/versions/**"), stripMetadata.outputs.files)
+//    injars(mapOf("filter" to "!META-INF/**"), proguardAdditionalInJars)
+//    outjars(proguardOutput)
+//
+//    libraryjars(mapOf("filter" to "!META-INF/versions/**"), proguardDeps)
+//
+//    configuration("$core/reflection.jvm/reflection.pro")
+//}
 
 val relocateCoreSources by task<Copy> {
     doFirst {
@@ -189,8 +189,10 @@ val sourcesJar = sourcesJar(sourceSet = null) {
 }
 
 val result by task<Jar> {
-    dependsOn(proguard)
-    from(zipTree(file(proguardOutput)))
+//    dependsOn(proguard)
+//    from(zipTree(file(proguardOutput)))
+    dependsOn(stripMetadata)
+    from(stripMetadata)
     from(zipTree(reflectShadowJar.archivePath)) {
         include("META-INF/versions/**")
     }
