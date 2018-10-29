@@ -5,8 +5,8 @@ plugins {
     id("jps-compatible")
 }
 
-jvmTarget = "1.6"
-javaHome = rootProject.extra["JDK_16"] as String
+jvmTarget = "1.8"
+javaHome = rootProject.extra["JDK_18"] as String
 
 dependencies {
     compile(protobufLite())

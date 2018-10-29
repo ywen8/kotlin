@@ -24,8 +24,8 @@ val compileJava by tasks.getting(JavaCompile::class) {
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.6"
-    kotlinOptions.jdkHome = rootProject.extra["JDK_16"] as String
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jdkHome = rootProject.extra["JDK_18"] as String
 }
 
 val generateTests by generator("org.jetbrains.kotlin.generators.tests.GenerateRuntimeDescriptorTestsKt")

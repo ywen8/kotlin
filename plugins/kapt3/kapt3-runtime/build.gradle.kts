@@ -9,7 +9,7 @@ dependencies {
     compile(project(":kotlin-stdlib"))
 }
 
-jvmTarget = "1.6"
+jvmTarget = "1.8"
 
 sourceSets {
     "main" { projectDefault() }
