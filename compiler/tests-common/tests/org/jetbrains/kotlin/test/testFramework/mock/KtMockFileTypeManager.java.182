@@ -153,6 +153,12 @@ public class KtMockFileTypeManager extends FileTypeManager {
         return false;
     }
 
+    @NotNull
+    @Override
+    public FileType detectFileTypeFromContent(@NotNull VirtualFile file) {
+        return UnknownFileType.INSTANCE;
+    }
+
     @Nullable
     @Override
     public FileType findFileTypeByName(@NotNull String fileTypeName) {

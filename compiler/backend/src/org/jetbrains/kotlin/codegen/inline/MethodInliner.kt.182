@@ -406,10 +406,6 @@ class MethodInliner(
 
             private val isInliningLambda = nodeRemapper.isInsideInliningLambda
 
-            override fun visitAnnotableParameterCount(parameterCount: Int, visible: Boolean) {
-
-            }
-
             private fun getNewIndex(`var`: Int): Int {
                 if (inliningContext.isInliningLambda && inliningContext.lambdaInfo is IrExpressionLambda) {
                     if (`var` < parameters.argsSizeOnStack) {
