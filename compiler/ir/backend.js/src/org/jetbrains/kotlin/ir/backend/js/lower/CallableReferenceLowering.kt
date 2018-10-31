@@ -22,7 +22,9 @@ import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrSimpleType
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.toIrType
+import org.jetbrains.kotlin.ir.util.isInlined
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
@@ -343,6 +345,12 @@ class CallableReferenceLowering(val context: JsIrBackendContext) : FileLoweringP
         return returnStatements
     }
 
+    private fun IrType.boxIfInlined() = if (isInlined()) {
+        context.irBuiltIns.anyNType
+    } else {
+        this
+    }
+
     private fun generateSignatureForClosure(
         callable: IrFunction,
         getter: IrFunction,
@@ -371,7 +379,7 @@ class CallableReferenceLowering(val context: JsIrBackendContext) : FileLoweringP
 
         callable.dispatchReceiverParameter?.let { dispatch ->
             if (reference.dispatchReceiver == null) {
-                result.add(JsIrBuilder.buildValueParameter(dispatch.name, result.size, dispatch.type).also { it.parent = closure })
+                result.add(JsIrBuilder.buildValueParameter(dispatch.name, result.size, dispatch.type.boxIfInlined()).also { it.parent = closure })
             } else {
                 // do not consider implicit receiver in result signature if it was captured
                 capturedParams--
@@ -380,7 +388,7 @@ class CallableReferenceLowering(val context: JsIrBackendContext) : FileLoweringP
 
         callable.extensionReceiverParameter?.let { ext ->
             if (reference.extensionReceiver == null) {
-                result.add(JsIrBuilder.buildValueParameter(ext.name, result.size, ext.type).also { it.parent = closure })
+                result.add(JsIrBuilder.buildValueParameter(ext.name, result.size, ext.type.boxIfInlined()).also { it.parent = closure })
             } else {
                 // the same as for dispatch
                 capturedParams--
@@ -391,7 +399,7 @@ class CallableReferenceLowering(val context: JsIrBackendContext) : FileLoweringP
         for (i in capturedParams until callable.valueParameters.size) {
             val param = callable.valueParameters[i]
             val paramName = param.name.run { if (!isSpecial) identifier else "p$i" }
-            result += JsIrBuilder.buildValueParameter(paramName, result.size, param.type).also { it.parent = closure }
+            result += JsIrBuilder.buildValueParameter(paramName, result.size, param.type.boxIfInlined()).also { it.parent = closure }
         }
 
         return result
@@ -488,7 +496,7 @@ class CallableReferenceLowering(val context: JsIrBackendContext) : FileLoweringP
         // the params which are passed to closure
         val closureParamDeclarations = generateSignatureForClosure(declaration, refGetFunction, refClosureDeclaration, reference)
         val closureParamSymbols = closureParamDeclarations.map { it.symbol }
-        val returnType = declaration.returnType
+        val returnType = declaration.returnType.boxIfInlined()
 
         refClosureDeclaration.valueParameters += closureParamDeclarations
         refClosureDeclaration.returnType = returnType
