@@ -18,12 +18,11 @@ package org.jetbrains.kotlin.ir.declarations
 
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.name.Name
 
 interface IrFunction : IrDeclarationWithVisibility, IrTypeParametersContainer, IrSymbolOwner, IrDeclarationParent, IrReturnTarget {
     override val descriptor: FunctionDescriptor
@@ -59,4 +58,4 @@ fun IrFunction.putDefault(parameter: ValueParameterDescriptor, expressionBody: I
 }
 
 val IrFunction.isStaticMethodOfClass: Boolean
-    get() = parent is IrClass && dispatchReceiverParameter == null
+    get() = this is IrSimpleFunction && parent is IrClass && dispatchReceiverParameter == null
