@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.codegen
 
 import com.intellij.util.ArrayUtil
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.kotlin.backend.common.bridges.findImplementationFromInterface
 import org.jetbrains.kotlin.backend.common.bridges.firstSuperMethodFromKotlin
 import org.jetbrains.kotlin.codegen.context.ClassContext
@@ -167,7 +169,7 @@ class InterfaceImplBodyCodegen(
                 name: String,
                 desc: String,
                 signature: String?,
-                exceptions: Array<out String>?
+                exceptions: Array<out String?>?
         ): MethodVisitor {
             if (shouldCount) {
                 isAnythingGenerated = true
