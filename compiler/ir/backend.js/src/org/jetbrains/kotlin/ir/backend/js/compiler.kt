@@ -138,14 +138,14 @@ private fun JsIrBackendContext.lower(moduleFragment: IrModuleFragment, dependenc
     moduleFragment.checkIr()
     moduleFragment.checkIrValParams()
 
-    moduleFragment.files.forEach { dumpIrFile(it, "before-ic") }
+    // moduleFragment.files.forEach { dumpIrFile(it, "before-ic") }
     InlineClassLowering(this).apply {
         inlineClassDeclarationLowering.runOnFilesPostfix(moduleFragment)
         inlineClassUsageLowering.lower(moduleFragment)
         inlineClassDeclarationRemoving.runOnFilesPostfix(moduleFragment)
     }
     AutoboxingTransformer(this).lower(moduleFragment)
-    moduleFragment.files.forEach { dumpIrFile(it, "after-ic") }
+    // moduleFragment.files.forEach { dumpIrFile(it, "after-ic") }
 
     moduleFragment.checkIr()
     moduleFragment.checkIrValParams()
@@ -154,7 +154,7 @@ private fun JsIrBackendContext.lower(moduleFragment: IrModuleFragment, dependenc
     PrimitiveCompanionLowering(this).lower(moduleFragment)
     ConstLowering(this).lower(moduleFragment)
     CallsLowering(this).lower(moduleFragment)
-    moduleFragment.files.forEach { dumpIrFile(it, "before-ir2js") }
+    // moduleFragment.files.forEach { dumpIrFile(it, "before-ir2js") }
 }
 
 private fun FileLoweringPass.lower(moduleFragment: IrModuleFragment) = moduleFragment.files.forEach { lower(it) }

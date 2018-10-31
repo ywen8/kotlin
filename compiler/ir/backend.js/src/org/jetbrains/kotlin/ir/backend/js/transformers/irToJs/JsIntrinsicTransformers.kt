@@ -8,12 +8,12 @@ package org.jetbrains.kotlin.ir.backend.js.transformers.irToJs
 import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.utils.JsGenerationContext
 import org.jetbrains.kotlin.ir.backend.js.utils.Namer
+import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.util.getInlineClassBackingField
-import org.jetbrains.kotlin.ir.util.getInlineClassConstructor
 import org.jetbrains.kotlin.ir.util.getInlinedClass
 import org.jetbrains.kotlin.js.backend.ast.*
 
@@ -190,7 +190,7 @@ class JsIntrinsicTransformers(backendContext: JsIrBackendContext) {
             add(intrinsics.jsBoxIntrinsic) { call: IrCall, context ->
                 val arg = translateCallArguments(call, context).single()
                 val inlineClass = call.getTypeArgument(0)!!.getInlinedClass()!!
-                val constructor = getInlineClassConstructor(inlineClass)
+                val constructor = inlineClass.declarations.filterIsInstance<IrConstructor>().single { it.isPrimary }
                 JsNew(context.getNameForSymbol(constructor.symbol).makeRef(), listOf(arg))
             }
 
