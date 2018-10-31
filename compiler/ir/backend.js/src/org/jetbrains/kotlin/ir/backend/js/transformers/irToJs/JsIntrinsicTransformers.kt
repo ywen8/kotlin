@@ -12,6 +12,9 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.classifierOrFail
+import org.jetbrains.kotlin.ir.util.getInlineClassBackingField
+import org.jetbrains.kotlin.ir.util.getInlineClassConstructor
+import org.jetbrains.kotlin.ir.util.getInlinedClass
 import org.jetbrains.kotlin.js.backend.ast.*
 
 typealias IrCallTransformer = (IrCall, context: JsGenerationContext) -> JsExpression
@@ -182,6 +185,21 @@ class JsIntrinsicTransformers(backendContext: JsIrBackendContext) {
                 add(intrinsics.primitiveToLiteralConstructor[type]!!) { call, context ->
                     JsNew(JsNameRef("${prefix}Array"), translateCallArguments(call, context))
                 }
+            }
+
+            add(intrinsics.jsBoxIntrinsic) { call: IrCall, context ->
+                val arg = translateCallArguments(call, context).single()
+                val inlineClass = call.getTypeArgument(0)!!.getInlinedClass()!!
+                val constructor = getInlineClassConstructor(inlineClass)
+                JsNew(context.getNameForSymbol(constructor.symbol).makeRef(), listOf(arg))
+            }
+
+            add(intrinsics.jsUnboxIntrinsic) { call: IrCall, context ->
+                val arg = translateCallArguments(call, context).single()
+                val inlineClass = call.getTypeArgument(1)!!.getInlinedClass()!!
+                val field = getInlineClassBackingField(inlineClass)
+                val fieldName = context.getNameForSymbol(field.symbol)
+                JsNameRef(fieldName, arg)
             }
         }
     }
