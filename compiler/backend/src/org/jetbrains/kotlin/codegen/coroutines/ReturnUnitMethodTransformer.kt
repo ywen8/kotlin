@@ -148,6 +148,6 @@ internal fun findSourceInstructions(
     return insns.keysToMap {
         val index = methodNode.instructions.indexOf(it)
         if (isUnreachable(index, frames as Array<Frame<SourceValue?>?>)) return@keysToMap emptySet<AbstractInsnNode>()
-        frames[index].getStack(0).insns
+        frames[index]!!.getStack(0)!!.insns
     }
 }
