@@ -119,6 +119,12 @@ fun IrElement.checkIrValParams() = acceptVoid(
         override fun visitSimpleFunction(function: IrSimpleFunction) {
             function.acceptChildrenVoid(this)
 
+            function.valueParameters.forEachIndexed { index: Int, irValueParameter: IrValueParameter ->
+                if (irValueParameter.index != index) {
+                    assert(irValueParameter.index == index)
+                }
+            }
+
             if ("\$init\$" in function.name.asString()) return
 
             function.body?.acceptVoid(object : IrElementVisitorVoid {

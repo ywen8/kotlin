@@ -156,7 +156,7 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) {
 
             it.copyTypeParametersFrom(declaration)
 
-            val newValueParameters = declaration.valueParameters.map { p -> p.copyTo(it) }
+            val newValueParameters = declaration.valueParameters.mapIndexed { index, p -> p.copyTo(it, shift = index - p.index) }
             it.valueParameters += (newValueParameters + thisParam)
 
             it.returnType = type
@@ -188,7 +188,7 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) {
             declaration.isExternal
         ).also {
             it.copyTypeParametersFrom(declaration)
-            it.valueParameters += declaration.valueParameters.map { p -> p.copyTo(it) }
+            it.valueParameters += declaration.valueParameters.mapIndexed { index, p -> p.copyTo(it, shift = index - p.index) }
             it.parent = declaration.parent
 
             it.returnType = type
