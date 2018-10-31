@@ -45,6 +45,7 @@ import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
 import org.jetbrains.kotlin.ir.util.DumpIrTreeVisitor
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import java.io.StringWriter
 
@@ -330,3 +331,43 @@ val IrFunction.isStatic: Boolean
 
 val IrDeclaration.isTopLevel: Boolean
     get() = parent is IrPackageFragment
+
+val IrFunction.isSuspend get() = this is IrSimpleFunction && this.isSuspend
+
+val IrFunction.isOverridable get() = this is IrSimpleFunction && this.isOverridable
+
+val IrSimpleFunction.isOverridable: Boolean
+    get() = visibility != Visibilities.PRIVATE
+            && modality != Modality.FINAL
+            && (parent as? IrClass)?.isFinalClass != true
+
+val IrClass.isFinalClass: Boolean
+    get() = modality == Modality.FINAL && kind != ClassKind.ENUM_CLASS
+
+val IrDeclarationParent.fqNameSafe: FqName
+    get() = when (this) {
+        is IrPackageFragment -> this.fqName
+        is IrDeclaration -> this.parent.fqNameSafe.child(this.name)
+
+        else -> error(this)
+    }
+
+val IrDeclaration.name: Name
+    get() = when (this) {
+        is IrSimpleFunction -> this.name
+        is IrClass -> this.name
+        is IrEnumEntry -> this.name
+        is IrProperty -> this.name
+        is IrLocalDelegatedProperty -> this.name
+        is IrField -> this.name
+        is IrVariable -> this.name
+        is IrConstructor -> SPECIAL_INIT_NAME
+        is IrValueParameter -> this.name
+        else -> error(this)
+    }
+
+private val SPECIAL_INIT_NAME = Name.special("<init>")
+
+val IrField.fqNameSafe: FqName get() = this.parent.fqNameSafe.child(this.name)
+
+val IrConstructor.constructedClass get() = this.parent as IrClass

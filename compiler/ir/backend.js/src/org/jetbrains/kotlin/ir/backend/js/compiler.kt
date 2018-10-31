@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.backend.common.*
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.lower.*
+import org.jetbrains.kotlin.backend.common.lower.InlineClassLowering
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -22,6 +23,9 @@ import org.jetbrains.kotlin.ir.backend.js.lower.inline.RemoveInlineFunctionsWith
 import org.jetbrains.kotlin.ir.backend.js.lower.inline.ReturnableBlockLowering
 import org.jetbrains.kotlin.ir.backend.js.lower.inline.replaceUnboundSymbols
 import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.IrModuleToJsTransformer
+import org.jetbrains.kotlin.ir.backend.js.utils.checkIr
+import org.jetbrains.kotlin.ir.backend.js.utils.checkIrValParams
+import org.jetbrains.kotlin.ir.backend.js.utils.dumpIrFile
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
@@ -131,10 +135,26 @@ private fun JsIrBackendContext.lower(moduleFragment: IrModuleFragment, dependenc
 
     CallableReferenceLowering(this).lower(moduleFragment)
 
+    moduleFragment.checkIr()
+    moduleFragment.checkIrValParams()
+
+    moduleFragment.files.forEach { dumpIrFile(it, "before-ic") }
+    InlineClassLowering(this).apply {
+        inlineClassDeclarationLowering.runOnFilesPostfix(moduleFragment)
+        inlineClassUsageLowering.lower(moduleFragment)
+        inlineClassDeclarationRemoving.runOnFilesPostfix(moduleFragment)
+    }
+    AutoboxingTransformer(this).lower(moduleFragment)
+    moduleFragment.files.forEach { dumpIrFile(it, "after-ic") }
+
+    moduleFragment.checkIr()
+    moduleFragment.checkIrValParams()
+
     ClassReferenceLowering(this).lower(moduleFragment)
     PrimitiveCompanionLowering(this).lower(moduleFragment)
     ConstLowering(this).lower(moduleFragment)
     CallsLowering(this).lower(moduleFragment)
+    moduleFragment.files.forEach { dumpIrFile(it, "before-ir2js") }
 }
 
 private fun FileLoweringPass.lower(moduleFragment: IrModuleFragment) = moduleFragment.files.forEach { lower(it) }
