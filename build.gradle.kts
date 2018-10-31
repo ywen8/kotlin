@@ -13,7 +13,7 @@ import org.jetbrains.gradle.ext.RecursiveArtifact
 buildscript {
     extra["defaultSnapshotVersion"] = "1.3-SNAPSHOT"
 
-    kotlinBootstrapFrom(BootstrapOption.BintrayDev("1.3.20-dev-998"))
+    kotlinBootstrapFrom(BootstrapOption.TeamCity("1.3.20-dev-564", onlySuccessBootstrap = false))
 
     repositories.withRedirector(project) {
         bootstrapKotlinRepo?.let(::maven)
