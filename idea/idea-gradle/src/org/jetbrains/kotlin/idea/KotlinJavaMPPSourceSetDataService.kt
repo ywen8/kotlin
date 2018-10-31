@@ -41,21 +41,23 @@ class KotlinJavaMPPSourceSetDataService : AbstractProjectDataService<GradleSourc
             val libraryEntries = rootModel.orderEntries.filterIsInstance<LibraryOrderEntry>()
             libraryEntries.forEach { libraryEntry ->
                 val library = libraryEntry.library
-                val libraryModel = modelsProvider.getModifiableLibraryModel(library)
-                val classesUrl = libraryModel.getUrls(OrderRootType.CLASSES).singleOrNull() ?: return@forEach
-                val targetNode = targetsByUrl[classesUrl]?.singleOrNull() ?: return@forEach
-                val groupingModuleNode = ExternalSystemApiUtil.findParent(targetNode, ProjectKeys.MODULE) ?: return@forEach
-                val compilationNodes = ExternalSystemApiUtil
-                    .getChildren(groupingModuleNode, GradleSourceSetData.KEY)
-                    .filter { it.data.id in targetNode.data.moduleIds }
-                for (compilationNode in compilationNodes) {
-                    val compilationModule = modelsProvider.findIdeModule(compilationNode.data) ?: continue
-                    val compilationInfo = compilationNode.kotlinSourceSet ?: continue
-                    if (!isTestSourceSet && compilationInfo.isTestModule) continue
-                    val compilationRootModel = modelsProvider.getModifiableRootModel(compilationModule)
-                    addModuleDependencyIfNeeded(rootModel, compilationModule, isTestSourceSet)
-                    compilationRootModel.getModuleDependencies(isTestSourceSet).forEach { transitiveDependee ->
-                        addModuleDependencyIfNeeded(rootModel, transitiveDependee, isTestSourceSet)
+                if (library != null) {
+                    val libraryModel = modelsProvider.getModifiableLibraryModel(library)
+                    val classesUrl = libraryModel.getUrls(OrderRootType.CLASSES).singleOrNull() ?: return@forEach
+                    val targetNode = targetsByUrl[classesUrl]?.singleOrNull() ?: return@forEach
+                    val groupingModuleNode = ExternalSystemApiUtil.findParent(targetNode, ProjectKeys.MODULE) ?: return@forEach
+                    val compilationNodes = ExternalSystemApiUtil
+                        .getChildren(groupingModuleNode, GradleSourceSetData.KEY)
+                        .filter { it.data.id in targetNode.data.moduleIds }
+                    for (compilationNode in compilationNodes) {
+                        val compilationModule = modelsProvider.findIdeModule(compilationNode.data) ?: continue
+                        val compilationInfo = compilationNode.kotlinSourceSet ?: continue
+                        if (!isTestSourceSet && compilationInfo.isTestModule) continue
+                        val compilationRootModel = modelsProvider.getModifiableRootModel(compilationModule)
+                        addModuleDependencyIfNeeded(rootModel, compilationModule, isTestSourceSet)
+                        compilationRootModel.getModuleDependencies(isTestSourceSet).forEach { transitiveDependee ->
+                            addModuleDependencyIfNeeded(rootModel, transitiveDependee, isTestSourceSet)
+                        }
                     }
                 }
                 rootModel.removeOrderEntry(libraryEntry)
