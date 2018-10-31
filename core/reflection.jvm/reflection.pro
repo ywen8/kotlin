@@ -4,7 +4,7 @@
 -dontoptimize
 -dontobfuscate
 -dontshrink
--ignorewarnings
+#-ignorewarnings
 
 -keep public class kotlin.reflect.* { *; }
 -keep public class kotlin.reflect.jvm.* { *; }
