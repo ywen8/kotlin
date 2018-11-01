@@ -135,7 +135,8 @@ val stripMetadata by tasks.creating {
     inputs.file(inputJar)
     outputs.file(outputJar)
     doLast {
-        stripMetadata(logger, "kotlin/reflect/jvm/internal/impl/.*", inputJar, outputJar)
+        inputJar.copyTo(outputJar, true)
+//        stripMetadata(logger, "kotlin/reflect/jvm/internal/impl/.*", inputJar, outputJar)
     }
 }
 
