@@ -783,6 +783,14 @@ if (ideaActive) {
     }
 
     afterEvaluate {
+        allprojects {
+            idea {
+                module {
+                    inheritOutputDirs = true
+                }
+            }
+        }
+
         rootProject.idea {
             project {
                 val settings = (this@project as ExtensionAware).extensions["settings"] as org.jetbrains.gradle.ext.ProjectSettings
