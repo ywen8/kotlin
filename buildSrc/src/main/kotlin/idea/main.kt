@@ -6,14 +6,14 @@
 package org.jetbrains.kotlin.buildUtils.idea
 
 import IntelliJInstrumentCodeTask
-import groovy.json.JsonOutput
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.gradle.ext.TopLevelArtifact
 import java.io.File
 
-fun generateIdeArtifacts(rootProject: Project, ideArtifacts: TopLevelArtifact) {
+fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObjectContainer<TopLevelArtifact>) {
     val reportsDir = File("${rootProject.buildDir}/reports/idea-artifacts-cfg")
     reportsDir.mkdirs()
     val projectDir = rootProject.projectDir
@@ -87,21 +87,30 @@ fun generateIdeArtifacts(rootProject: Project, ideArtifacts: TopLevelArtifact) {
             with(DistModelIdeaArtifactBuilder(rootProject)) {
                 File(reportsDir, "03-flattened-vfs.txt").printWriter().use { report ->
                     fun getFlattenned(vfsPath: String): DistVFile =
-                            modelBuilder.vfsRoot.relativePath("$projectDir/$vfsPath")
-                                    .flatten()
-                                    .also { it.printTree(report) }
+                        modelBuilder.vfsRoot.relativePath("$projectDir/$vfsPath")
+                            .flatten()
 
-                    ideArtifacts.name = "ideaPlugin"
-                    ideArtifacts.addFiles(getFlattenned("dist/artifacts/ideaPlugin/Kotlin"))
+                    val all = getFlattenned("dist")
+                    all.child["artifacts"]
+                        ?.removeAll { it != "ideaPlugin" }
+                    all.child["artifacts"]
+                        ?.child?.get("ideaPlugin")
+                        ?.child?.get("Kotlin")
+                        ?.removeAll { it != "kotlinc" && it != "lib" }
+                    all.removeAll { it.endsWith(".zip") }
+                    all.printTree(report)
+
+                    val dist = artifactsFactory.create("dist")
+                    dist.addFiles(all)
                 }
 
-                File(reportsDir, "04-idea-artifacts.json").writeText(
-                    JsonOutput.prettyPrint(
-                        JsonOutput.toJson(
-                            ideArtifacts.toMap()
-                        )
-                    )
-                )
+//                File(reportsDir, "04-idea-artifacts.json").writeText(
+//                    JsonOutput.prettyPrint(
+//                        JsonOutput.toJson(
+//                            distArtifact.toMap()
+//                        )
+//                    )
+//                )
             }
         }
     }
