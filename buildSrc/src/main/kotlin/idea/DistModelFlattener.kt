@@ -5,11 +5,13 @@
 
 package org.jetbrains.kotlin.buildUtils.idea
 
-import idea.DistCopyDetailsMock
 import org.gradle.api.Project
+import java.io.PrintWriter
 
 class DistModelFlattener(val rootProject: Project) {
-    val visited = mutableSetOf<DistVFile>()
+    val stack = mutableSetOf<DistVFile>()
+    val visited = mutableMapOf<DistVFile, String>()
+    val common = mutableSetOf<DistVFile>()
 
     fun DistVFile.flatten(): DistVFile {
         val new = DistVFile(parent, name, file)
@@ -18,40 +20,42 @@ class DistModelFlattener(val rootProject: Project) {
     }
 
     private fun DistVFile.copyFlattenedContentsTo(new: DistVFile, inJar: Boolean = false) {
-        if (!visited.add(this)) {
-            println("SKIPPED RECUESIVE ARTIFACT:\n - ${visited.joinToString("\n - ") { it.file.path }}\n - ${this.file.path}")
+        if (!stack.add(this)) {
+            println("SKIPPED RECUESIVE ARTIFACT:\n - ${stack.joinToString("\n - ") { it.file.path }}\n - ${new.file.path}")
             return
         }
 
-        contents.forEach {
-            when (it) {
-                is DistCopy -> {
-                    val srcName = it.customTargetName ?: it.src.name
-                    if (it.src.file.exists()) {
-                        DistCopy(new, it.src, srcName)
-                    }
+        try {
+            contents.forEach {
+                when (it) {
+                    is DistCopy -> {
+                        val srcName = it.customTargetName ?: it.src.name
+                        if (it.src.file.exists()) {
+                            DistCopy(new, it.src, srcName)
+                        }
 
-                    if (!inJar && srcName.endsWith(".jar")) {
-                        val newChild = new.getOrCreateChild(srcName)
-                        it.src.copyFlattenedContentsTo(newChild, inJar = true)
-                    } else {
-                        it.src.copyFlattenedContentsTo(new, inJar)
+                        if (!inJar && srcName.endsWith(".jar")) {
+                            val newChild = new.getOrCreateChild(srcName)
+                            it.src.copyFlattenedContentsTo(newChild, inJar = true)
+                        } else {
+                            it.src.copyFlattenedContentsTo(new, inJar)
+                        }
                     }
+                    is DistModuleOutput -> DistModuleOutput(new, it.projectId)
                 }
-                is DistModuleOutput -> DistModuleOutput(new, it.projectId)
             }
-        }
 
-        child.values.forEach { oldChild ->
-            if (inJar) {
-                oldChild.copyFlattenedContentsTo(new, inJar = true)
-            } else {
-                val newChild = new.getOrCreateChild(oldChild.name)
-                oldChild.copyFlattenedContentsTo(newChild)
+            child.values.forEach { oldChild ->
+                if (inJar) {
+                    oldChild.copyFlattenedContentsTo(new, inJar = true)
+                } else {
+                    val newChild = new.getOrCreateChild(oldChild.name)
+                    oldChild.copyFlattenedContentsTo(newChild)
+                }
             }
+        } finally {
+            stack.remove(this)
         }
-
-        visited.remove(this)
     }
 }
 
