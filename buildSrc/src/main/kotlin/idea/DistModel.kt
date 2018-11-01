@@ -38,13 +38,19 @@ class DistVFile(
         this.contents.add(contents)
     }
 
+    fun removeAll(matcher: (String) -> Boolean) {
+        child.keys.filter(matcher).forEach {
+            child.remove(it)
+        }
+    }
+
     fun printTree(p: PrintWriter, depth: String = "") {
-        p.println("$depth ${file.path} ${if (file.exists()) "EXISTED" else ""}:")
+        p.println("$depth${file.path} ${if (file.exists()) "EXISTED" else ""}:")
         contents.forEach {
-            p.println("$depth+ $it")
+            p.println("$depth  $it")
         }
         child.values.forEach {
-            it.printTree(p, "$depth-")
+            it.printTree(p, "$depth  ")
         }
     }
 
