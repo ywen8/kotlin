@@ -33,7 +33,7 @@ class DistModelIdeaArtifactBuilder(val rootProject: Project) {
                 is DistModuleOutput -> {
                     val name = it.ideaModuleName
 
-                    if (name.result != null) moduleOutput(name.result + "_main")
+                    if (name.result != null) moduleOutput("org.jetbrains.kotlin.${name.result}.main")
                     else println("Cannot find idea module name for project `${it.projectId}`: ${name.error}")
                 }
             }
