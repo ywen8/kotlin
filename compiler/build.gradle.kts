@@ -78,7 +78,7 @@ sourceSets {
 }
 
 val jar: Jar by tasks
-jar.from("../idea/src") {
+jar.from("../idea/resources") {
     include("META-INF/extensions/compiler.xml")
 }
 
