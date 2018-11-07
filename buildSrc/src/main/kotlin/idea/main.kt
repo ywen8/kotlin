@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.buildUtils.idea
 
 import IntelliJInstrumentCodeTask
-import groovy.json.JsonOutput
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.tasks.AbstractCopyTask
@@ -86,9 +85,7 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
 
         with(DistModelFlattener(rootProject)) {
             with(DistModelIdeaArtifactBuilder(rootProject)) {
-                val dist = artifactsFactory.create("dist")
-
-                val all = File(reportsDir, "03-flattened-vfs.txt").printWriter().use { report ->
+                File(reportsDir, "03-flattened-vfs.txt").printWriter().use { report ->
                     fun getFlattenned(vfsPath: String): DistVFile =
                         modelBuilder.vfsRoot.relativePath("$projectDir/$vfsPath")
                             .flatten()
@@ -103,18 +100,17 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
                     all.removeAll { it.endsWith(".zip") }
                     all.printTree(report)
 
-                    all
+                    val dist = artifactsFactory.create("dist")
+                    dist.addFiles(all)
                 }
 
-                dist.addFiles(all)
-
-                File(reportsDir, "04-idea-artifacts.json").writeText(
-                    JsonOutput.prettyPrint(
-                        JsonOutput.toJson(
-                            dist.toMap()
-                        )
-                    )
-                )
+//                File(reportsDir, "04-idea-artifacts.json").writeText(
+//                    JsonOutput.prettyPrint(
+//                        JsonOutput.toJson(
+//                            distArtifact.toMap()
+//                        )
+//                    )
+//                )
             }
         }
     }
