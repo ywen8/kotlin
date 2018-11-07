@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.buildUtils.idea
 
 import IntelliJInstrumentCodeTask
+import groovy.json.JsonOutput
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.tasks.AbstractCopyTask
@@ -102,15 +103,15 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
 
                     val dist = artifactsFactory.create("dist")
                     dist.addFiles(all)
-                }
 
-//                File(reportsDir, "04-idea-artifacts.json").writeText(
-//                    JsonOutput.prettyPrint(
-//                        JsonOutput.toJson(
-//                            distArtifact.toMap()
-//                        )
-//                    )
-//                )
+                    File(reportsDir, "04-idea-artifacts.json").writeText(
+                        JsonOutput.prettyPrint(
+                            JsonOutput.toJson(
+                                dist.toMap()
+                            )
+                        )
+                    )
+                }
             }
         }
     }
