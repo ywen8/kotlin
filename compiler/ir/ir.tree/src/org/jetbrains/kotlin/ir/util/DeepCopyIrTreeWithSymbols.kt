@@ -124,7 +124,8 @@ open class DeepCopyIrTreeWithSymbols(
         IrFunctionImpl(
             declaration.startOffset, declaration.endOffset,
             mapDeclarationOrigin(declaration.origin),
-            symbolRemapper.getDeclaredFunction(declaration.symbol)
+            symbolRemapper.getDeclaredFunction(declaration.symbol),
+            returnType = declaration.returnType
         ).apply {
             declaration.overriddenSymbols.mapTo(overriddenSymbols) {
                 symbolRemapper.getReferencedFunction(it) as IrSimpleFunctionSymbol
@@ -136,7 +137,8 @@ open class DeepCopyIrTreeWithSymbols(
         IrConstructorImpl(
             declaration.startOffset, declaration.endOffset,
             mapDeclarationOrigin(declaration.origin),
-            symbolRemapper.getDeclaredConstructor(declaration.symbol)
+            symbolRemapper.getDeclaredConstructor(declaration.symbol),
+            returnType = declaration.returnType
         ).apply {
             transformFunctionChildren(declaration)
         }

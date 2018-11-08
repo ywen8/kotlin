@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.ir.symbols.impl.IrConstructorSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
+import org.jetbrains.kotlin.ir.types.impl.IrUninitializedType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -100,6 +101,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
             IrConstructorSymbolImpl(accessorDescriptor),
             name,
             Visibilities.PUBLIC,
+            IrUninitializedType,
             isInline = false,
             isExternal = false,
             isPrimary = false
@@ -155,6 +157,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
             source.descriptor.accessorName(),
             Visibilities.PUBLIC,
             Modality.FINAL,
+            IrUninitializedType,
             isInline = false,
             isExternal = false,
             isTailrec = false,
@@ -166,7 +169,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
 
             accessor.copyTypeParametersFrom(source, JvmLoweredDeclarationOrigin.SYNTHETIC_ACCESSOR)
             accessor.copyValueParametersToStatic(source, JvmLoweredDeclarationOrigin.SYNTHETIC_ACCESSOR)
-            accessor.returnType = source.returnType.remapTypeParameters(source, accessor)
+            returnType = source.returnType.remapTypeParameters(source, accessor)
 
             accessor.body = IrExpressionBodyImpl(
                 UNDEFINED_OFFSET, UNDEFINED_OFFSET,
@@ -194,6 +197,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
             fieldSymbol.descriptor.accessorNameForGetter(),
             Visibilities.PUBLIC,
             Modality.FINAL,
+            fieldSymbol.owner.type,
             isInline = false,
             isExternal = false,
             isTailrec = false,
@@ -223,7 +227,6 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
                 )
             }
 
-            accessor.returnType = fieldSymbol.owner.type
             accessor.body = createAccessorBodyForGetter(fieldSymbol.owner, accessor)
         }.symbol
     }
@@ -253,6 +256,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
             fieldSymbol.descriptor.accessorNameForSetter(),
             Visibilities.PUBLIC,
             Modality.FINAL,
+            returnType = context.irBuiltIns.unitType,
             isInline = false,
             isExternal = false,
             isTailrec = false,
@@ -299,7 +303,6 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : IrElementTrans
                 }
             )
 
-            accessor.returnType = context.irBuiltIns.unitType
             accessor.body = createAccessorBodyForSetter(fieldSymbol.owner, accessor)
         }.symbol
     }

@@ -420,6 +420,7 @@ private fun buildFunctionDeclaration(irFunction: IrFunction, origin: IrDeclarati
                 IrConstructorSymbolImpl(descriptor),
                 irFunction.name,
                 irFunction.visibility,
+                irFunction.returnType,
                 irFunction.isInline,
                 false,
                 false
@@ -440,6 +441,7 @@ private fun buildFunctionDeclaration(irFunction: IrFunction, origin: IrDeclarati
                 name,
                 irFunction.visibility,
                 Modality.FINAL,
+                irFunction.returnType,
                 irFunction.isInline,
                 false,
                 false,

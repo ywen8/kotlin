@@ -162,8 +162,8 @@ class JvmSharedVariablesManager(
         val refConstructorSymbol =
             primitiveRefDescriptorsProvider?.refConstructorSymbol ?: createFunctionSymbol(refConstructor) as IrConstructorSymbol
 
-        val refConstructorDeclaration = if (refConstructorSymbol.isBound) refConstructorSymbol.owner else
-            IrConstructorImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, SHARED_VARIABLE_ORIGIN, refConstructorSymbol)
+//        val refConstructorDeclaration = if (refConstructorSymbol.isBound) refConstructorSymbol.owner else
+//            IrConstructorImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, SHARED_VARIABLE_ORIGIN, refConstructorSymbol)
 
         val refConstructorTypeArguments =
             if (primitiveRefDescriptorsProvider != null) null
