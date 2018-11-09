@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.defaultType
-import org.jetbrains.kotlin.ir.util.transformFlat
+import org.jetbrains.kotlin.ir.util.transformDeclarationsFlat
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -38,14 +38,18 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) {
 
     val constructorProcessorLowering = object : DeclarationContainerLoweringPass {
         override fun lower(irDeclarationContainer: IrDeclarationContainer) {
-            irDeclarationContainer.declarations.filterIsInstance<IrClass>().forEach { lowerClass(it) }
+            irDeclarationContainer.declarations.filterIsInstance<IrClass>().forEach {
+                if (!it.isInline)  // Inline classes are lowered separately
+                    lowerClass(it)
+            }
         }
     }
 
     val constructorRedirectorLowering = object : DeclarationContainerLoweringPass {
         override fun lower(irDeclarationContainer: IrDeclarationContainer) {
             if (irDeclarationContainer is IrClass) {
-                updateConstructorDeclarations(irDeclarationContainer)
+                if (!irDeclarationContainer.isInline)   // Inline classes are lowered separately
+                    updateConstructorDeclarations(irDeclarationContainer)
             }
             for (it in irDeclarationContainer.declarations) {
                 it.accept(CallsiteRedirectionTransformer(), null)
@@ -54,7 +58,7 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) {
     }
 
     private fun updateConstructorDeclarations(irClass: IrClass) {
-        irClass.declarations.transformFlat {
+        irClass.transformDeclarationsFlat {
             if (it is IrConstructor) {
                 oldCtorToNewMap[it.symbol]?.let { (newInit, newCreate) ->
                     listOf(newInit.owner, newCreate.owner)

@@ -220,7 +220,9 @@ fun configureCompilerOptions(fileText: String, project: Project, module: Module)
         val facetSettings = KotlinFacet.get(module)!!.configuration.settings
 
         if (jvmTarget != null) {
-            (facetSettings.compilerArguments as K2JVMCompilerArguments).jvmTarget = jvmTarget
+            val compilerArguments = facetSettings.compilerArguments
+            require(compilerArguments is K2JVMCompilerArguments) { "Attempt to specify `$JVM_TARGET_DIRECTIVE` for non-JVM test" }
+            compilerArguments.jvmTarget = jvmTarget
         }
 
         if (options != null) {
@@ -242,7 +244,7 @@ fun rollbackCompilerOptions(project: Project, module: Module) {
     configureLanguageAndApiVersion(project, module, LanguageVersion.LATEST_STABLE.versionString)
 
     val facetSettings = KotlinFacet.get(module)!!.configuration.settings
-    (facetSettings.compilerArguments as K2JVMCompilerArguments).jvmTarget = JvmTarget.DEFAULT.description
+    (facetSettings.compilerArguments as? K2JVMCompilerArguments)?.jvmTarget = JvmTarget.DEFAULT.description
 
     val compilerSettings = facetSettings.compilerSettings ?: CompilerSettings().also {
         facetSettings.compilerSettings = it

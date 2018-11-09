@@ -84,12 +84,10 @@ compileKotlin {
 }
 
 compileTestKotlin {
-    kotlinOptions.freeCompilerArgs = ["-Xallow-kotlin-package", "-Xmulti-platform", "-XXLanguage:+ReleaseCoroutines", "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"]
+    kotlinOptions.freeCompilerArgs = ["-Xallow-kotlin-package", "-Xmulti-platform", "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"]
 }
 
 compileJava9Sources(project, 'kotlin.stdlib.jdk8')
-
-kotlin.experimental.coroutines 'enable'
 
 test {
     executable = "$JDK_18/bin/java"

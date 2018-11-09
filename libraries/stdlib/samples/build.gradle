@@ -11,10 +11,7 @@ sourceSets {
 
 compileTestKotlin {
     kotlinOptions.jdkHome = JDK_18
-    kotlinOptions.freeCompilerArgs += ["-XXLanguage:+ReleaseCoroutines"]
 }
-
-kotlin.experimental.coroutines 'enable'
 
 test {
     executable = "$JDK_18/bin/java"

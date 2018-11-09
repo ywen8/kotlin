@@ -14,11 +14,13 @@ import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light.*
 import com.intellij.psi.util.TypeConversionUtil
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
 import org.jetbrains.kotlin.asJava.builder.LightClassData
 import org.jetbrains.kotlin.asJava.builder.LightMemberOriginForDeclaration
 import org.jetbrains.kotlin.asJava.elements.*
 import org.jetbrains.kotlin.codegen.FunctionCodegen
+import org.jetbrains.kotlin.codegen.JvmCodegenUtil
 import org.jetbrains.kotlin.codegen.PropertyCodegen
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.*
@@ -38,15 +40,26 @@ import org.jetbrains.kotlin.resolve.annotations.argumentValue
 import org.jetbrains.kotlin.resolve.constants.EnumValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isPublishedApi
+import org.jetbrains.kotlin.resolve.inline.isInlineOnly
 import org.jetbrains.kotlin.resolve.jvm.annotations.STRICTFP_ANNOTATION_FQ_NAME
 import org.jetbrains.kotlin.resolve.jvm.annotations.SYNCHRONIZED_ANNOTATION_FQ_NAME
 import org.jetbrains.kotlin.resolve.jvm.annotations.TRANSIENT_ANNOTATION_FQ_NAME
 import org.jetbrains.kotlin.resolve.jvm.annotations.VOLATILE_ANNOTATION_FQ_NAME
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKind
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 
 class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: UltraLightSupport) :
     KtLightClassImpl(classOrObject) {
+    companion object {
+
+        // This property may be removed once IntelliJ versions earlier than 2018.3 become unsupported
+        // And usages of that property may be replaced with relevant registry change
+        @Volatile
+        @TestOnly
+        var forceUsingUltraLightClasses = false
+    }
+
     private val tooComplex: Boolean by lazyPub { support.isTooComplexForUltraLightGeneration(classOrObject) }
 
     override fun isFinal(isFinalByPsi: Boolean) = if (tooComplex) super.isFinal(isFinalByPsi) else isFinalByPsi
@@ -65,24 +78,35 @@ class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: Ult
     }
 
     private fun allSuperTypes() =
-        getDescriptor()?.typeConstructor?.supertypes?.mapNotNull {
-            it.asPsiType(classOrObject, support, TypeMappingMode.SUPER_TYPE, this) as? PsiClassType
-        }.orEmpty()
+        getDescriptor()?.typeConstructor?.supertypes.orEmpty().asSequence()
+
+    private fun mapSupertype(supertype: KotlinType) =
+        supertype.asPsiType(classOrObject, support, TypeMappingMode.SUPER_TYPE, this) as? PsiClassType
 
     override fun createExtendsList(): PsiReferenceList? =
         if (tooComplex) super.createExtendsList()
-        else LightReferenceListBuilder(manager, language, PsiReferenceList.Role.EXTENDS_LIST).also { list ->
+        else KotlinLightReferenceListBuilder(
+            manager,
+            language,
+            PsiReferenceList.Role.EXTENDS_LIST
+        ).also { list ->
             allSuperTypes()
-                .filter { (isInterface || it.resolve()?.isInterface == false) && !it.equalsToText(CommonClassNames.JAVA_LANG_OBJECT) }
+                .filter { (isInterface || !JvmCodegenUtil.isJvmInterface(it)) && !it.isAnyOrNullableAny() }
+                .map(this::mapSupertype)
                 .forEach(list::addReference)
         }
 
     override fun createImplementsList(): PsiReferenceList? =
         if (tooComplex) super.createImplementsList()
-        else LightReferenceListBuilder(manager, language, PsiReferenceList.Role.IMPLEMENTS_LIST).also { list ->
+        else KotlinLightReferenceListBuilder(
+            manager,
+            language,
+            PsiReferenceList.Role.IMPLEMENTS_LIST
+        ).also { list ->
             if (!isInterface) {
                 allSuperTypes()
-                    .filter { it.resolve()?.isInterface == true }
+                    .filter { JvmCodegenUtil.isJvmInterface(it) }
+                    .map(this::mapSupertype)
                     .forEach(list::addReference)
             }
         }
@@ -92,6 +116,7 @@ class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: Ult
 
     // the following logic should be in the platform (super), overrides can be removed once that happens
     override fun getInterfaces(): Array<PsiClass> = PsiClassImplUtil.getInterfaces(this)
+
     override fun getSuperClass(): PsiClass? = PsiClassImplUtil.getSuperClass(this)
     override fun getSupers(): Array<PsiClass> = PsiClassImplUtil.getSupers(this)
     override fun getSuperTypes(): Array<PsiClassType> = PsiClassImplUtil.getSuperTypes(this)
@@ -175,8 +200,11 @@ class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: Ult
 
         val visibility = when {
             property.hasModifier(PRIVATE_KEYWORD) -> PsiModifier.PRIVATE
-            property.hasModifier(PROTECTED_KEYWORD) && property.hasModifier(LATEINIT_KEYWORD) -> PsiModifier.PROTECTED
-            property.hasModifier(CONST_KEYWORD) || (property.hasModifier(LATEINIT_KEYWORD) && property.setter == null) -> PsiModifier.PUBLIC
+            property.hasModifier(LATEINIT_KEYWORD) -> {
+                val declaration = property.setter ?: property
+                simpleVisibility(declaration)
+            }
+            property.hasModifier(CONST_KEYWORD) -> PsiModifier.PUBLIC
             else -> PsiModifier.PRIVATE
         }
         val modifiers = hashSetOf(visibility)
@@ -249,6 +277,7 @@ class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: Ult
 
     private fun shouldGenerateNoArgOverload(primary: KtPrimaryConstructor): Boolean {
         return !primary.hasModifier(PRIVATE_KEYWORD) &&
+                !classOrObject.hasModifier(INNER_KEYWORD) &&
                 primary.valueParameters.isNotEmpty() &&
                 primary.valueParameters.all { it.defaultValue != null } &&
                 classOrObject.allConstructors.none { it.valueParameters.isEmpty() }
@@ -357,7 +386,17 @@ class KtUltraLightClass(classOrObject: KtClassOrObject, private val support: Ult
                 fun KtDeclaration.isPrivate() =
                     hasModifier(PRIVATE_KEYWORD) ||
                             this is KtConstructor<*> && classOrObject.hasModifier(SEALED_KEYWORD) ||
-                            this is KtFunction && typeParameters.any { it.hasModifier(REIFIED_KEYWORD) }
+                            isInlineOnly()
+
+                private fun KtDeclaration.isInlineOnly(): Boolean {
+                    if (this !is KtCallableDeclaration || !hasModifier(INLINE_KEYWORD)) return false
+                    if (typeParameters.any { it.hasModifier(REIFIED_KEYWORD) }) return true
+                    if (annotationEntries.isEmpty()) return false
+
+                    val descriptor = resolve() as? CallableMemberDescriptor ?: return false
+
+                    return descriptor.isInlineOnly()
+                }
             }
         ).setConstructor(declaration is KtConstructor<*>)
     }
@@ -549,9 +588,13 @@ internal class KtUltraLightMethod(
     containingClass: KtUltraLightClass
 ) : KtLightMethodImpl({ delegate }, LightMemberOriginForDeclaration(originalElement, JvmDeclarationOriginKind.OTHER), containingClass) {
 
+    // These two overrides are necessary because ones from KtLightMethodImpl suppose that clsDelegate.returnTypeElement is valid
+    // While here we only set return type for LightMethodBuilder (see org.jetbrains.kotlin.asJava.classes.KtUltraLightClass.asJavaMethod)
     override fun getReturnTypeElement(): PsiTypeElement? = null
+
     override fun getReturnType(): PsiType? = clsDelegate.returnType
-    override fun getParameterList(): PsiParameterList = clsDelegate.parameterList
+
+    override fun buildParametersForList(): List<PsiParameter> = clsDelegate.parameterList.parameters.toList()
 
     // should be in super
     override fun isVarArgs() = PsiImplUtil.isVarArgs(this)
@@ -564,7 +607,7 @@ internal class KtUltraLightMethod(
     }
 
     private val _throwsList: PsiReferenceList by lazyPub {
-        val list = LightReferenceListBuilder(manager, language, PsiReferenceList.Role.THROWS_LIST)
+        val list = KotlinLightReferenceListBuilder(manager, language, PsiReferenceList.Role.THROWS_LIST)
         (kotlinOrigin?.resolve() as? FunctionDescriptor)?.let {
             for (ex in FunctionCodegen.getThrownExceptions(it)) {
                 list.addReference(ex.fqNameSafe.asString())
@@ -572,6 +615,8 @@ internal class KtUltraLightMethod(
         }
         list
     }
+
+    override fun getHierarchicalMethodSignature() = PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
 
     override fun getThrowsList(): PsiReferenceList = _throwsList
 }

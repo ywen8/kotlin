@@ -400,6 +400,11 @@ public class IrJsCodegenBoxTestGenerated extends AbstractIrJsCodegenBoxTest {
             runTest("compiler/testData/codegen/box/arrays/indicesChar.kt");
         }
 
+        @TestMetadata("inlineInitializer.kt")
+        public void testInlineInitializer() throws Exception {
+            runTest("compiler/testData/codegen/box/arrays/inlineInitializer.kt");
+        }
+
         @TestMetadata("iterator.kt")
         public void testIterator() throws Exception {
             runTest("compiler/testData/codegen/box/arrays/iterator.kt");
@@ -16808,14 +16813,19 @@ public class IrJsCodegenBoxTestGenerated extends AbstractIrJsCodegenBoxTest {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/call/inlineClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JS_IR, true);
                 }
 
+                @TestMetadata("constructorWithInlineClassParameters.kt")
+                public void testConstructorWithInlineClassParameters() throws Exception {
+                    runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/constructorWithInlineClassParameters.kt");
+                }
+
                 @TestMetadata("fieldAccessors.kt")
                 public void testFieldAccessors() throws Exception {
                     runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/fieldAccessors.kt");
                 }
 
-                @TestMetadata("functionsAndConstructors.kt")
-                public void testFunctionsAndConstructors() throws Exception {
-                    runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/functionsAndConstructors.kt");
+                @TestMetadata("functionsWithInlineClassParameters.kt")
+                public void testFunctionsWithInlineClassParameters() throws Exception {
+                    runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/functionsWithInlineClassParameters.kt");
                 }
 
                 @TestMetadata("inlineClassConstructor.kt")

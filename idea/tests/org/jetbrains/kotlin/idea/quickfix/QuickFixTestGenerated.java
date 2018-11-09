@@ -11843,6 +11843,21 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             runTest("idea/testData/quickfix/typeMismatch/unresolvableTypeParams.kt");
         }
 
+        @TestMetadata("when.kt")
+        public void testWhen() throws Exception {
+            runTest("idea/testData/quickfix/typeMismatch/when.kt");
+        }
+
+        @TestMetadata("when2.kt")
+        public void testWhen2() throws Exception {
+            runTest("idea/testData/quickfix/typeMismatch/when2.kt");
+        }
+
+        @TestMetadata("when3.kt")
+        public void testWhen3() throws Exception {
+            runTest("idea/testData/quickfix/typeMismatch/when3.kt");
+        }
+
         @TestMetadata("idea/testData/quickfix/typeMismatch/casts")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
@@ -12767,6 +12782,31 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             @TestMetadata("funInvWithoutParentheses.kt")
             public void testFunInvWithoutParentheses() throws Exception {
                 runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/funInvWithoutParentheses.kt");
+            }
+
+            @TestMetadata("inStringTemplate.kt")
+            public void testInStringTemplate() throws Exception {
+                runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/inStringTemplate.kt");
+            }
+
+            @TestMetadata("inStringTemplate2.kt")
+            public void testInStringTemplate2() throws Exception {
+                runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/inStringTemplate2.kt");
+            }
+
+            @TestMetadata("inStringTemplate3.kt")
+            public void testInStringTemplate3() throws Exception {
+                runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/inStringTemplate3.kt");
+            }
+
+            @TestMetadata("inStringTemplate4.kt")
+            public void testInStringTemplate4() throws Exception {
+                runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/inStringTemplate4.kt");
+            }
+
+            @TestMetadata("inStringTemplate5.kt")
+            public void testInStringTemplate5() throws Exception {
+                runTest("idea/testData/quickfix/variables/changeToFunctionInvocation/inStringTemplate5.kt");
             }
         }
 

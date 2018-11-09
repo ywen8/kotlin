@@ -177,7 +177,7 @@ object JsIrBuilder {
 
     fun buildVar(
         type: IrType,
-        parent: IrDeclarationParent,
+        parent: IrDeclarationParent?,
         name: String = "tmp",
         isVar: Boolean = false,
         isConst: Boolean = false,
@@ -198,7 +198,7 @@ object JsIrBuilder {
         ).also {
             descriptor.bind(it)
             it.initializer = initializer
-            it.parent = parent
+            if (parent != null) it.parent = parent
         }
     }
 
@@ -268,70 +268,5 @@ fun IrClass.simpleFunctions(): List<IrSimpleFunction> = this.declarations.flatMa
         is IrSimpleFunction -> listOf(it)
         is IrProperty -> listOfNotNull(it.getter, it.setter)
         else -> emptyList()
-    }
-}
-
-// TODO extract to common place?
-
-fun irCall(
-    call: IrCall,
-    newFunction: IrFunction,
-    dispatchReceiverAsFirstArgument: Boolean = false,
-    firstArgumentAsDispatchReceiver: Boolean = false
-): IrCall =
-        irCall(call, newFunction.symbol, dispatchReceiverAsFirstArgument, firstArgumentAsDispatchReceiver)
-
-
-fun irCall(
-    call: IrCall,
-    newSymbol: IrFunctionSymbol,
-    dispatchReceiverAsFirstArgument: Boolean = false,
-    firstArgumentAsDispatchReceiver: Boolean = false
-): IrCall =
-    call.run {
-        IrCallImpl(
-            startOffset,
-            endOffset,
-            type,
-            newSymbol,
-            newSymbol.descriptor,
-            typeArgumentsCount,
-            origin
-        ).apply {
-            copyTypeAndValueArgumentsFrom(
-                call,
-                dispatchReceiverAsFirstArgument,
-                firstArgumentAsDispatchReceiver
-            )
-        }
-    }
-
-// TODO extract to common place?
-private fun IrCall.copyTypeAndValueArgumentsFrom(
-    call: IrCall,
-    dispatchReceiverAsFirstArgument: Boolean = false,
-    firstArgumentAsDispatchReceiver: Boolean = false
-) {
-    copyTypeArgumentsFrom(call)
-
-    var toValueArgumentIndex = 0
-    var fromValueArgumentIndex = 0
-
-    when {
-        dispatchReceiverAsFirstArgument -> {
-            putValueArgument(toValueArgumentIndex++, call.dispatchReceiver)
-        }
-        firstArgumentAsDispatchReceiver -> {
-            dispatchReceiver = call.getValueArgument(fromValueArgumentIndex++)
-        }
-        else -> {
-            dispatchReceiver = call.dispatchReceiver
-        }
-    }
-
-    extensionReceiver = call.extensionReceiver
-
-    while (fromValueArgumentIndex < call.valueArgumentsCount) {
-        putValueArgument(toValueArgumentIndex++, call.getValueArgument(fromValueArgumentIndex++))
     }
 }
