@@ -42,9 +42,8 @@ class CliKotlinUastResolveProviderService : KotlinUastResolveProviderService {
         return element.project.analysisCompletedHandler?.getLanguageVersionSettings() ?: LanguageVersionSettingsImpl.DEFAULT
     }
 
-    override fun getReferenceVariants(ktElement: KtElement, nameHint: String): Sequence<DeclarationDescriptor> {
-        throw UnsupportedOperationException("cant perform multi-resolve in CLI-mode")
-    }
+    override fun getReferenceVariants(ktElement: KtElement, nameHint: String): Sequence<DeclarationDescriptor> =
+        emptySequence() // Not supported
 }
 
 class UastAnalysisHandlerExtension : AnalysisHandlerExtension {
