@@ -195,7 +195,7 @@ class KotlinUastResolveApiTest : KotlinLightCodeInsightFixtureTestCase() {
 
                 }
 
-                fun MyClass(string: String): String = string
+                fun MyClass(string: String): MyClass = MyClass(1)
 
 
                 fun main(args: Array<String>) {
@@ -215,7 +215,7 @@ class KotlinUastResolveApiTest : KotlinLightCodeInsightFixtureTestCase() {
             resolvedDeclarationsStrings,
             "(int: Int)",
             "constructor(int: Int, int1: Int) : this(int + int1)",
-            "fun MyClass(string: String): String = string"
+            "fun MyClass(string: String): MyClass = MyClass(1)"
         )
         assertDoesntContain(resolvedDeclarationsStrings, "fun foo(): Int = TODO()")
         TestCase.assertEquals(PsiType.getTypeByName("MyClass", project, file.resolveScope), functionCall.getExpressionType())
