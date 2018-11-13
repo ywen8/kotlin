@@ -16,26 +16,49 @@
 
 package org.jetbrains.kotlin.backend.common
 
+import org.jetbrains.kotlin.backend.common.descriptors.isSuspend
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetObjectValueImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.types.IrDynamicType
+import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.toKotlinType
 import org.jetbrains.kotlin.ir.util.isAnnotationClass
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyExternal
+import org.jetbrains.kotlin.resolve.inline.isInlineOnlyOrReifiable
 import org.jetbrains.kotlin.types.KotlinType
 
 typealias ReportError = (element: IrElement, message: String) -> Unit
 
-class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: ReportError, val ensureAllNodesAreDifferent: Boolean) : IrElementVisitorVoid {
+class CheckIrElementVisitor(
+    val builtIns: KotlinBuiltIns,
+    val reportError: ReportError,
+    val ensureAllNodesAreDifferent: Boolean,
+    private val checkTypes: Boolean = true
+) : IrElementVisitorVoid {
 
     val set = mutableSetOf<IrElement>()
 
+    private val IrElement.isImmutable
+        get() = when (this) {
+            is IrGetValueImpl,
+            is IrGetObjectValueImpl,
+            is IrConstImpl<*> -> true
+            else -> false
+        }
+
     override fun visitElement(element: IrElement) {
-        if (ensureAllNodesAreDifferent) {
+        if (ensureAllNodesAreDifferent && !element.isImmutable) {
             if (set.contains(element))
                 reportError(element, "Duplicate IR node")
             set.add(element)
@@ -44,6 +67,9 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
     }
 
     private fun IrExpression.ensureTypeIs(expectedType: KotlinType) {
+        if (!checkTypes)
+            return
+
         // TODO: compare IR types instead.
         if (expectedType != type.toKotlinType()) {
             reportError(this, "unexpected expression.type: expected $expectedType, got ${type.toKotlinType()}")
@@ -51,7 +77,7 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
     }
 
     private fun IrSymbol.ensureBound(expression: IrExpression) {
-        if (!this.isBound) {
+        if (!this.isBound && expression.type !is IrDynamicType) {
             reportError(expression, "Unbound symbol ${this}")
         }
     }
@@ -135,7 +161,8 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
     override fun visitEnumConstructorCall(expression: IrEnumConstructorCall) {
         super.visitEnumConstructorCall(expression)
 
-        expression.ensureTypeIs(builtIns.unitType)
+        // TODO:
+        // expression.ensureTypeIs(builtIns.unitType)
     }
 
     override fun visitInstanceInitializerCall(expression: IrInstanceInitializerCall) {
@@ -163,7 +190,7 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
             IrTypeOperator.INSTANCEOF, IrTypeOperator.NOT_INSTANCEOF -> builtIns.booleanType
         }
 
-        if (operator == IrTypeOperator.IMPLICIT_COERCION_TO_UNIT && typeOperand != builtIns.unitType) {
+        if (operator == IrTypeOperator.IMPLICIT_COERCION_TO_UNIT && !typeOperand.isUnit()) {
             reportError(expression, "typeOperand is $typeOperand")
         }
 
@@ -200,12 +227,14 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
     override fun visitClass(declaration: IrClass) {
         super.visitClass(declaration)
 
-        if (!declaration.isAnnotationClass) {
+        if (!declaration.isAnnotationClass && !declaration.isInline) {
             // Check that all functions and properties from memberScope are present in IR
             // (including FAKE_OVERRIDE ones).
 
             val allDescriptors = declaration.descriptor.unsubstitutedMemberScope
-                    .getContributedDescriptors().filterIsInstance<CallableMemberDescriptor>()
+                .getContributedDescriptors().filterIsInstance<CallableMemberDescriptor>().filter {
+                    !it.isInlineOnlyOrReifiable() && it !is PropertyDescriptor && !it.isSuspend
+                }
 
             val presentDescriptors = declaration.declarations.map { it.descriptor }
 
@@ -218,8 +247,41 @@ class CheckIrElementVisitor(val builtIns: KotlinBuiltIns, val reportError: Repor
         }
     }
 
+    override fun visitFunction(declaration: IrFunction) {
+        val parameters = declaration.run {
+            listOfNotNull(dispatchReceiverParameter, extensionReceiverParameter) + valueParameters
+        }
+        for (p in parameters) {
+            if (p.parent != declaration) {
+                reportError(declaration, "Wrong value parameter parent ${p.index}")
+            }
+        }
+        for ((i, p) in declaration.valueParameters.withIndex()) {
+            if (p.index != i) {
+                reportError(declaration, "Inconsistent index of value parameter ${p.index} != $i")
+            }
+        }
+
+        for ((i, p) in declaration.typeParameters.withIndex()) {
+            if (p.index != i) {
+                reportError(declaration, "Inconsistent index of type parameter ${p.index} != $i")
+            }
+            if (p.parent != declaration) {
+                reportError(declaration, "Wrong type parameter parent ${p.index}")
+            }
+        }
+    }
+
     override fun visitDeclarationReference(expression: IrDeclarationReference) {
         super.visitDeclarationReference(expression)
+
+        if (expression.descriptor.isEffectivelyExternal()) return
+
+        if (expression is IrFieldAccessExpression) {
+            val receiverType = expression.receiver?.type
+            if (receiverType is IrDynamicType)
+                return
+        }
 
         expression.symbol.ensureBound(expression)
     }

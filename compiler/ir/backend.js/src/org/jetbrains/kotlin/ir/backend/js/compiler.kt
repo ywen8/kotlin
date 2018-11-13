@@ -23,7 +23,9 @@ import org.jetbrains.kotlin.ir.backend.js.lower.inline.RemoveInlineFunctionsWith
 import org.jetbrains.kotlin.ir.backend.js.lower.inline.ReturnableBlockLowering
 import org.jetbrains.kotlin.ir.backend.js.lower.inline.replaceUnboundSymbols
 import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.IrModuleToJsTransformer
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
@@ -74,16 +76,24 @@ fun compile(
         moduleFragment.files.forEach { irFile -> extension.generate(irFile, context, psi2IrContext.bindingContext) }
     }
 
+    validateIrModule(context, moduleFragment)
     MoveExternalDeclarationsToSeparatePlace().lower(moduleFragment)
+    validateIrModule(context, moduleFragment)
     ExpectDeclarationsRemoving(context).lower(moduleFragment)
+    validateIrModule(context, moduleFragment)
     CoroutineIntrinsicLowering(context).lower(moduleFragment)
+    validateIrModule(context, moduleFragment)
     ArrayInlineConstructorLowering(context).lower(moduleFragment)
+    validateIrModule(context, moduleFragment)
     LateinitLowering(context, true).lower(moduleFragment)
+    validateIrModule(context, moduleFragment)
 
     val moduleFragmentCopy = moduleFragment.deepCopyWithSymbols()
+    validateIrModule(context, moduleFragment)
 
     context.performInlining(moduleFragment)
 
+    validateIrModule(context, moduleFragment)
     context.lower(moduleFragment, irDependencyModules)
 
     val program = moduleFragment.accept(IrModuleToJsTransformer(context), null)
@@ -101,46 +111,87 @@ private fun JsIrBackendContext.performInlining(moduleFragment: IrModuleFragment)
 }
 
 private fun JsIrBackendContext.lower(moduleFragment: IrModuleFragment, dependencies: List<IrModuleFragment>) {
+    validateIrModule(this, moduleFragment)
+    for (file in moduleFragment.files) {
+        for (d in file.declarations) {
+            if (d is IrClass) {
+                if (d.declarations.filterIsInstance<IrFunction>().size > 5) {
+                    1 + 1
+                }
+            }
+        }
+    }
     ThrowableSuccessorsLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     TailrecLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     UnitMaterializationLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     EnumClassLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     EnumUsageLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     LateinitLowering(this, true).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     SharedVariablesLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     ReturnableBlockLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     LocalDelegatedPropertiesLowering().lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     LocalDeclarationsLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     InnerClassesLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     InnerClassConstructorCallsLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     SuspendFunctionsLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     CallableReferenceLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     DefaultArgumentStubGenerator(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     DefaultParameterInjector(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     DefaultParameterCleaner(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     VarargLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     PropertiesLowering().lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     InitializersLowering(this, JsLoweredDeclarationOrigin.CLASS_STATIC_INITIALIZER, false).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     MultipleCatchesLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     BridgesConstruction(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
     TypeOperatorLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
 
     SecondaryCtorLowering(this).apply {
         constructorProcessorLowering.runOnFilesPostfix(moduleFragment.files + dependencies.flatMap { it.files })
         constructorRedirectorLowering.runOnFilesPostfix(moduleFragment)
     }
+    validateIrModule(this, moduleFragment)
 
     InlineClassLowering(this).apply {
         inlineClassDeclarationLowering.runOnFilesPostfix(moduleFragment)
         inlineClassUsageLowering.lower(moduleFragment)
     }
+    validateIrModule(this, moduleFragment)
     AutoboxingTransformer(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     BlockDecomposerLowering(this).runOnFilesPostfix(moduleFragment)
+    validateIrModule(this, moduleFragment)
 
     ClassReferenceLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     PrimitiveCompanionLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     ConstLowering(this).lower(moduleFragment)
+    validateIrModule(this, moduleFragment)
     CallsLowering(this).lower(moduleFragment)
+    // validateIrModule(this, moduleFragment)
 }
 
 private fun FileLoweringPass.lower(moduleFragment: IrModuleFragment) = moduleFragment.files.forEach { lower(it) }
