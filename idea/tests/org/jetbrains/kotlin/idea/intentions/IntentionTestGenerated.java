@@ -9673,6 +9673,11 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             runTest("idea/testData/intentions/iterateExpression/nonOperatotExtensionIterator.kt");
         }
 
+        @TestMetadata("nothing.kt")
+        public void testNothing() throws Exception {
+            runTest("idea/testData/intentions/iterateExpression/nothing.kt");
+        }
+
         @TestMetadata("simple.kt")
         public void testSimple() throws Exception {
             runTest("idea/testData/intentions/iterateExpression/simple.kt");
@@ -16259,6 +16264,16 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("superCall.kt")
         public void testSuperCall() throws Exception {
             runTest("idea/testData/intentions/usePropertyAccessSyntax/superCall.kt");
+        }
+
+        @TestMetadata("suppressedByAtomicIntegerList.kt")
+        public void testSuppressedByAtomicIntegerList() throws Exception {
+            runTest("idea/testData/intentions/usePropertyAccessSyntax/suppressedByAtomicIntegerList.kt");
+        }
+
+        @TestMetadata("suppressedByAtomicLongList.kt")
+        public void testSuppressedByAtomicLongList() throws Exception {
+            runTest("idea/testData/intentions/usePropertyAccessSyntax/suppressedByAtomicLongList.kt");
         }
 
         @TestMetadata("suppressedByNotPropertyList.kt")

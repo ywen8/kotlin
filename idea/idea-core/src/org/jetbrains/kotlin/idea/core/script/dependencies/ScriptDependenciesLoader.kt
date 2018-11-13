@@ -21,8 +21,6 @@ import org.jetbrains.kotlin.script.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.script.experimental.dependencies.AsyncDependenciesResolver
 import kotlin.script.experimental.dependencies.DependenciesResolver
-import kotlin.script.experimental.dependencies.ScriptDependencies
-import kotlin.script.experimental.dependencies.ScriptReport
 
 abstract class ScriptDependenciesLoader(
     protected val file: VirtualFile,
@@ -69,22 +67,30 @@ abstract class ScriptDependenciesLoader(
     protected val contentLoader = ScriptContentLoader(project)
     protected val cache: ScriptDependenciesCache = ServiceManager.getService(project, ScriptDependenciesCache::class.java)
 
+    private val reporter: ScriptReportSink = ServiceManager.getService(project, ScriptReportSink::class.java)
+
     protected fun processResult(result: DependenciesResolver.ResolveResult) {
         loaders.remove(file)
 
-        val newDependencies = result.dependencies?.adjustByDefinition(scriptDef) ?: return
+        if (cache[file] == null) {
+            saveDependencies(result)
+            attachReportsIfChanged(result)
+            return
+        }
+
+        val newDependencies = result.dependencies?.adjustByDefinition(scriptDef)
         if (cache[file] != newDependencies) {
-            if (shouldShowNotification() && cache[file] != null && !ApplicationManager.getApplication().isUnitTestMode) {
-                file.addScriptDependenciesNotificationPanel(newDependencies, project) {
-                    saveDependencies(newDependencies)
-                    attachReports(result.reports)
+            if (shouldShowNotification() && !ApplicationManager.getApplication().isUnitTestMode) {
+                file.addScriptDependenciesNotificationPanel(result, project) {
+                    saveDependencies(it)
+                    attachReportsIfChanged(it)
                 }
             } else {
-                saveDependencies(newDependencies)
-                attachReports(result.reports)
+                saveDependencies(result)
+                attachReportsIfChanged(result)
             }
         } else {
-            attachReports(result.reports)
+            attachReportsIfChanged(result)
 
             if (shouldShowNotification()) {
                 file.removeScriptDependenciesNotificationPanel(project)
@@ -92,15 +98,18 @@ abstract class ScriptDependenciesLoader(
         }
     }
 
-    private fun attachReports(reports: List<ScriptReport>) {
-        ServiceManager.getService(project, ScriptReportSink::class.java)?.attachReports(file, reports)
+    private fun attachReportsIfChanged(result: DependenciesResolver.ResolveResult) {
+        if (file.getUserData(IdeScriptReportSink.Reports) != result.reports.takeIf { it.isNotEmpty() }) {
+            reporter.attachReports(file, result.reports)
+        }
     }
 
-    private fun saveDependencies(dependencies: ScriptDependencies) {
+    private fun saveDependencies(result: DependenciesResolver.ResolveResult) {
         if (shouldShowNotification()) {
             file.removeScriptDependenciesNotificationPanel(project)
         }
 
+        val dependencies = result.dependencies?.adjustByDefinition(scriptDef) ?: return
         val rootsChanged = cache.hasNotCachedRoots(dependencies)
         if (cache.save(file, dependencies)) {
             file.scriptDependencies = dependencies

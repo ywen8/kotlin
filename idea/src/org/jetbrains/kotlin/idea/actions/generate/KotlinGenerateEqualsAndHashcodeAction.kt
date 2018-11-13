@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
+import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
 import org.jetbrains.kotlin.psi.psiUtil.quoteIfNeeded
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.TargetPlatform
@@ -117,7 +118,7 @@ class KotlinGenerateEqualsAndHashcodeAction : KotlinGenerateMemberActionBase<Kot
         }
 
         return with(KotlinGenerateEqualsWizard(project, klass, properties, needEquals, needHashCode)) {
-            if (!showAndGet()) return null
+            if (!klass.hasExpectModifier() && !showAndGet()) return null
 
             Info(needEquals,
                  needHashCode,
@@ -250,7 +251,7 @@ class KotlinGenerateEqualsAndHashcodeAction : KotlinGenerateMemberActionBase<Kot
                 append("return true")
             }
 
-            equalsFun.bodyExpression!!.replace(KtPsiFactory(project).createBlock(bodyText))
+            equalsFun.replaceBody { KtPsiFactory(project).createBlock(bodyText) }
 
             return equalsFun
         }
@@ -311,7 +312,7 @@ class KotlinGenerateEqualsAndHashcodeAction : KotlinGenerateMemberActionBase<Kot
                 }.toString()
             } else "return $initialValue"
 
-            hashCodeFun.bodyExpression!!.replace(KtPsiFactory(project).createBlock(bodyText))
+            hashCodeFun.replaceBody { KtPsiFactory(project).createBlock(bodyText) }
 
             return hashCodeFun
         }

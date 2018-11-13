@@ -12075,6 +12075,11 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             runTest("compiler/testData/codegen/box/inlineClasses/kt27706.kt");
         }
 
+        @TestMetadata("mapInlineClassesWithSuppressWildcardsMode.kt")
+        public void testMapInlineClassesWithSuppressWildcardsMode() throws Exception {
+            runTest("compiler/testData/codegen/box/inlineClasses/mapInlineClassesWithSuppressWildcardsMode.kt");
+        }
+
         @TestMetadata("noAssertionsOnInlineClassBasedOnNullableType.kt")
         public void testNoAssertionsOnInlineClassBasedOnNullableType() throws Exception {
             runTest("compiler/testData/codegen/box/inlineClasses/noAssertionsOnInlineClassBasedOnNullableType.kt");
@@ -12743,6 +12748,11 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             @TestMetadata("delegateTopLevelVarToInlineClass.kt")
             public void testDelegateTopLevelVarToInlineClass() throws Exception {
                 runTest("compiler/testData/codegen/box/inlineClasses/propertyDelegation/delegateTopLevelVarToInlineClass.kt");
+            }
+
+            @TestMetadata("delegatedPropertyOfInlineClassType.kt")
+            public void testDelegatedPropertyOfInlineClassType() throws Exception {
+                runTest("compiler/testData/codegen/box/inlineClasses/propertyDelegation/delegatedPropertyOfInlineClassType.kt");
             }
 
             @TestMetadata("kt27070.kt")

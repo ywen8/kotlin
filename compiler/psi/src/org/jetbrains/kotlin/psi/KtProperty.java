@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.stubs.KotlinPropertyStub;
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes;
 import org.jetbrains.kotlin.psi.typeRefHelpers.TypeRefHelpersKt;
+import org.jetbrains.kotlin.util.AstLoadingFilter;
 
 import java.util.Collections;
 import java.util.List;
@@ -251,7 +252,9 @@ public class KtProperty extends KtTypeParameterListOwnerStub<KotlinPropertyStub>
             return null;
         }
 
-        return PsiTreeUtil.getNextSiblingOfType(findChildByType(EQ), KtExpression.class);
+        return AstLoadingFilter.forceAllowTreeLoading(this.getContainingFile(), () ->
+                PsiTreeUtil.getNextSiblingOfType(findChildByType(EQ), KtExpression.class)
+        );
     }
 
     public boolean hasDelegateExpressionOrInitializer() {

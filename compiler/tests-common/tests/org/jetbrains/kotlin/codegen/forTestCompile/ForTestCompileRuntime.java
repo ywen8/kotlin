@@ -20,8 +20,6 @@ public class ForTestCompileRuntime {
     private static volatile SoftReference<ClassLoader> reflectJarClassLoader = new SoftReference<>(null);
     private static volatile SoftReference<ClassLoader> runtimeJarClassLoader = new SoftReference<>(null);
     private static volatile SoftReference<ClassLoader> coroutinesJarClassLoader = new SoftReference<>(null);
-    private static volatile SoftReference<ClassLoader> unsignedTypesJarClassLoader = new SoftReference<>(null);
-    private static volatile SoftReference<ClassLoader> unsignedTypesAndReflectJarClassLoader = new SoftReference<>(null);
     private static volatile SoftReference<ClassLoader> coroutinesAndReflectJarClassLoader = new SoftReference<>(null);
 
     @NotNull
@@ -32,11 +30,6 @@ public class ForTestCompileRuntime {
     @NotNull
     public static File coroutinesJarForTests() {
         return assertExists(new File("dist/kotlin-stdlib-coroutines.jar"));
-    }
-
-    @NotNull
-    public static File unsignedTypesJarForTests() {
-        return assertExists(new File("dist/kotlin-stdlib-unsigned.jar"));
     }
 
     @NotNull
@@ -134,29 +127,6 @@ public class ForTestCompileRuntime {
         if (loader == null) {
             loader = createClassLoader(runtimeJarForTests(), coroutinesJarForTests(), scriptRuntimeJarForTests(), kotlinTestJarForTests());
             coroutinesJarClassLoader = new SoftReference<>(loader);
-        }
-        return loader;
-    }
-
-    @NotNull
-    public static synchronized ClassLoader runtimeAndUnsignedTypesJarClassLoader() {
-        ClassLoader loader = unsignedTypesJarClassLoader.get();
-        if (loader == null) {
-            loader = createClassLoader(runtimeJarForTests(), unsignedTypesJarForTests(), scriptRuntimeJarForTests(), kotlinTestJarForTests());
-            unsignedTypesJarClassLoader = new SoftReference<>(loader);
-        }
-        return loader;
-    }
-
-    @NotNull
-    public static synchronized ClassLoader reflectAndUnsignedTypesJarClassLoader() {
-        ClassLoader loader = unsignedTypesAndReflectJarClassLoader.get();
-        if (loader == null) {
-            loader = createClassLoader(
-                    runtimeJarForTests(), reflectJarForTests(), unsignedTypesJarForTests(),
-                    scriptRuntimeJarForTests(), kotlinTestJarForTests()
-            );
-            unsignedTypesAndReflectJarClassLoader = new SoftReference<>(loader);
         }
         return loader;
     }

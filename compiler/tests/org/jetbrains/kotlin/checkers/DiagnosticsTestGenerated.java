@@ -8385,6 +8385,11 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     runTest("compiler/testData/diagnostics/tests/generics/nullability/capturedTypeWithPlatformSupertype.kt");
                 }
 
+                @TestMetadata("considerTypeNotNullOnlyIfItHasNotNullBound.kt")
+                public void testConsiderTypeNotNullOnlyIfItHasNotNullBound() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/generics/nullability/considerTypeNotNullOnlyIfItHasNotNullBound.kt");
+                }
+
                 @TestMetadata("correctSubstitutionForIncorporationConstraint.kt")
                 public void testCorrectSubstitutionForIncorporationConstraint() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/generics/nullability/correctSubstitutionForIncorporationConstraint.kt");
@@ -9882,6 +9887,24 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("nontrivialCallExpression.kt")
                 public void testNontrivialCallExpression() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/inference/nestedCalls/nontrivialCallExpression.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/inference/recursiveCalls")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class RecursiveCalls extends AbstractDiagnosticsTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInRecursiveCalls() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/inference/recursiveCalls"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+                }
+
+                @TestMetadata("kt23531.kt")
+                public void testKt23531() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/inference/recursiveCalls/kt23531.kt");
                 }
             }
 
