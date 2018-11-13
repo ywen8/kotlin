@@ -57,6 +57,13 @@ var DataNode<ModuleData>.platformPluginId
         by CopyableDataNodeUserDataProperty(Key.create<String>("PLATFORM_PLUGIN_ID"))
 var DataNode<out ModuleData>.implementedModuleNames
         by NotNullableCopyableDataNodeUserDataProperty(Key.create<List<String>>("IMPLEMENTED_MODULE_NAME"), emptyList())
+// Project is usually the same during all import, thus keeping Map Project->Dependencies makes model a bit more complicated but allows to avoid future problems
+var DataNode<out ModuleData>.dependenciesCache
+        by NotNullableCopyableDataNodeUserDataProperty(
+            Key.create<MutableMap<DataNode<ProjectData>, Collection<DataNode<out ModuleData>>>>("MODULE_DEPENDENCIES_CACHE"),
+            HashMap()
+        )
+
 
 class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() {
     val isAndroidProjectKey = Key.findKeyByName("IS_ANDROID_PROJECT_KEY")
@@ -89,12 +96,9 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
         }
         .singleOrNull()
 
-    private val dependenciesCache = Key.create<MutableMap<DataNode<ProjectData>, Collection<DataNode<out ModuleData>>>>("moduleDependenciesCache")
-
     private fun DataNode<out ModuleData>.getDependencies(ideProject: DataNode<ProjectData>): Collection<DataNode<out ModuleData>> {
-        val cache = getUserData(dependenciesCache) ?: HashMap()
-        if (cache.containsKey(ideProject)) {
-            return cache[ideProject]!!
+        if (dependenciesCache.containsKey(ideProject)) {
+            return dependenciesCache[ideProject]!!
         }
         val outputToSourceSet = ideProject.getUserData(GradleProjectResolver.MODULES_OUTPUTS)
         val sourceSetByName = ideProject.getUserData(GradleProjectResolver.RESOLVED_SOURCE_SETS) ?: return emptySet()
@@ -119,8 +123,7 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
                 else -> null
             }
         }
-        cache[ideProject] = result
-        putUserData(dependenciesCache, cache)
+        dependenciesCache[ideProject] = result
         return result
     }
 
