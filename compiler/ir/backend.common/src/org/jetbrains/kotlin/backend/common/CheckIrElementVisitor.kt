@@ -58,7 +58,7 @@ class CheckIrElementVisitor(
         }
 
     override fun visitElement(element: IrElement) {
-        if (ensureAllNodesAreDifferent && !element.isImmutable) {
+        if (ensureAllNodesAreDifferent) {
             if (set.contains(element))
                 reportError(element, "Duplicate IR node")
             set.add(element)

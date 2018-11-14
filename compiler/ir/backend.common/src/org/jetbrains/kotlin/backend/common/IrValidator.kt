@@ -35,7 +35,7 @@ fun validateIrModule(context: CommonBackendContext, irModule: IrModuleFragment) 
     // TODO: also check that all referenced symbol targets are reachable.
 }
 
-private fun CommonBackendContext.reportIrValidationError(message: String, irFile: IrFile, irElement: IrElement) {
+private fun CommonBackendContext.reportIrValidationError(message: String, irFile: IrFile?, irElement: IrElement) {
     try {
         this.reportWarning("[IR VALIDATION] $message", irFile, irElement)
     } catch (e: Throwable) {
@@ -48,7 +48,7 @@ private fun CommonBackendContext.reportIrValidationError(message: String, irFile
 class IrValidator(val context: CommonBackendContext, performHeavyValidations: Boolean) : IrElementVisitorVoid {
 
     val builtIns = context.builtIns
-    lateinit var currentFile: IrFile
+    var currentFile: IrFile? = null
 
     override fun visitFile(declaration: IrFile) {
         currentFile = declaration

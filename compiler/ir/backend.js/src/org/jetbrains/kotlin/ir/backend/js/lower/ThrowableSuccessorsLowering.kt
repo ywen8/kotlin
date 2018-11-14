@@ -121,15 +121,15 @@ class ThrowableSuccessorsLowering(context: JsIrBackendContext) : FileLoweringPas
         }
 
         private fun extractConstructorParameters(expression: IrFunctionAccessExpression): Pair<IrExpression, IrExpression> {
-            val nullValue = IrConstImpl.constNull(expression.startOffset, expression.endOffset, nothingNType)
+            val nullValue = { IrConstImpl.constNull(expression.startOffset, expression.endOffset, nothingNType) }
             return when {
-                expression.valueArgumentsCount == 0 -> Pair(nullValue, nullValue)
+                expression.valueArgumentsCount == 0 -> Pair(nullValue(), nullValue())
                 expression.valueArgumentsCount == 2 -> expression.run { Pair(getValueArgument(0)!!, getValueArgument(1)!!) }
                 else -> {
                     val arg = expression.getValueArgument(0)!!
                     when {
-                        arg.type.makeNotNull().isThrowable() -> Pair(nullValue, arg)
-                        else -> Pair(arg, nullValue)
+                        arg.type.makeNotNull().isThrowable() -> Pair(nullValue(), arg)
+                        else -> Pair(arg, nullValue())
                     }
                 }
             }

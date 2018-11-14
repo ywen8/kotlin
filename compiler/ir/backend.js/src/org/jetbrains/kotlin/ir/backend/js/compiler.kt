@@ -112,15 +112,6 @@ private fun JsIrBackendContext.performInlining(moduleFragment: IrModuleFragment)
 
 private fun JsIrBackendContext.lower(moduleFragment: IrModuleFragment, dependencies: List<IrModuleFragment>) {
     validateIrModule(this, moduleFragment)
-    for (file in moduleFragment.files) {
-        for (d in file.declarations) {
-            if (d is IrClass) {
-                if (d.declarations.filterIsInstance<IrFunction>().size > 5) {
-                    1 + 1
-                }
-            }
-        }
-    }
     ThrowableSuccessorsLowering(this).lower(moduleFragment)
     validateIrModule(this, moduleFragment)
     TailrecLowering(this).runOnFilesPostfix(moduleFragment)
