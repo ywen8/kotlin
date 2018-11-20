@@ -33,7 +33,7 @@ import org.junit.Test
 
 class MultiplatformProjectImportingTest : GradleImportingTestCase() {
 
-    private fun legacyMode() = "3.5".equals(gradleVersion)
+    private fun legacyMode() = gradleVersion.split(".")[0].toInt() < 4
     private fun getDependencyLibraryUrls(moduleName: String) =
         getRootManager(moduleName)
             .orderEntries
