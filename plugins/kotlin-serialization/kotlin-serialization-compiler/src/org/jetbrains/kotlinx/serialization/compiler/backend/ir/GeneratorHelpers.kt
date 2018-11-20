@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
 import org.jetbrains.kotlinx.serialization.compiler.backend.common.findTypeSerializerOrContext
 import org.jetbrains.kotlinx.serialization.compiler.backend.jvm.contextSerializerId
 import org.jetbrains.kotlinx.serialization.compiler.backend.jvm.enumSerializerId
+import org.jetbrains.kotlinx.serialization.compiler.backend.jvm.polymorphicSerializerId
 import org.jetbrains.kotlinx.serialization.compiler.backend.jvm.referenceArraySerializerId
 import org.jetbrains.kotlinx.serialization.compiler.resolve.*
 
@@ -444,7 +445,7 @@ interface IrBuilderExtension {
         } else {
             var serializerClass = serializerClassOriginal
             var args: List<IrExpression> = when (serializerClassOriginal.classId) {
-                contextSerializerId -> listOf(classReference(kType))
+                contextSerializerId, polymorphicSerializerId -> listOf(classReference(kType))
                 enumSerializerId -> {
                     serializerClass = serializableDescriptor.getClassFromInternalSerializationPackage("CommonEnumSerializer")
                     kType.toClassDescriptor!!.let { enumDesc ->
