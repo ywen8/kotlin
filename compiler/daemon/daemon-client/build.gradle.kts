@@ -31,6 +31,7 @@ dependencies {
     compileOnly(commonDep("net.rubygrapefruit", "native-platform"))
     compileOnly(intellijDep()) { includeIntellijCoreJarDependencies(project) }
 
+    embeddedComponents(compile("de.flapdoodle.embed:de.flapdoodle.embed.process:2.0.5")!!)
     embeddedComponents(project(":compiler:daemon-common")) { isTransitive = false }
     embeddedComponents(commonDep("net.rubygrapefruit", "native-platform"))
     nativePlatformVariants.forEach {

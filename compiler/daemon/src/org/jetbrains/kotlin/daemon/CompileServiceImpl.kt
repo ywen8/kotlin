@@ -261,6 +261,10 @@ class CompileServiceImpl(
         )
         try {
             if (!runFile.createNewFile()) throw Exception("createNewFile returned false")
+            val pid = getProcessId()
+            if (pid != null) {
+                runFile.writeText(pid)
+            }
         } catch (e: Throwable) {
             throw IllegalStateException("Unable to create run file '${runFile.absolutePath}'", e)
         }

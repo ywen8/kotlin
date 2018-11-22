@@ -24,10 +24,13 @@ import org.jetbrains.kotlin.config.IncrementalCompilation
 import org.jetbrains.kotlin.config.LanguageVersion
 import kotlin.reflect.KMutableProperty1
 import org.jetbrains.kotlin.daemon.common.COMPILE_DAEMON_CUSTOM_RUN_FILES_PATH_FOR_TESTS
+import org.jetbrains.kotlin.daemon.common.COMPILE_DAEMON_DONT_REUSE
 import org.jetbrains.kotlin.daemon.common.COMPILE_DAEMON_ENABLED_PROPERTY
 import org.jetbrains.kotlin.daemon.common.isDaemonEnabled
 import org.jetbrains.kotlin.jps.model.kotlinCommonCompilerArguments
 import org.jetbrains.kotlin.jps.model.kotlinCompilerArguments
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.io.File
 
 class KotlinJpsBuildTestIncremental : KotlinJpsBuildTest() {
@@ -67,8 +70,10 @@ class KotlinJpsBuildTestIncremental : KotlinJpsBuildTest() {
         try {
             withSystemProperty(COMPILE_DAEMON_CUSTOM_RUN_FILES_PATH_FOR_TESTS, daemonHome.absolutePath) {
                 withSystemProperty(COMPILE_DAEMON_ENABLED_PROPERTY, "true") {
-                    withSystemProperty(JpsKotlinCompilerRunner.FAIL_ON_FALLBACK_PROPERTY, "true") {
-                        testImpl()
+                    withSystemProperty(COMPILE_DAEMON_DONT_REUSE, "true") {
+                        withSystemProperty(JpsKotlinCompilerRunner.FAIL_ON_FALLBACK_PROPERTY, "true") {
+                            testImpl()
+                        }
                     }
                 }
             }
@@ -77,6 +82,16 @@ class KotlinJpsBuildTestIncremental : KotlinJpsBuildTest() {
             daemonHome.deleteRecursively()
         }
     }
+
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC1() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC2() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC3() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC4() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC5() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC6() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC7() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC8() = testJpsDaemonIC()
+//    @WorkingDir("JpsDaemonIC") fun testJpsDaemonIC9() = testJpsDaemonIC()
 
     fun testManyFiles() {
         doTest()

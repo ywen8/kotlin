@@ -42,7 +42,7 @@ fun makePortFromRunFilenameExtractor(digest: String): (String) -> Int? {
 
 private const val ORPHANED_RUN_FILE_AGE_THRESHOLD_MS = 1000000L
 
-data class DaemonWithMetadata(val daemon: CompileService, val runFile: File, val jvmOptions: DaemonJVMOptions)
+data class DaemonWithMetadata(val daemon: CompileService, val runFile: File, val jvmOptions: DaemonJVMOptions, val pid: Long?)
 
 // TODO: write metadata into discovery file to speed up selection
 // TODO: consider using compiler jar signature (checksum) as a CompilerID (plus java version, plus ???) instead of classpath checksum
@@ -77,7 +77,7 @@ fun walkDaemons(registryDir: File,
                     }
                 }
                 try {
-                    daemon?.let { DaemonWithMetadata(it, file, it.getDaemonJVMOptions().get()) }
+                    daemon?.let { DaemonWithMetadata(it, file, it.getDaemonJVMOptions().get(), file.readText().toLongOrNull()) }
                 }
                 catch (e: Exception) {
                     report(DaemonReportCategory.INFO, "ERROR: unable to retrieve daemon JVM options, assuming daemon is dead: ${e.message}")

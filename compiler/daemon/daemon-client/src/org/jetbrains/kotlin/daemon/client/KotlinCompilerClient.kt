@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.daemon.client
 
+import de.flapdoodle.embed.process.runtime.Processes
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.daemon.common.*
@@ -94,33 +95,50 @@ object KotlinCompilerClient {
                         autostart: Boolean,
                         leaseSession: Boolean,
                         sessionAliveFlagFile: File? = null
-    ): CompileServiceSession? = connectLoop(reportingTargets, autostart) { isLastAttempt ->
+    ): CompileServiceSession? {
+        val dontReuse = System.getProperty(COMPILE_DAEMON_DONT_REUSE) == "true"
 
-        fun CompileService.leaseImpl(): CompileServiceSession? {
-            // the newJVMOptions could be checked here for additional parameters, if needed
-            registerClient(clientAliveFlagFile.absolutePath)
-            reportingTargets.report(DaemonReportCategory.DEBUG, "connected to the daemon")
+        val pid: Long? = if (dontReuse) {
+            check(autostart)
+            ensureServerHostnameIsSetUp()
+            val daemon = startDaemon(compilerId, daemonJVMOptions, daemonOptions, reportingTargets)
+            if (daemon != null) Processes.processId(daemon) else return null
+        } else null
 
-            if (!leaseSession) return CompileServiceSession(this, CompileService.NO_SESSION)
+        return connectLoop(reportingTargets, autostart && !dontReuse) { isLastAttempt ->
 
-            return leaseCompileSession(sessionAliveFlagFile?.absolutePath).takeUnless { it is CompileService.CallResult.Dying }?.let {
-                CompileServiceSession(this, it.get())
-            }
-        }
+            fun CompileService.leaseImpl(): CompileServiceSession? {
+                // the newJVMOptions could be checked here for additional parameters, if needed
+                registerClient(clientAliveFlagFile.absolutePath)
+                reportingTargets.report(DaemonReportCategory.DEBUG, "connected to the daemon")
 
-        ensureServerHostnameIsSetUp()
-        val (service, newJVMOptions) = tryFindSuitableDaemonOrNewOpts(File(daemonOptions.runFilesPath), compilerId, daemonJVMOptions, { cat, msg -> reportingTargets.report(cat, msg) })
+                if (!leaseSession || dontReuse) return CompileServiceSession(this, CompileService.NO_SESSION)
 
-        if (service != null) {
-            service.leaseImpl()
-        }
-        else {
-            if (!isLastAttempt && autostart) {
-                if (startDaemon(compilerId, newJVMOptions, daemonOptions, reportingTargets)) {
-                    reportingTargets.report(DaemonReportCategory.DEBUG, "new daemon started, trying to find it")
+                return leaseCompileSession(sessionAliveFlagFile?.absolutePath).takeUnless { it is CompileService.CallResult.Dying }?.let {
+                    CompileServiceSession(this, it.get())
                 }
             }
-            null
+
+            ensureServerHostnameIsSetUp()
+            val (service, newJVMOptions) = tryFindSuitableDaemonOrNewOpts(
+                File(daemonOptions.runFilesPath),
+                compilerId,
+                daemonJVMOptions,
+                { cat, msg -> reportingTargets.report(cat, msg) },
+                pid
+            )
+
+            if (service != null) {
+                service.leaseImpl()
+            }
+            else {
+                if (!isLastAttempt && autostart) {
+                    if (startDaemon(compilerId, newJVMOptions, daemonOptions, reportingTargets) != null) {
+                        reportingTargets.report(DaemonReportCategory.DEBUG, "new daemon started, trying to find it")
+                    }
+                }
+                null
+            }
         }
     }
 
@@ -341,7 +359,13 @@ object KotlinCompilerClient {
         return null
     }
 
-    private fun tryFindSuitableDaemonOrNewOpts(registryDir: File, compilerId: CompilerId, daemonJVMOptions: DaemonJVMOptions, report: (DaemonReportCategory, String) -> Unit): Pair<CompileService?, DaemonJVMOptions> {
+    private fun tryFindSuitableDaemonOrNewOpts(
+        registryDir: File,
+        compilerId: CompilerId,
+        daemonJVMOptions: DaemonJVMOptions,
+        report: (DaemonReportCategory, String) -> Unit,
+        pid: Long? = null
+    ): Pair<CompileService?, DaemonJVMOptions> {
         registryDir.mkdirs()
         val timestampMarker = createTempFile("kotlin-daemon-client-tsmarker", directory = registryDir)
         val aliveWithMetadata = try {
@@ -350,11 +374,12 @@ object KotlinCompilerClient {
         finally {
             timestampMarker.delete()
         }
+        val filtered = if (pid == null) aliveWithMetadata else aliveWithMetadata.filter { it.pid == pid }
         val comparator = compareBy<DaemonWithMetadata, DaemonJVMOptions>(DaemonJVMOptionsMemoryComparator(), { it.jvmOptions })
                 .thenBy(FileAgeComparator()) { it.runFile }
         val optsCopy = daemonJVMOptions.copy()
         // if required options fit into fattest running daemon - return the daemon and required options with memory params set to actual ones in the daemon
-        return aliveWithMetadata.maxWith(comparator)?.takeIf { daemonJVMOptions memorywiseFitsInto it.jvmOptions }?.let {
+        return filtered.maxWith(comparator)?.takeIf { daemonJVMOptions memorywiseFitsInto it.jvmOptions }?.let {
                 Pair(it.daemon, optsCopy.updateMemoryUpperBounds(it.jvmOptions))
             }
             // else combine all options from running daemon to get fattest option for a new daemon to run
@@ -362,7 +387,7 @@ object KotlinCompilerClient {
     }
 
 
-    private fun startDaemon(compilerId: CompilerId, daemonJVMOptions: DaemonJVMOptions, daemonOptions: DaemonOptions, reportingTargets: DaemonReportingTargets): Boolean {
+    private fun startDaemon(compilerId: CompilerId, daemonJVMOptions: DaemonJVMOptions, daemonOptions: DaemonOptions, reportingTargets: DaemonReportingTargets): Process? {
         val javaExecutable = File(File(System.getProperty("java.home"), "bin"), "java")
         val serverHostname = System.getProperty(JAVA_RMI_SERVER_HOSTNAME) ?: error("$JAVA_RMI_SERVER_HOSTNAME is not set!")
         val platformSpecificOptions = listOf(
@@ -424,19 +449,19 @@ object KotlinCompilerClient {
                 return when {
                     !isProcessAlive(daemon) -> {
                         reportingTargets.report(DaemonReportCategory.INFO, "Daemon terminated unexpectedly with error code: ${daemon.exitValue()}")
-                        false
+                        null
                     }
                     !succeeded -> {
                         reportingTargets.report(DaemonReportCategory.INFO, "Unable to get response from daemon in $daemonStartupTimeout ms")
-                        false
+                        null
                     }
-                    else -> true
+                    else -> daemon
                 }
             }
             else
             // without startEcho defined waiting for max timeout
                 Thread.sleep(daemonStartupTimeout)
-            return true
+            return daemon
         }
         finally {
             // assuming that all important output is already done, the rest should be routed to the log by the daemon itself
