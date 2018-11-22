@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
 
-internal class FictitiousArrayConstructor(arrayClass: ClassDescriptor) : SimpleFunctionDescriptorImpl(
+internal class FictitiousArrayConstructor(val arrayClass: ClassDescriptor) : SimpleFunctionDescriptorImpl(
         arrayClass.containingDeclaration, null, Annotations.EMPTY, arrayClass.name, CallableMemberDescriptor.Kind.SYNTHESIZED,
         SourceElement.NO_SOURCE
 ) {
