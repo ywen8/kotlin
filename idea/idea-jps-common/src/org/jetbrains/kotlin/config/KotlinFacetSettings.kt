@@ -16,9 +16,6 @@
 
 package org.jetbrains.kotlin.config
 
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
 import org.jetbrains.kotlin.cli.common.arguments.copyBean
 import org.jetbrains.kotlin.cli.common.arguments.parseCommandLineArguments
@@ -218,13 +215,4 @@ class KotlinFacetSettings {
     var isTestModule: Boolean = false
 
     var externalProjectId: String = ""
-}
-
-interface KotlinFacetSettingsProvider {
-    fun getSettings(module: Module): KotlinFacetSettings?
-    fun getInitializedSettings(module: Module): KotlinFacetSettings
-
-    companion object {
-        fun getInstance(project: Project) = ServiceManager.getService(project, KotlinFacetSettingsProvider::class.java)!!
-    }
 }

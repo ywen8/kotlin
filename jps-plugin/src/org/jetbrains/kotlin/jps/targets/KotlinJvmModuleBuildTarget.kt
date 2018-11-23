@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.jps.targets
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.io.URLUtil
 import gnu.trove.THashSet
@@ -235,9 +234,9 @@ class KotlinJvmModuleBuildTarget(kotlinContext: KotlinCompileContext, jpsModuleB
             .satisfying { dependency -> dependency is JpsSdkDependency }
             .classes().urls
 
-        val url = urls.firstOrNull { it.startsWith(StandardFileSystems.JRT_PROTOCOL_PREFIX) } ?: return null
+        val url = urls.firstOrNull { it.startsWith(JRT_PROTOCOL_PREFIX) } ?: return null
 
-        return File(url.substringAfter(StandardFileSystems.JRT_PROTOCOL_PREFIX).substringBeforeLast(URLUtil.JAR_SEPARATOR))
+        return File(url.substringAfter(JRT_PROTOCOL_PREFIX).substringBeforeLast(JAR_SEPARATOR))
     }
 
     private fun findSourceRoots(context: CompileContext): List<JvmSourceRoot> {
@@ -318,3 +317,6 @@ class KotlinJvmModuleBuildTarget(kotlinContext: KotlinCompileContext, jpsModuleB
         JavaBuilderUtil.registerSuccessfullyCompiled(localContext, allCompiled)
     }
 }
+
+const val JRT_PROTOCOL_PREFIX = "jrt://"
+const val JAR_SEPARATOR = "!/"
