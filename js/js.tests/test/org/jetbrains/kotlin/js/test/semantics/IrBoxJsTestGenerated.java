@@ -5434,6 +5434,11 @@ public class IrBoxJsTestGenerated extends AbstractIrBoxJsTest {
             runTest("js/js.translator/testData/box/kotlin.test/ignore.kt");
         }
 
+        @TestMetadata("incremental.kt")
+        public void testIncremental() throws Exception {
+            runTest("js/js.translator/testData/box/kotlin.test/incremental.kt");
+        }
+
         @TestMetadata("inherited.kt")
         public void testInherited() throws Exception {
             runTest("js/js.translator/testData/box/kotlin.test/inherited.kt");
@@ -5543,6 +5548,11 @@ public class IrBoxJsTestGenerated extends AbstractIrBoxJsTest {
 
         public void testAllFilesPresentInMain() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("js/js.translator/testData/box/main"), Pattern.compile("^([^_](.+))\\.kt$"), TargetBackend.JS_IR, true);
+        }
+
+        @TestMetadata("incremental.kt")
+        public void testIncremental() throws Exception {
+            runTest("js/js.translator/testData/box/main/incremental.kt");
         }
 
         @TestMetadata("noArgs.kt")
