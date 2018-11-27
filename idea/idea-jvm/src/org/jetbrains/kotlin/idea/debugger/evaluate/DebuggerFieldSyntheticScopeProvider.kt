@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.descriptors.impl.PropertyGetterDescriptorImpl
 import org.jetbrains.kotlin.idea.project.platform
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation
 import org.jetbrains.kotlin.incremental.components.LookupLocation
+import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.load.java.components.JavaSourceElementFactoryImpl
 import org.jetbrains.kotlin.load.java.components.TypeUsage
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
@@ -53,11 +54,23 @@ private class DebuggerFieldSyntheticScope(val javaSyntheticPropertiesScope: Java
         name: Name,
         location: LookupLocation
     ): Collection<PropertyDescriptor> {
+        return getSyntheticExtensionProperties(receiverTypes, location).filter { it.name == name }
+    }
+
+    override fun getSyntheticExtensionProperties(
+        receiverTypes: Collection<KotlinType>,
+        location: LookupLocation
+    ): Collection<PropertyDescriptor> {
         if (!isInEvaluator(location)) {
             return emptyList()
         }
 
-        return getSyntheticExtensionProperties(receiverTypes).filter { it.name == name }
+        val result = mutableListOf<PropertyDescriptor>()
+        for (type in receiverTypes) {
+            val clazz = type.constructor.declarationDescriptor as? ClassDescriptor ?: continue
+            result += getSyntheticPropertiesForClass(clazz)
+        }
+        return result
     }
 
     private fun isInEvaluator(location: LookupLocation): Boolean {
@@ -72,20 +85,11 @@ private class DebuggerFieldSyntheticScope(val javaSyntheticPropertiesScope: Java
         return containingFile.suppressDiagnosticsInDebugMode
     }
 
-    override fun getSyntheticExtensionProperties(receiverTypes: Collection<KotlinType>): Collection<PropertyDescriptor> {
-        val result = mutableListOf<PropertyDescriptor>()
-        for (type in receiverTypes) {
-            val clazz = type.constructor.declarationDescriptor as? ClassDescriptor ?: continue
-            result += getSyntheticPropertiesForClass(clazz)
-        }
-        return result
-    }
-
     private fun getSyntheticPropertiesForClass(clazz: ClassDescriptor): Collection<PropertyDescriptor> {
         val collected = mutableMapOf<Name, PropertyDescriptor>()
 
         val syntheticPropertyNames = javaSyntheticPropertiesScope
-            .getSyntheticExtensionProperties(listOf(clazz.defaultType))
+            .getSyntheticExtensionProperties(listOf(clazz.defaultType), NoLookupLocation.FROM_SYNTHETIC_SCOPE)
             .mapTo(mutableSetOf()) { it.name }
 
         collectPropertiesWithParent(clazz, syntheticPropertyNames, collected)
