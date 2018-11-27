@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
 import org.jetbrains.kotlin.ir.declarations.lazy.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrErrorExpressionImpl
@@ -84,7 +83,10 @@ class DeclarationStubGenerator(
         descriptor: PropertyDescriptor,
         bindingContext: BindingContext? = null
     ): IrProperty =
-        IrPropertyImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, origin, descriptor).also { irProperty ->
+        IrLazyProperty(
+            UNDEFINED_OFFSET, UNDEFINED_OFFSET, origin, descriptor,
+            this, typeTranslator
+        ).also { irProperty ->
             if (descriptor.hasBackingField(bindingContext)) {
                 irProperty.backingField = generateFieldStub(descriptor)
             }
@@ -94,10 +96,6 @@ class DeclarationStubGenerator(
             }
             irProperty.setter = descriptor.setter?.let { generateFunctionStub(it, createPropertyIfNeeded = false) }?.apply {
                 correspondingProperty = irProperty
-            }
-            // Do we ever generate stubs for file-level properties?
-            (descriptor.containingDeclaration as? ClassDescriptor)?.let {
-                irProperty.parent = generateClassStub(it)
             }
         }
 
