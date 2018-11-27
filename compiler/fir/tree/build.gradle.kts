@@ -11,6 +11,17 @@ plugins {
 jvmTarget = "1.6"
 
 dependencies {
+    testRuntime(intellijDep())
+
+    testCompile(commonDep("junit:junit"))
+    testCompileOnly(project(":kotlin-test:kotlin-test-jvm"))
+    testCompileOnly(project(":kotlin-test:kotlin-test-junit"))
+    testCompile(projectTests(":compiler:tests-common"))
+    //testCompile(projectTests(":generators:test-generator"))
+    testCompileOnly(project(":kotlin-reflect-api"))
+    testRuntime(project(":kotlin-reflect"))
+
+
     compile(project(":core:descriptors"))
     compile(project(":compiler:fir:cones"))
     // Necessary only to store bound PsiElement inside FirElement
@@ -22,7 +33,9 @@ sourceSets {
         projectDefault()
         java.srcDir("visitors")
     }
-    "test" {}
+    "test" {
+        projectDefault()
+    }
 }
 
 val generatorClasspath by configurations.creating
@@ -50,3 +63,6 @@ val generateVisitors by tasks.creating(NoDebugJavaExec::class) {
 val compileKotlin by tasks
 
 compileKotlin.dependsOn(generateVisitors)
+
+
+testsJar()

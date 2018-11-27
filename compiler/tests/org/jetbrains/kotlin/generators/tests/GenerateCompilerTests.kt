@@ -202,10 +202,6 @@ fun main(args: Array<String>) {
             model("ir/sourceRanges")
         }
 
-        testClass<AbstractRawFirBuilderTestCase> {
-            model("fir/rawBuilder", testMethod = "doRawFirTest")
-        }
-
         testClass<AbstractFirResolveTestCase> {
             model("fir/resolve", pattern = KT_WITHOUT_DOTS_IN_NAME, excludeDirs = listOf("stdlib"))
         }
@@ -381,6 +377,12 @@ fun main(args: Array<String>) {
 
         testClass<AbstractIrBlackBoxInlineCodegenTest> {
             model("codegen/boxInline", targetBackend = TargetBackend.JVM_IR)
+        }
+    }
+
+    testGroup("compiler/fir/tree/tests", "compiler/fir/tree/testData") {
+        testClass<AbstractRawFirBuilderTestCase> {
+            model("fir/rawBuilder", testMethod = "doRawFirTest")
         }
     }
 }
