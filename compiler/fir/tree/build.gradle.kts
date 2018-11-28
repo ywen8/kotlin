@@ -40,7 +40,7 @@ val generateVisitors by tasks.creating(JavaExec::class) {
     }
 
     inputs.files(allSourceFiles)
-    outputs.files(output)
+    outputs.dirs(output)
 
     classpath = generatorClasspath
     args(generationRoot, output)
