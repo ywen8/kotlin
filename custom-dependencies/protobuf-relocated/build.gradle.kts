@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.io.File
 
 plugins {
-    base
+    `java-base`
     id("pill-configurable")
 }
 
