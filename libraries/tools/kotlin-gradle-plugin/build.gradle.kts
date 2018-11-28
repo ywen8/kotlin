@@ -99,8 +99,9 @@ tasks {
         expand("projectVersion" to project.version)
     }
 
+    val agp25Classes = named("agp25Classes")
     named<Jar>("jar") {
-        dependsOn(tasks.named("agp25Classes"))
+        dependsOn(agp25Classes)
         from(agp25.output.classesDirs)
         callGroovy("manifestAttributes", manifest, project)
     }
