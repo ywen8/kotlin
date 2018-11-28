@@ -7,11 +7,9 @@
     <properties>
         <maven.version>3.0.4</maven.version>
         <annotation-processing.src>${basedir}/../../../plugins/kapt3/kapt3-compiler/src</annotation-processing.src>
+        <annotation-processing.resources>${basedir}/../../../plugins/kapt3/kapt3-compiler/resources</annotation-processing.resources>
         <annotation-processing.base.src>${basedir}/../../../plugins/kapt3/kapt3-base/src</annotation-processing.base.src>
         <annotation-processing.runtime.src>${basedir}/../../../plugins/kapt3/kapt3-runtime/src</annotation-processing.runtime.src>
-        <annotation-processing.target-src>${basedir}/target/src/main/kotlin</annotation-processing.target-src>
-        <annotation-processing.target-src-test>${basedir}/target/src/test/kotlin</annotation-processing.target-src-test>
-        <annotation-processing.target-resource>${basedir}/target/resource</annotation-processing.target-resource>
     </properties>
 
     <parent>
@@ -47,49 +45,29 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${annotation-processing.target-src}</sourceDirectory>
-        <testSourceDirectory>${annotation-processing.target-src-test}</testSourceDirectory>
         <resources>
-            <resource>
-                <directory>${annotation-processing.target-resource}</directory>
-            </resource>
+            <resource><directory>${annotation-processing.resources}</directory></resource>
         </resources>
 
         <plugins>
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.0</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-sources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
                         <configuration>
-                            <outputDirectory>${annotation-processing.target-src}</outputDirectory>
-                            <resources>
-                                <resource><directory>${annotation-processing.src}</directory></resource>
-                                <resource><directory>${annotation-processing.base.src}</directory></resource>
-                                <resource><directory>${annotation-processing.runtime.src}</directory></resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${annotation-processing.target-resource}/META-INF</outputDirectory>
-                            <resources>
-                                <resource><directory>${annotation-processing.src}/META-INF</directory></resource>
-                            </resources>
+                            <sources>
+                                <source>${annotation-processing.src}</source>
+                                <source>${annotation-processing.base.src}</source>
+                                <source>${annotation-processing.runtime.src}</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -105,18 +83,12 @@
                     <execution>
                         <id>compile</id>
                         <phase>compile</phase>
-                        <goals> <goal>compile</goal> </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>${annotation-processing.target-src}</sourceDir>
-                            </sourceDirs>
-                        </configuration>
+                        <goals><goal>compile</goal></goals>
                     </execution>
-
                     <execution>
                         <id>test-compile</id>
                         <phase>test-compile</phase>
-                        <goals> <goal>test-compile</goal> </goals>
+                        <goals><goal>test-compile</goal></goals>
                     </execution>
                 </executions>
             </plugin>
