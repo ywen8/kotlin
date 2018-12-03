@@ -2,6 +2,9 @@
 interface Base {
     fun printMessage()
     fun printMessageLine()
+
+    val x: Int
+    var y: Int
 }
 
 class BaseImpl(val x: Int) : Base {
@@ -9,7 +12,6 @@ class BaseImpl(val x: Int) : Base {
     override fun printMessageLine() { println(x) }
 }
 
-/** should load cls */
 class Derived(b: Base) : Base by b {
     override fun printMessage() { print("abc") }
 }
