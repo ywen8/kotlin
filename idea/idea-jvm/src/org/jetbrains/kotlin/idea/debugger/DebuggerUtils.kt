@@ -72,6 +72,7 @@ object DebuggerUtils {
         fileName: String,
         location: Location?
     ): KtFile? {
+        println("findSourceFileForClass($className, $fileName, $location)")
         if (!isKotlinSourceFile(fileName)) return null
         if (DumbService.getInstance(project).isDumb) return null
 
@@ -79,6 +80,7 @@ object DebuggerUtils {
 
         for (scope in scopes) {
             val files = findFilesByNameInPackage(className, fileName, project, scope)
+            println("Scope($scope, $files)")
 
             if (files.isEmpty()) {
                 continue
@@ -92,7 +94,9 @@ object DebuggerUtils {
                 .singleOrNull { it.name == fileName }
                 ?.let { return it }
 
-            return FileRankingCalculatorForIde.findMostAppropriateSource(files, location)
+            return FileRankingCalculatorForIde.findMostAppropriateSource(files, location).apply {
+                println("Most appro(${this.virtualFile?.path})")
+            }
         }
 
         return null

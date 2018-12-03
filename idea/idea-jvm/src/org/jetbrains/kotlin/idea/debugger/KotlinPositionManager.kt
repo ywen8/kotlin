@@ -50,6 +50,7 @@ import org.jetbrains.kotlin.idea.codeInsight.CodeInsightUtils
 import org.jetbrains.kotlin.idea.debugger.breakpoints.getLambdasAtLineIfAny
 import org.jetbrains.kotlin.idea.debugger.evaluate.KotlinCodeFragmentFactory
 import org.jetbrains.kotlin.idea.debugger.evaluate.KotlinDebuggerCaches
+import org.jetbrains.kotlin.idea.debugger.evaluate.LOG
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.refactoring.getLineCount
 import org.jetbrains.kotlin.idea.refactoring.getLineStartOffset
@@ -99,7 +100,10 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
     }
 
     override fun getSourcePosition(location: Location?): SourcePosition? {
+        println("getSourcePosition($location)")
         if (location == null) throw NoDataException.INSTANCE
+
+        println("Location(${location.safeSourceName()} ${location.safeLineNumber()})")
 
         val fileName = location.safeSourceName() ?: throw NoDataException.INSTANCE
         val lineNumber = location.safeLineNumber()
@@ -112,6 +116,8 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
         val psiFile = getPsiFileByLocation(location)?.let {
             replaceWithAlternativeSource(it, location)
         }
+
+        println("PsiFile($psiFile ${psiFile?.virtualFile?.path})")
 
         if (psiFile == null) {
             val isKotlinStrataAvailable = location.declaringType().containsKotlinStrata()
@@ -145,11 +151,13 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
 
         val lambdaOrFunIfInside = getLambdaOrFunIfInside(location, psiFile, sourceLineNumber)
         if (lambdaOrFunIfInside != null) {
+            println("LambdaOrFunIfInside($lambdaOrFunIfInside)")
             return SourcePosition.createFromElement(lambdaOrFunIfInside.bodyExpression!!)
         }
 
         val elementInDeclaration = getElementForDeclarationLine(location, psiFile, sourceLineNumber)
         if (elementInDeclaration != null) {
+            println("ElementInDeclaration($elementInDeclaration)")
             return SourcePosition.createFromElement(elementInDeclaration)
         }
 
@@ -256,8 +264,9 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
     }
 
     private fun getPsiFileByLocation(location: Location): PsiFile? {
+        println("getPsiFileByLocation($location)")
         val sourceName = location.safeSourceName() ?: return null
-
+        println("SourceName($sourceName)")
         val referenceInternalName = try {
             if (location.declaringType().containsKotlinStrata()) {
                 //replace is required for windows
@@ -268,10 +277,13 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
             }
         }
         catch (e: AbsentInformationException) {
+            println("Absent")
             defaultInternalName(location)
         }
+        println("ReferenceInternalName($referenceInternalName)")
 
         val className = JvmClassName.byInternalName(referenceInternalName)
+        println("ClassName($className)")
 
         val project = myDebugProcess.project
 
@@ -343,8 +355,11 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
             throw NoDataException.INSTANCE
         }
 
+        println("createPrepareRequests($position)")
+
         return DumbService.getInstance(myDebugProcess.project).runReadActionInSmartMode(Computable {
             val classNames = DebuggerClassNameProvider(myDebugProcess).getOuterClassNamesForPosition(position)
+            println("ClassNames($classNames)")
             classNames.flatMap { name ->
                 listOfNotNull(
                         myDebugProcess.requestsManager.createClassPrepareRequest(requestor, name),
