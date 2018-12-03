@@ -5,60 +5,36 @@
 
 package org.jetbrains.kotlin.backend.jvm.lower
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.backend.common.ClassLoweringPass
-import org.jetbrains.kotlin.backend.common.bridges.Bridge
-import org.jetbrains.kotlin.backend.common.bridges.findInterfaceImplementation
-import org.jetbrains.kotlin.backend.common.bridges.generateBridgesForFunctionDescriptor
+import org.jetbrains.kotlin.backend.common.descriptors.WrappedSimpleFunctionDescriptor
+import org.jetbrains.kotlin.backend.common.descriptors.WrappedValueParameterDescriptor
+import org.jetbrains.kotlin.backend.common.ir.copyTo
+import org.jetbrains.kotlin.backend.common.ir.copyTypeParametersFrom
+import org.jetbrains.kotlin.backend.common.ir.isMethodOfAny
+import org.jetbrains.kotlin.backend.common.ir.isStatic
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
-import org.jetbrains.kotlin.backend.common.lower.irBlockBody
 import org.jetbrains.kotlin.backend.common.lower.irNot
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
-import org.jetbrains.kotlin.backend.jvm.descriptors.DefaultImplsClassDescriptor
-import org.jetbrains.kotlin.backend.jvm.descriptors.JvmFunctionDescriptorImpl
-import org.jetbrains.kotlin.codegen.AsmUtil.isAbstractMethod
-import org.jetbrains.kotlin.codegen.BuiltinSpecialBridgesUtil
-import org.jetbrains.kotlin.codegen.FunctionCodegen.isMethodOfAny
-import org.jetbrains.kotlin.codegen.FunctionCodegen.isThereOverriddenInKotlinClass
-import org.jetbrains.kotlin.codegen.JvmCodegenUtil.getDirectMember
-import org.jetbrains.kotlin.codegen.OwnerKind
-import org.jetbrains.kotlin.codegen.isToArrayFromCollection
-import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
-import org.jetbrains.kotlin.config.JvmTarget
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.DECLARATION
-import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl
-import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
+import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
-import org.jetbrains.kotlin.ir.expressions.typeParametersCount
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
-import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
-import org.jetbrains.kotlin.ir.types.toIrType
-import org.jetbrains.kotlin.ir.util.createParameterDeclarations
-import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature
-import org.jetbrains.kotlin.load.java.getOverriddenBuiltinReflectingJvmDescriptor
+import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
+import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
+import org.jetbrains.kotlin.ir.types.impl.IrStarProjectionImpl
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils.getSourceFromDescriptor
-import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.DescriptorUtils.getSuperClassDescriptor
-import org.jetbrains.kotlin.resolve.DescriptorUtils.isInterface
-import org.jetbrains.kotlin.resolve.jvm.AsmTypes.OBJECT_TYPE
-import org.jetbrains.kotlin.resolve.jvm.annotations.hasJvmDefaultAnnotation
-import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
-import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.org.objectweb.asm.Opcodes.*
-import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.Method
 
 class BridgeLowering(val context: JvmBackendContext) : ClassLoweringPass {
@@ -67,283 +43,319 @@ class BridgeLowering(val context: JvmBackendContext) : ClassLoweringPass {
 
     private val typeMapper = state.typeMapper
 
-    private val DECLARATION_AND_DEFINITION_CHECKER = fun(descriptor: CallableMemberDescriptor): Boolean =
-        !isInterface(descriptor.containingDeclaration) || state.target !== JvmTarget.JVM_1_6 && descriptor.hasJvmDefaultAnnotation()
-
     override fun lower(irClass: IrClass) {
-        val classDescriptor = irClass.descriptor
-        if (irClass.origin == JvmLoweredDeclarationOrigin.DEFAULT_IMPLS) {
-            return /*TODO?*/
+        if (irClass.isInterface || irClass.origin == JvmLoweredDeclarationOrigin.DEFAULT_IMPLS) {
+            return
         }
 
-        val functions = irClass.declarations.filterIsInstance<IrFunction>().filterNot {
-            val descriptor = it.descriptor
-            descriptor is ConstructorDescriptor ||
-                    DescriptorUtils.isStaticDeclaration(descriptor) ||
-                    !descriptor.kind.isReal
+        val functions = irClass.declarations.filterIsInstance<IrSimpleFunction>().filterNot {
+            it.isStatic || it.origin == IrDeclarationOrigin.FAKE_OVERRIDE
         }
 
         functions.forEach {
-            generateBridges(it.descriptor, irClass)
+            generateBridges(it, irClass)
         }
-
 
         //additional bridges for inherited interface methods
-        if (!DescriptorUtils.isInterface(classDescriptor) && irClass.origin != JvmLoweredDeclarationOrigin.DEFAULT_IMPLS) {
-            for (memberDescriptor in DescriptorUtils.getAllDescriptors(classDescriptor.defaultType.memberScope)) {
-                if (memberDescriptor is CallableMemberDescriptor) {
-                    if (!memberDescriptor.kind.isReal && findInterfaceImplementation(memberDescriptor) == null) {
-                        if (memberDescriptor is FunctionDescriptor) {
-                            generateBridges(memberDescriptor, irClass)
-                        } else if (memberDescriptor is PropertyDescriptor) {
-                            val getter = memberDescriptor.getter
-                            if (getter != null) {
-                                generateBridges(getter, irClass)
-                            }
-                            val setter = memberDescriptor.setter
-                            if (setter != null) {
-                                generateBridges(setter, irClass)
-                            }
-                        }
-                    }
+        if (!irClass.isInterface && irClass.origin != JvmLoweredDeclarationOrigin.DEFAULT_IMPLS) {
+            for (member in irClass.declarations.filterIsInstance<IrSimpleFunction>()) {
+                if (member.origin != IrDeclarationOrigin.FAKE_OVERRIDE) continue
+                if (member.isMethodOfAny()) continue
+
+                // This should run after `PropertiesLowering`, so no need to worry about properties separately.
+                val implementation = member.resolveFakeOverride()
+                if (implementation != null && !implementation.parentAsClass.isInterface) {
+                    generateBridges(member, irClass)
                 }
             }
         }
     }
 
 
-    private fun generateBridges(descriptor: FunctionDescriptor, irClass: IrClass) {
-        // equals(Any?), hashCode(), toString() never need bridges
-        if (isMethodOfAny(descriptor)) {
+    sealed class BridgeTableElement {
+        object AlreadyDefined : BridgeTableElement()
+        class NeedsDefinition(val function: IrSimpleFunction) : BridgeTableElement()
+    }
+
+    private fun generateBridges(irFunction: IrSimpleFunction, irClass: IrClass) {
+        val ourSignature = irFunction.getJvmSignature()
+        val ourMethodName = ourSignature.name
+
+        if (irFunction.origin == IrDeclarationOrigin.FAKE_OVERRIDE &&
+                irFunction.overriddenSymbols.all { it.owner.modality != Modality.ABSTRACT }) {
+            // All needed bridges will be generated where functions are implemented.
             return
         }
-        val isSpecial = descriptor.getOverriddenBuiltinReflectingJvmDescriptor<CallableMemberDescriptor>() != null
 
-        val bridgesToGenerate: Set<Bridge<SignatureAndDescriptor>>
-        if (!isSpecial) {
-            bridgesToGenerate = generateBridgesForFunctionDescriptor(
-                descriptor,
-                getSignatureMapper(typeMapper),
-                DECLARATION_AND_DEFINITION_CHECKER
-            )
-            if (!bridgesToGenerate.isEmpty()) {
-                val origin = if (descriptor.kind == DECLARATION) getSourceFromDescriptor(descriptor) else null
-                val isSpecialBridge =
-                    BuiltinMethodsWithSpecialGenericSignature.getOverriddenBuiltinFunctionWithErasedValueParametersInJava(descriptor) != null
+        val (specialOverrideSignature, specialOverrideValueGenerator) =
+                findSpecialWithOverride(irFunction) ?: Pair(null, null)
 
-                for (bridge in bridgesToGenerate) {
-                    irClass.declarations.add(createBridge(origin, descriptor, bridge.from, bridge.to, isSpecialBridge, false))
-                }
-            }
-        } else {
-            val specials = BuiltinSpecialBridgesUtil.generateBridgesForBuiltinSpecial(
-                descriptor,
-                getSignatureMapper(typeMapper),
-                DECLARATION_AND_DEFINITION_CHECKER
-            )
+        val methodsToBridge = irFunction.getMethodsToBridge()
+        for ((signature, method) in methodsToBridge) {
+            when (method) {
+                is BridgeTableElement.AlreadyDefined -> { /* do nothing */ }
+                is BridgeTableElement.NeedsDefinition -> {
+                    val bridge = createBridgeHeader(irFunction, method.function)
 
-            if (!specials.isEmpty()) {
-                val origin = if (descriptor.kind == DECLARATION) getSourceFromDescriptor(descriptor) else null
-                for (bridge in specials) {
-                    irClass.declarations.add(
-                        createBridge(
-                            origin, descriptor, bridge.from, bridge.to,
-                            bridge.isSpecial, bridge.isDelegateToSuper
-                        )
-                    )
-                }
-            }
+                    val defaultValueGenerator = if (signature == specialOverrideSignature) specialOverrideValueGenerator else null
+                    val isSpecial = (defaultValueGenerator != null) || (signature.name != ourMethodName)
 
-            if (!descriptor.kind.isReal && isAbstractMethod(descriptor, OwnerKind.IMPLEMENTATION)) {
-                descriptor.getOverriddenBuiltinReflectingJvmDescriptor<CallableMemberDescriptor>()
-                        ?: error("Expect to find overridden descriptors for $descriptor")
-
-                if (!isThereOverriddenInKotlinClass(descriptor)) {
-                    // TODO: reimplement getVisibilityAccessFlag(descriptor)
-                    val visibility = if (descriptor.isToArrayFromCollection()) Visibilities.PUBLIC else descriptor.visibility
-                    val irFunction = IrFunctionImpl(
-                        UNDEFINED_OFFSET,
-                        UNDEFINED_OFFSET,
-                        IrDeclarationOrigin.DEFINED,
-                        IrSimpleFunctionSymbolImpl(descriptor),
-                        visibility = visibility,
-                        modality = Modality.ABSTRACT
-                    )
-                    irFunction.createParameterDeclarations()
-
-                    irClass.declarations.add(irFunction)
+                    bridge.createBridgeBody(irFunction, defaultValueGenerator, isSpecial)
+                    irClass.declarations.add(bridge)
                 }
             }
         }
     }
 
-    private fun createBridge(
-        origin: PsiElement?,
-        descriptor: FunctionDescriptor,
-        bridge: SignatureAndDescriptor,
-        delegateTo: SignatureAndDescriptor,
-        isSpecialBridge: Boolean,
-        isStubDeclarationWithDelegationToSuper: Boolean
-    ): IrFunction {
-        val isSpecialOrDelegationToSuper = isSpecialBridge || isStubDeclarationWithDelegationToSuper
-        val flags =
-            ACC_PUBLIC or ACC_BRIDGE or (if (!isSpecialOrDelegationToSuper) ACC_SYNTHETIC else 0) or if (isSpecialBridge) ACC_FINAL else 0 // TODO.
-        val containingClass = descriptor.containingDeclaration as ClassDescriptor
-        //here some 'isSpecialBridge' magic
-        val bridgeDescriptorForIrFunction = JvmFunctionDescriptorImpl(
-            containingClass, null, Annotations.EMPTY, Name.identifier(bridge.method.name),
-            CallableMemberDescriptor.Kind.SYNTHESIZED, descriptor.source, flags
-        )
+    // Cache signatures
+    inner class InheritancePathItem(val function: IrSimpleFunction, val signature: Method = function.getJvmSignature())
 
-        bridgeDescriptorForIrFunction.initialize(
-            bridge.descriptor.extensionReceiverParameter?.copy(bridgeDescriptorForIrFunction),
-            containingClass.thisAsReceiverParameter, emptyList(),
-            bridge.descriptor.valueParameters.map { it.copy(bridgeDescriptorForIrFunction, it.name, it.index) },
-            bridge.descriptor.returnType, Modality.OPEN, descriptor.visibility
-        )
+    private fun IrSimpleFunction.getMethodsToBridge(): Map<Method, BridgeTableElement> {
+        val res = mutableMapOf<Method, BridgeTableElement>()
 
-        val irFunction = IrFunctionImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrDeclarationOrigin.BRIDGE, bridgeDescriptorForIrFunction)
-        irFunction.returnType = bridgeDescriptorForIrFunction.returnType!!.toIrType()!!
-        irFunction.createParameterDeclarations()
+        fun register(signature: Method, irFunction: IrSimpleFunction, inheritancePath: List<InheritancePathItem>) {
+            if (res[signature] === BridgeTableElement.AlreadyDefined) return
+            if (irFunction.origin === IrDeclarationOrigin.FAKE_OVERRIDE) return
 
-        context.createIrBuilder(irFunction.symbol).irBlockBody(irFunction) {
-            //TODO
-            //MemberCodegen.markLineNumberForDescriptor(owner.getThisDescriptor(), iv)
-            if (delegateTo.method.argumentTypes.isNotEmpty() && isSpecialBridge) {
-                generateTypeCheckBarrierIfNeeded(descriptor, bridgeDescriptorForIrFunction, irFunction, delegateTo.method.argumentTypes)
-            }
-
-            val implementation = if (isSpecialBridge) delegateTo.copyAsDeclaration() else delegateTo.descriptor
-            val call = IrCallImpl(
-                UNDEFINED_OFFSET, UNDEFINED_OFFSET,
-                implementation.returnType!!.toIrType()!!,
-                implementation,
-                implementation.typeParametersCount,
-                IrStatementOrigin.BRIDGE_DELEGATION,
-                if (isStubDeclarationWithDelegationToSuper) getSuperClassDescriptor(
-                    descriptor.containingDeclaration as ClassDescriptor
-                ) else null
-            )
-            call.dispatchReceiver = IrGetValueImpl(
-                UNDEFINED_OFFSET,
-                UNDEFINED_OFFSET,
-                irFunction.dispatchReceiverParameter!!.symbol,
-                IrStatementOrigin.BRIDGE_DELEGATION
-            )
-            irFunction.extensionReceiverParameter?.let {
-                call.extensionReceiver = IrGetValueImpl(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    it.symbol,
-                    IrStatementOrigin.BRIDGE_DELEGATION
-                )
-            }
-            irFunction.valueParameters.mapIndexed { i, valueParameter ->
-                call.putValueArgument(
-                    i,
-                    IrGetValueImpl(
-                        UNDEFINED_OFFSET,
-                        UNDEFINED_OFFSET,
-                        valueParameter.symbol,
-                        IrStatementOrigin.BRIDGE_DELEGATION
-                    )
-                )
-            }
-            +IrReturnImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, irFunction.returnType, irFunction.symbol, call)
-        }.apply {
-            irFunction.body = this
-        }
-
-        return irFunction
-    }
-
-    private fun IrBlockBodyBuilder.generateTypeCheckBarrierIfNeeded(
-        overrideDescriptor: FunctionDescriptor,
-        bridgeDescriptor: FunctionDescriptor,
-        bridgeFunction: IrFunction,
-        delegateParameterTypes: Array<Type>?
-    ) {
-        val typeSafeBarrierDescription =
-            BuiltinMethodsWithSpecialGenericSignature.getDefaultValueForOverriddenBuiltinFunction(overrideDescriptor) ?: return
-
-        BuiltinMethodsWithSpecialGenericSignature.getOverriddenBuiltinFunctionWithErasedValueParametersInJava(overrideDescriptor)
-                ?: error("Overridden built-in method should not be null for $overrideDescriptor")
-
-        val conditions = bridgeDescriptor.valueParameters.withIndex().filter { (i, parameterDescriptor) ->
-            typeSafeBarrierDescription.checkParameter(i) ||
-                    !(delegateParameterTypes == null || OBJECT_TYPE == delegateParameterTypes[i]) ||
-                    !TypeUtils.isNullableType(parameterDescriptor.type)
-        }.map { (i, _) ->
-            val checkValue =
-                IrGetValueImpl(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    bridgeFunction.valueParameters[i].symbol,
-                    IrStatementOrigin.BRIDGE_DELEGATION
-                )
-            if (delegateParameterTypes == null || OBJECT_TYPE == delegateParameterTypes[i]) {
-                irNotEquals(checkValue, irNull())
+            if (inheritancePath.any {
+                    !it.function.parentAsClass.isInterface &&
+                            it.function.origin != IrDeclarationOrigin.FAKE_OVERRIDE &&
+                            it.function != this@getMethodsToBridge && it.signature != signature
+                }) {
+                res[signature] = BridgeTableElement.AlreadyDefined
+            } else if (!irFunction.parentAsClass.isInterface &&
+                        inheritancePath.all { it.function.origin === IrDeclarationOrigin.FAKE_OVERRIDE }) {
+                res[signature] = BridgeTableElement.AlreadyDefined
             } else {
-                irIs(checkValue, overrideDescriptor.valueParameters[i].type.toIrType()!!)
+                res[signature] = BridgeTableElement.NeedsDefinition(irFunction)
             }
         }
 
-        if (conditions.isNotEmpty()) {
-            val condition = conditions.fold<IrExpression, IrExpression>(irTrue()) { arg, result ->
-                context.andand(arg, result)
+        fun handle(irFunction: IrSimpleFunction, lastJvmName: String, inheritancePath: MutableList<InheritancePathItem>) {
+            val signature = irFunction.getJvmSignature()
+            register(signature, irFunction, inheritancePath)
+            if (signature.name != lastJvmName) {
+                val newName = Name.identifier(signature.name)
+                inheritancePath.forEachIndexed { i, inheritancePathItem ->
+                    val renamedItem = inheritancePathItem.function.copyRenamingTo(newName)
+                    register(renamedItem.getJvmSignature(), renamedItem, inheritancePath.slice(0..i))
+                }
             }
 
-            +irIfThen(context.irBuiltIns.unitType, irNot(condition), irBlock {
-                +irReturn(
-                    when (typeSafeBarrierDescription) {
-                        BuiltinMethodsWithSpecialGenericSignature.TypeSafeBarrierDescription.MAP_GET_OR_DEFAULT -> irGet(
-                            bridgeDescriptor.valueParameters[1].type.toIrType()!!,
-                            bridgeFunction.valueParameters[1].symbol
+            inheritancePath.add(InheritancePathItem(irFunction, signature))
+            irFunction.overriddenSymbols.forEach {
+                handle(it.owner, signature.name, inheritancePath)
+            }
+            inheritancePath.removeAt(inheritancePath.size - 1)
+        }
+
+        handle(this, getJvmName(), mutableListOf())
+        return res
+    }
+
+    private fun IrSimpleFunction.copyRenamingTo(newName: Name): IrSimpleFunction =
+        WrappedSimpleFunctionDescriptor(descriptor.annotations).let { newDescriptor ->
+            IrFunctionImpl(
+                startOffset, endOffset, origin,
+                IrSimpleFunctionSymbolImpl(newDescriptor),
+                newName,
+                visibility, modality, isInline, isExternal, isTailrec, isSuspend
+            ).apply {
+                newDescriptor.bind(this)
+                parent = this@copyRenamingTo.parent
+                returnType = this@copyRenamingTo.returnType
+                dispatchReceiverParameter = this@copyRenamingTo.dispatchReceiverParameter?.copyTo(this)
+                extensionReceiverParameter = this@copyRenamingTo.extensionReceiverParameter?.copyTo(this)
+                valueParameters.addAll(this@copyRenamingTo.valueParameters.map { it.copyTo(this) })
+            }
+        }
+
+    private fun createBridgeHeader(target: IrSimpleFunction, interfaceFunction: IrSimpleFunction): IrSimpleFunction {
+        val descriptor = WrappedSimpleFunctionDescriptor()
+        return IrFunctionImpl(
+            UNDEFINED_OFFSET, UNDEFINED_OFFSET,
+            IrDeclarationOrigin.BRIDGE,
+            IrSimpleFunctionSymbolImpl(descriptor),
+            Name.identifier(interfaceFunction.getJvmName()),
+            interfaceFunction.visibility,
+            Modality.OPEN,
+            isInline = false,
+            isExternal = false,
+            isTailrec = false,
+            isSuspend = interfaceFunction.isSuspend
+        ).apply {
+            descriptor.bind(this)
+            parent = target.parentAsClass
+            returnType = interfaceFunction.returnType.eraseTypeParameters()
+            dispatchReceiverParameter = target.dispatchReceiverParameter?.copyTo(this)
+            extensionReceiverParameter = interfaceFunction.extensionReceiverParameter?.copyWithTypeErasure(this)
+            interfaceFunction.valueParameters.mapIndexed { i, param ->
+                valueParameters.add(i, param.copyWithTypeErasure(this))
+            }
+        }
+    }
+
+    private fun IrSimpleFunction.createBridgeBody(
+        target: IrSimpleFunction,
+        defaultValueGenerator: ((IrSimpleFunction) -> IrExpression)?,
+        isSpecial: Boolean
+    ) {
+        val maybeOrphanedTarget = if (isSpecial && target.origin != IrDeclarationOrigin.FAKE_OVERRIDE)
+            target.orphanedCopy()
+        else
+            target
+
+        context.createIrBuilder(symbol).run {
+            body = irBlockBody() {
+                if (defaultValueGenerator != null) {
+                    valueParameters.forEach {
+                        +irIfThen(
+                            context.irBuiltIns.unitType,
+                            irNot(irIs(irGet(it), maybeOrphanedTarget.valueParameters[it.index].type)),
+                            irReturn(defaultValueGenerator(this@createBridgeBody))
                         )
-                        BuiltinMethodsWithSpecialGenericSignature.TypeSafeBarrierDescription.NULL -> irNull()
-                        BuiltinMethodsWithSpecialGenericSignature.TypeSafeBarrierDescription.INDEX -> IrConstImpl.int(
-                            UNDEFINED_OFFSET, UNDEFINED_OFFSET, context.irBuiltIns.intType, typeSafeBarrierDescription.defaultValue as Int
-                        )
-                        BuiltinMethodsWithSpecialGenericSignature.TypeSafeBarrierDescription.FALSE -> irFalse()
                     }
+                }
+                +irReturn(
+                    irImplicitCast(
+                        IrCallImpl(
+                            UNDEFINED_OFFSET, UNDEFINED_OFFSET,
+                            maybeOrphanedTarget.returnType,
+                            maybeOrphanedTarget.symbol, maybeOrphanedTarget.descriptor,
+                            origin = IrStatementOrigin.BRIDGE_DELEGATION
+                        ).apply {
+                            dispatchReceiver = irImplicitCast(irGet(dispatchReceiverParameter!!), dispatchReceiverParameter!!.type)
+                            extensionReceiverParameter?.let {
+                                extensionReceiver = irImplicitCast(irGet(it), extensionReceiverParameter!!.type)
+                            }
+                            valueParameters.forEach {
+                                putValueArgument(it.index, irImplicitCast(irGet(it), maybeOrphanedTarget.valueParameters[it.index].type))
+                            }
+                        },
+                        returnType
+                    )
                 )
             }
-            )
         }
     }
 
-
-    companion object {
-        fun getSignatureMapper(typeMapper: KotlinTypeMapper): Function1<FunctionDescriptor, SignatureAndDescriptor> {
-            return fun(descriptor: FunctionDescriptor) =
-                SignatureAndDescriptor(typeMapper.mapAsmMethod(descriptor), descriptor)
+    /* A hacky way to make sure the code generator calls the right function, and not some standard interface it implements. */
+    private fun IrSimpleFunction.orphanedCopy() =
+        WrappedSimpleFunctionDescriptor(descriptor.annotations).let { wrappedDescriptor ->
+            IrFunctionImpl(
+                startOffset, endOffset, origin,
+                IrSimpleFunctionSymbolImpl(wrappedDescriptor),
+                Name.identifier(getJvmName()),
+                visibility, modality, isInline, isExternal, isTailrec, isSuspend
+            ).apply {
+                wrappedDescriptor.bind(this)
+                returnType = this@orphanedCopy.returnType
+                parent = this@orphanedCopy.parent
+                copyTypeParametersFrom(this@orphanedCopy)
+                this@orphanedCopy.dispatchReceiverParameter?.let { dispatchReceiverParameter = it.copyTo(this) }
+                this@orphanedCopy.extensionReceiverParameter?.let { extensionReceiverParameter = it.copyTo(this) }
+                this@orphanedCopy.valueParameters.forEachIndexed { index, param ->
+                    valueParameters.add(index, param.copyTo(this))
+                }
+                /* Do NOT copy overriddenSymbols */
+            }
         }
 
-        fun SignatureAndDescriptor.copyAsDeclaration(): FunctionDescriptor {
-            val containingClass = getDirectMember(descriptor).containingDeclaration as ClassDescriptor
-            val delegationDescriptor = JvmFunctionDescriptorImpl(
-                containingClass, null, Annotations.EMPTY, Name.identifier(method.name),
-                CallableMemberDescriptor.Kind.SYNTHESIZED, descriptor.source, 0
-            )
-
-            delegationDescriptor.initialize(
-                descriptor.extensionReceiverParameter?.copy(delegationDescriptor), containingClass.thisAsReceiverParameter, emptyList(),
-                descriptor.valueParameters.map { it.copy(delegationDescriptor, it.name, it.index) },
-                descriptor.returnType, Modality.OPEN, descriptor.visibility
-            )
-            return delegationDescriptor
+    private fun IrValueParameter.copyWithTypeErasure(target: IrSimpleFunction): IrValueParameter {
+        val descriptor = WrappedValueParameterDescriptor(this.descriptor.annotations)
+        return IrValueParameterImpl(
+            UNDEFINED_OFFSET, UNDEFINED_OFFSET,
+            IrDeclarationOrigin.BRIDGE,
+            IrValueParameterSymbolImpl(descriptor),
+            name,
+            index,
+            type.eraseTypeParameters(),
+            varargElementType?.eraseTypeParameters(),
+            isCrossinline,
+            isNoinline
+        ).apply {
+            descriptor.bind(this)
+            parent = target
         }
     }
 
-
-    class SignatureAndDescriptor(val method: Method, val descriptor: FunctionDescriptor) {
-        override fun equals(other: Any?): Boolean {
-            val sig2 = other as SignatureAndDescriptor
-            return method == sig2.method
+    /* Perform type erasure as much as is significant for JVM signature generation. */
+    private fun IrType.eraseTypeParameters() = when (this) {
+        is IrErrorType -> this
+        is IrSimpleType -> {
+            val owner = classifier.owner
+            when (owner) {
+                is IrClass -> this
+                is IrTypeParameter -> {
+                    val upperBound = owner.upperBoundClass()
+                    IrSimpleTypeImpl(
+                        upperBound.symbol,
+                        hasQuestionMark,
+                        List(upperBound.typeParameters.size) { IrStarProjectionImpl },    // Should not affect JVM signature, but may result in an invalid type object
+                        owner.annotations
+                    )
+                }
+                else -> error("Unknown IrSimpleType classifier kind: $owner")
+            }
         }
-
-        override fun hashCode(): Int = method.hashCode()
+        else -> error("Unknown IrType kind: $this")
     }
 
+    private fun IrTypeParameter.upperBoundClass(): IrClass {
+        val simpleSuperClassifiers = superTypes.asSequence().filterIsInstance<IrSimpleType>().map { it.classifier }
+        return simpleSuperClassifiers
+            .filterIsInstance<IrClassSymbol>()
+            .let {
+                it.firstOrNull { !it.owner.isInterface } ?: it.firstOrNull()
+            }?.owner ?: simpleSuperClassifiers.filterIsInstance<IrTypeParameterSymbol>()
+            .map { it.owner.upperBoundClass() }.firstOrNull() ?: context.irBuiltIns.anyClass.owner
+    }
+
+    data class SpecialMethodDescription(val fqName: String, val arity: Int)
+
+    fun IrSimpleFunction.fqName() =
+        "${getPackageFragment()?.fqName?.asString()}.${parentAsClass.name.asString()}.${name.asString()}"
+
+    fun IrSimpleFunction.toDescription() = SpecialMethodDescription(fqName(), valueParameters.size)
+
+    fun constFalse(bridge: IrSimpleFunction) =
+        IrConstImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, context.irBuiltIns.booleanType, IrConstKind.Boolean, false)
+
+    fun constNull(bridge: IrSimpleFunction) =
+        IrConstImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, context.irBuiltIns.anyNType, IrConstKind.Null, null)
+
+    fun constMinusOne(bridge: IrSimpleFunction) =
+        IrConstImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, context.irBuiltIns.intType, IrConstKind.Int, -1)
+
+    fun getSecondArg(bridge: IrSimpleFunction) = IrGetValueImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, bridge.valueParameters[1].symbol)
+
+    val specialMethodWithDefaultsMap = mapOf<SpecialMethodDescription, (IrSimpleFunction) -> IrExpression>(
+        SpecialMethodDescription("kotlin.collections.Collection.contains", 1) to ::constFalse,
+        SpecialMethodDescription("kotlin.collections.Collection.remove", 1) to ::constFalse,
+        SpecialMethodDescription("kotlin.collections.Map.containsKey", 1) to ::constFalse,
+        SpecialMethodDescription("kotlin.collections.Map.containsValue", 1) to ::constFalse,
+        SpecialMethodDescription("kotlin.collections.MutableMap.remove", 2) to ::constFalse,
+        SpecialMethodDescription("kotlin.collections.Map.getOrDefault", 1) to ::getSecondArg,
+        SpecialMethodDescription("kotlin.collections.Map.get", 1) to ::constNull,
+        SpecialMethodDescription("kotlin.collections.MutableMap.remove", 1) to ::constNull,
+        SpecialMethodDescription("kotlin.collections.List.indexOf", 1) to ::constMinusOne,
+        SpecialMethodDescription("kotlin.collections.List.lastIndexOf", 1) to ::constMinusOne
+    )
+
+    private fun findSpecialWithOverride(irFunction: IrSimpleFunction): Pair<Method, (IrSimpleFunction) -> IrExpression>? {
+        val alreadyVisited = mutableSetOf<IrSimpleFunction>()
+        fun search(irFunction: IrSimpleFunction): Pair<Method, (IrSimpleFunction) -> IrExpression>? {
+            if (irFunction in alreadyVisited) return null
+            val description = irFunction.toDescription()
+            specialMethodWithDefaultsMap[description]?.let {
+                return Pair(irFunction.getJvmSignature(), it)
+            }
+            alreadyVisited.add(irFunction)
+            return irFunction.overriddenSymbols.asSequence().mapNotNull { search(it.owner) }.firstOrNull()
+        }
+        return search(irFunction)
+    }
+
+    private fun IrFunction.getJvmName() = getJvmSignature().name
+    private fun IrFunction.getJvmSignature() = typeMapper.mapAsmMethod(descriptor)
 }
-

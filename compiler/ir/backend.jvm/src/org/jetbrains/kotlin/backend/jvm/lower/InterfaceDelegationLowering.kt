@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.backend.jvm.lower
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
 import org.jetbrains.kotlin.backend.common.descriptors.WrappedSimpleFunctionDescriptor
 import org.jetbrains.kotlin.backend.common.ir.copyParameterDeclarationsFrom
+import org.jetbrains.kotlin.backend.common.ir.isMethodOfAny
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
@@ -87,8 +88,10 @@ class InterfaceDelegationLowering(val context: JvmBackendContext) : IrElementVis
             }
 
             val delegation = generateDelegationToDefaultImpl(irClass, implementation, function, isDefaultImplsGeneration)
-            toRemove.add(function)
-            replacementMap[function.symbol] = delegation.symbol
+            if (!isDefaultImplsGeneration) {
+                toRemove.add(function)
+                replacementMap[function.symbol] = delegation.symbol
+            }
         }
         irClass.declarations.removeAll(toRemove)
     }
@@ -159,10 +162,6 @@ class InterfaceDelegationLowering(val context: JvmBackendContext) : IrElementVis
             super.visitSimpleFunction(declaration)
         }
     }
-
-    private fun IrSimpleFunction.isMethodOfAny() =
-        ((valueParameters.size == 0 && name.asString() in setOf("hashCode", "toString")) ||
-                (valueParameters.size == 1 && name.asString() == "equals" && valueParameters[0].type == context.irBuiltIns.anyType))
 
     private fun IrSimpleFunction.isDefinitelyNotDefaultImplsMethod() =
         resolveFakeOverride()?.let { origin == IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB } == true ||
