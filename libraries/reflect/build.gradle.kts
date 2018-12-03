@@ -62,7 +62,7 @@ dependencies {
     shadows(project(":core:descriptors.runtime"))
     shadows(project(":core:util.runtime"))
     shadows("javax.inject:javax.inject:1")
-    shadows(project(":custom-dependencies:protobuf-lite", configuration = "default"))
+    shadows(protobufLite())
 }
 
 class KotlinModuleShadowTransformer(private val logger: Logger) : Transformer {
