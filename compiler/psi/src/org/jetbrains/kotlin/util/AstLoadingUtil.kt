@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.util
 
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.psi.PsiFile
-import com.intellij.util.AstLoadingFilter
 
 /**
  * Absent in 181. Methods were renamed in 183.
@@ -18,6 +17,6 @@ import com.intellij.util.AstLoadingFilter
 object AstLoadingFilter {
     @JvmStatic
     fun <T, E : Throwable> forceAllowTreeLoading(psiFile: PsiFile, computable: ThrowableComputable<out T, E>): T {
-        return AstLoadingFilter.forceEnableTreeLoading(psiFile, computable)
+        return computable.compute()
     }
 }

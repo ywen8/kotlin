@@ -1,3 +1,5 @@
+/*
+
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.jvm.tasks.Jar
@@ -30,7 +32,6 @@ dependencies {
     compile(project(":compiler:light-classes")) { isTransitive = false }
     compile(project(":compiler:frontend")) { isTransitive = false }
     compile(project(":compiler:frontend.java")) { isTransitive = false }
-    compile(project(":compiler:util")) { isTransitive = false }
     compile(project(":js:js.frontend")) { isTransitive = false }
     compile(projectClasses(":idea"))
     compile(project(":idea:idea-jvm")) { isTransitive = false }
@@ -96,9 +97,9 @@ dependencies {
     testRuntime(project(":allopen-ide-plugin")) { isTransitive = false }
     testRuntime(project(":kotlin-allopen-compiler-plugin")) { isTransitive = false }
     testRuntime(project(":kotlin-scripting-idea")) { isTransitive = false }
-    testRuntime(project(":kotlin-scripting-compiler")) { isTransitive = false }
     testRuntime(project(":kotlinx-serialization-compiler-plugin")) { isTransitive = false }
     testRuntime(project(":kotlinx-serialization-ide-plugin")) { isTransitive = false }
+    testRuntime(project(":kotlin-scripting-compiler")) { isTransitive = false }
     testRuntime(project(":plugins:kapt3-idea")) { isTransitive = false }
     testRuntime(project(":plugins:uast-kotlin"))
     testRuntime(project(":plugins:uast-kotlin-idea"))
@@ -218,3 +219,6 @@ projectTest {
 }
 
 val generateTests by generator("org.jetbrains.kotlin.tests.GenerateUltimateTestsKt")
+
+
+*/

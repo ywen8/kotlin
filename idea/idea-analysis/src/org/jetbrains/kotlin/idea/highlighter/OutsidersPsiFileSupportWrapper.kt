@@ -5,15 +5,14 @@
 
 package org.jetbrains.kotlin.idea.highlighter
 
-import com.intellij.codeInsight.daemon.OutsidersPsiFileSupport
 import com.intellij.openapi.vfs.VirtualFile
 
 object OutsidersPsiFileSupportWrapper {
     fun isOutsiderFile(virtualFile: VirtualFile): Boolean {
-        return OutsidersPsiFileSupport.isOutsiderFile(virtualFile)
+        return false
     }
 
     fun getOriginalFilePath(virtualFile: VirtualFile): String? {
-        return OutsidersPsiFileSupport.getOriginalFilePath(virtualFile)
+        return null
     }
 }

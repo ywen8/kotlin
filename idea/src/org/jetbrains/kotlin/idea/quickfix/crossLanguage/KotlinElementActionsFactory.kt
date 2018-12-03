@@ -16,26 +16,19 @@
 
 package org.jetbrains.kotlin.idea.quickfix.crossLanguage
 
-import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.QuickFixFactory
-import com.intellij.lang.java.beans.PropertyKind
 import com.intellij.lang.jvm.JvmClass
 import com.intellij.lang.jvm.JvmElement
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.JvmModifiersOwner
 import com.intellij.lang.jvm.actions.*
-import com.intellij.lang.jvm.types.JvmType
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtilRt
 import com.intellij.psi.*
 import com.intellij.psi.codeStyle.SuggestedNameInfo
 import com.intellij.psi.impl.source.tree.java.PsiReferenceExpressionImpl
-import com.intellij.psi.util.PropertyUtilBase
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
-import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.asJava.toLightMethods
 import org.jetbrains.kotlin.asJava.unwrapped
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
@@ -45,9 +38,7 @@ import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ClassDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.MutablePackageFragmentDescriptor
-import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.appendModifier
 import org.jetbrains.kotlin.idea.quickfix.AddModifierFix
 import org.jetbrains.kotlin.idea.quickfix.RemoveModifierFix
@@ -71,7 +62,6 @@ import org.jetbrains.kotlin.load.java.structure.impl.JavaTypeParameterImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.createSmartPointer
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifierType
 import org.jetbrains.kotlin.resolve.annotations.JVM_STATIC_ANNOTATION_FQ_NAME
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
@@ -147,20 +137,20 @@ class KotlinElementActionsFactory : JvmElementActionsFactory() {
     }
 
     class CreatePropertyFix(
-        contextElement: KtElement,
-        propertyInfo: PropertyInfo,
-        private val classOrFileName: String?
+            private val targetClass: JvmClass,
+            contextElement: KtElement,
+            propertyInfo: PropertyInfo
     ) : CreateCallableFromUsageFix<KtElement>(contextElement, listOf(propertyInfo)) {
         override fun getFamilyName() = "Add property"
         override fun getText(): String {
             val info = callableInfos.first() as PropertyInfo
             return buildString {
                 append("Add '")
-                if (info.isLateinitPreferred || info.modifierList?.hasModifier(KtTokens.LATEINIT_KEYWORD) == true) {
+                if (info.isLateinitPreferred) {
                     append("lateinit ")
                 }
                 append(if (info.writable) "var" else "val")
-                append("' property '${info.name}' to '$classOrFileName'")
+                append("' property '${info.name}' to '${targetClass.name}'")
             }
         }
     }
@@ -327,78 +317,60 @@ class KotlinElementActionsFactory : JvmElementActionsFactory() {
 
     override fun createAddPropertyActions(targetClass: JvmClass, request: MemberRequest.Property): List<IntentionAction> {
         val targetContainer = targetClass.toKtClassOrFile() ?: return emptyList()
-        return createAddPropertyActions(
-            targetContainer, listOf(request.visibilityModifier),
-            request.propertyType, request.propertyName, request.setterRequired, targetClass.name
-        )
-    }
 
-    private fun createAddPropertyActions(
-        targetContainer: KtElement,
-        modifiers: Iterable<JvmModifier>,
-        propertyType: JvmType,
-        propertyName: String,
-        setterRequired: Boolean,
-        classOrFileName: String?
-    ): List<IntentionAction> {
-        val modifierBuilder = ModifierBuilder(targetContainer).apply { addJvmModifiers(modifiers) }
+        val modifierBuilder = ModifierBuilder(targetContainer).apply { addJvmModifier(request.visibilityModifier) }
         if (!modifierBuilder.isValid) return emptyList()
 
         val resolutionFacade = targetContainer.getResolutionFacade()
         val nullableAnyType = resolutionFacade.moduleDescriptor.builtIns.nullableAnyType
-
-        val ktType = (propertyType as? PsiType)?.resolveToKotlinType(resolutionFacade) ?: nullableAnyType
+        val ktType = (request.propertyType as? PsiType)?.resolveToKotlinType(resolutionFacade) ?: nullableAnyType
         val propertyInfo = PropertyInfo(
-            propertyName,
-            TypeInfo.Empty,
-            TypeInfo(ktType, Variance.INVARIANT),
-            setterRequired,
-            listOf(targetContainer),
-            modifierList = modifierBuilder.modifierList,
-            withInitializer = true
+                request.propertyName,
+                TypeInfo.Empty,
+                TypeInfo(ktType, Variance.INVARIANT),
+                request.setterRequired,
+                listOf(targetContainer),
+                modifierList = modifierBuilder.modifierList,
+                withInitializer = true
         )
-        val propertyInfos = if (setterRequired) {
+        val propertyInfos = if (request.setterRequired) {
             listOf(propertyInfo, propertyInfo.copyProperty(isLateinitPreferred = true))
-        } else {
+        }
+        else {
             listOf(propertyInfo)
         }
-        return propertyInfos.map { CreatePropertyFix(targetContainer, it, classOrFileName) }
+        return propertyInfos.map { CreatePropertyFix(targetClass, targetContainer, it) }
     }
 
     override fun createAddFieldActions(targetClass: JvmClass, request: CreateFieldRequest): List<IntentionAction> {
         val targetContainer = targetClass.toKtClassOrFile() ?: return emptyList()
 
+        val modifierBuilder = ModifierBuilder(targetContainer, allowJvmStatic = false).apply {
+            addJvmModifiers(request.modifiers)
+            addAnnotation(JVM_FIELD_ANNOTATION_FQ_NAME)
+        }
+        if (!modifierBuilder.isValid) return emptyList()
+
         val resolutionFacade = targetContainer.getResolutionFacade()
         val typeInfo = request.fieldType.toKotlinTypeInfo(resolutionFacade)
         val writable = JvmModifier.FINAL !in request.modifiers
-
-        fun propertyInfo(lateinit: Boolean) = PropertyInfo(
-            request.fieldName,
-            TypeInfo.Empty,
-            typeInfo,
-            writable,
-            listOf(targetContainer),
-            isLateinitPreferred = false, // Dont set it to `lateinit` because it works via templates that brings issues in batch field adding
-            isForCompanion = JvmModifier.STATIC in request.modifiers,
-            modifierList = ModifierBuilder(targetContainer, allowJvmStatic = false).apply {
-                addJvmModifiers(request.modifiers)
-                if (modifierList.children.none { it.node.elementType in KtTokens.VISIBILITY_MODIFIERS })
-                    addJvmModifier(JvmModifier.PUBLIC)
-                if (lateinit)
-                    modifierList.appendModifier(KtTokens.LATEINIT_KEYWORD)
-                if (!request.modifiers.contains(JvmModifier.PRIVATE) && !lateinit)
-                    addAnnotation(JVM_FIELD_ANNOTATION_FQ_NAME)
-            }.modifierList,
-            withInitializer = !lateinit
+        val propertyInfo = PropertyInfo(
+                request.fieldName,
+                TypeInfo.Empty,
+                typeInfo,
+                writable,
+                listOf(targetContainer),
+                isForCompanion = JvmModifier.STATIC in request.modifiers,
+                modifierList = modifierBuilder.modifierList,
+                withInitializer = true
         )
-
         val propertyInfos = if (writable) {
-            listOf(propertyInfo(false), propertyInfo(true))
+            listOf(propertyInfo, propertyInfo.copyProperty(isLateinitPreferred = true))
         }
         else {
-            listOf(propertyInfo(false))
+            listOf(propertyInfo)
         }
-        return propertyInfos.map { CreatePropertyFix(targetContainer, it, targetClass.name) }
+        return propertyInfos.map { CreatePropertyFix(targetClass, targetContainer, it) }
     }
 
     override fun createAddMethodActions(targetClass: JvmClass, request: CreateMethodRequest): List<IntentionAction> {
@@ -426,83 +398,12 @@ class KotlinElementActionsFactory : JvmElementActionsFactory() {
             preferEmptyBody = true
         )
         val targetClassName = targetClass.name
-
         val action = object : CreateCallableFromUsageFix<KtElement>(targetContainer, listOf(functionInfo)) {
             override fun getFamilyName() = "Add method"
             override fun getText() = "Add method '$methodName' to '$targetClassName'"
         }
-
-        val nameAndKind = PropertyUtilBase.getPropertyNameAndKind(methodName) ?: return listOf(action)
-
-        val propertyType = (request.expectedParameters.singleOrNull()?.expectedTypes ?: request.returnType)
-            .firstOrNull { JvmPsiConversionHelper.getInstance(targetContainer.project).convertType(it.theType) != PsiType.VOID }
-            ?: return listOf(action)
-
-        return createAddPropertyActions(
-            targetContainer,
-            request.modifiers,
-            propertyType.theType,
-            nameAndKind.first,
-            nameAndKind.second == PropertyKind.SETTER,
-            targetClass.name
-        )
-
+        return listOf(action)
     }
-
-    override fun createAddAnnotationActions(target: JvmModifiersOwner, request: AnnotationRequest): List<IntentionAction> {
-        val declaration = (target as? KtLightElement<*, *>)?.kotlinOrigin as? KtModifierListOwner ?: return emptyList()
-        if (declaration.language != KotlinLanguage.INSTANCE) return emptyList()
-        return listOf(CreateAnnotationAction(declaration, request))
-    }
-
-    private class CreateAnnotationAction(
-        target: KtModifierListOwner,
-        val request: AnnotationRequest
-    ) : IntentionAction {
-
-        private val pointer = target.createSmartPointer()
-
-        override fun startInWriteAction(): Boolean = true
-
-        override fun getText(): String =
-            QuickFixBundle.message("create.annotation.text", StringUtilRt.getShortName(request.qualifiedName))
-
-        override fun getFamilyName(): String = QuickFixBundle.message("create.annotation.family")
-
-        override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?): Boolean = pointer.element != null
-
-
-        override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
-            val target = pointer.element ?: return
-            val kotlinAnnotation = JavaPsiFacade.getInstance(project).findClass(
-                request.qualifiedName,
-                target.resolveScope
-            )?.language == KotlinLanguage.INSTANCE
-            val entry = target.addAnnotationEntry(
-                KtPsiFactory(target)
-                    .createAnnotationEntry(
-                        "@${request.qualifiedName}${
-                        request.attributes.mapIndexed { i, p ->
-                            if (!kotlinAnnotation && i == 0 && p.name == "value")
-                                renderAttributeValue(p.value).toString()
-                            else
-                                "${p.name} = ${renderAttributeValue(p.value)}"
-                        }.joinToString(", ", "(", ")")
-                        }"
-                    )
-            )
-
-            ShortenReferences.DEFAULT.process(entry)
-        }
-
-        private fun renderAttributeValue(annotationAttributeRequest: AnnotationAttributeValueRequest) =
-            when (annotationAttributeRequest) {
-                is AnnotationAttributeValueRequest.PrimitiveValue -> annotationAttributeRequest.value
-                is AnnotationAttributeValueRequest.StringValue -> "\"" + annotationAttributeRequest.value + "\""
-            }
-
-    }
-
 }
 
 private fun JvmPsiConversionHelper.asPsiType(param: Pair<SuggestedNameInfo, List<ExpectedType>>): PsiType? =

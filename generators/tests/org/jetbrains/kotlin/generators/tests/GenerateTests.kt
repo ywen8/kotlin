@@ -25,16 +25,16 @@ import org.jetbrains.kotlin.android.configure.AbstractConfigureProjectTest
 import org.jetbrains.kotlin.android.folding.AbstractAndroidResourceFoldingTest
 import org.jetbrains.kotlin.android.intention.AbstractAndroidIntentionTest
 import org.jetbrains.kotlin.android.intention.AbstractAndroidResourceIntentionTest
-import org.jetbrains.kotlin.android.lint.AbstractKotlinLintTest
 import org.jetbrains.kotlin.android.parcel.AbstractParcelBytecodeListingTest
 import org.jetbrains.kotlin.android.quickfix.AbstractAndroidLintQuickfixTest
 import org.jetbrains.kotlin.android.quickfix.AbstractAndroidQuickFixMultiFileTest
 import org.jetbrains.kotlin.android.synthetic.test.AbstractAndroidBoxTest
 import org.jetbrains.kotlin.android.synthetic.test.AbstractAndroidBytecodeShapeTest
 import org.jetbrains.kotlin.android.synthetic.test.AbstractAndroidSyntheticPropertyDescriptorTest
-import org.jetbrains.kotlin.asJava.classes.AbstractUltraLightClassLoadingTest
-import org.jetbrains.kotlin.asJava.classes.AbstractUltraLightClassSanityTest
-import org.jetbrains.kotlin.checkers.*
+import org.jetbrains.kotlin.checkers.AbstractJavaAgainstKotlinBinariesCheckerTest
+import org.jetbrains.kotlin.checkers.AbstractJavaAgainstKotlinSourceCheckerTest
+import org.jetbrains.kotlin.checkers.AbstractJsCheckerTest
+import org.jetbrains.kotlin.checkers.AbstractPsiCheckerTest
 import org.jetbrains.kotlin.findUsages.AbstractFindUsagesTest
 import org.jetbrains.kotlin.findUsages.AbstractKotlinFindUsagesWithLibraryTest
 import org.jetbrains.kotlin.formatter.AbstractFormatterTest
@@ -75,9 +75,11 @@ import org.jetbrains.kotlin.idea.conversion.copy.AbstractLiteralKotlinToKotlinCo
 import org.jetbrains.kotlin.idea.conversion.copy.AbstractLiteralTextToKotlinCopyPasteTest
 import org.jetbrains.kotlin.idea.conversion.copy.AbstractTextJavaToKotlinCopyPasteConversionTest
 import org.jetbrains.kotlin.idea.coverage.AbstractKotlinCoverageOutputFilesTest
-import org.jetbrains.kotlin.idea.debugger.*
+import org.jetbrains.kotlin.idea.debugger.AbstractBeforeExtractFunctionInsertionTest
+import org.jetbrains.kotlin.idea.debugger.AbstractKotlinSteppingTest
+import org.jetbrains.kotlin.idea.debugger.AbstractPositionManagerTest
+import org.jetbrains.kotlin.idea.debugger.AbstractSmartStepIntoTest
 import org.jetbrains.kotlin.idea.debugger.evaluate.*
-import org.jetbrains.kotlin.idea.debugger.sequence.exec.AbstractSequenceTraceTestCase
 import org.jetbrains.kotlin.idea.decompiler.navigation.AbstractNavigateToDecompiledLibraryTest
 import org.jetbrains.kotlin.idea.decompiler.navigation.AbstractNavigateToLibrarySourceTest
 import org.jetbrains.kotlin.idea.decompiler.stubBuilder.AbstractClsStubBuilderTest
@@ -106,8 +108,6 @@ import org.jetbrains.kotlin.idea.intentions.declarations.AbstractJoinLinesTest
 import org.jetbrains.kotlin.idea.internal.AbstractBytecodeToolWindowTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocTypingTest
-import org.jetbrains.kotlin.idea.maven.AbstractKotlinMavenInspectionTest
-import org.jetbrains.kotlin.idea.maven.configuration.AbstractMavenConfigureProjectByChangingFileTest
 import org.jetbrains.kotlin.idea.navigation.*
 import org.jetbrains.kotlin.idea.parameterInfo.AbstractParameterInfoTest
 import org.jetbrains.kotlin.idea.quickfix.AbstractQuickFixMultiFileTest
@@ -144,11 +144,10 @@ import org.jetbrains.kotlin.incremental.*
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterForWebDemoTest
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterMultiFileTest
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterSingleFileTest
-import org.jetbrains.kotlin.jps.build.*
-import org.jetbrains.kotlin.jps.build.android.AbstractAndroidJpsTestCase
-import org.jetbrains.kotlin.jps.build.dependeciestxt.actualizeMppJpsIncTestCaseDirs
-import org.jetbrains.kotlin.jps.incremental.AbstractJsProtoComparisonTest
-import org.jetbrains.kotlin.jps.incremental.AbstractJvmProtoComparisonTest
+//import org.jetbrains.kotlin.jps.build.*
+//import org.jetbrains.kotlin.jps.build.android.AbstractAndroidJpsTestCase
+//import org.jetbrains.kotlin.jps.incremental.AbstractJsProtoComparisonTest
+//import org.jetbrains.kotlin.jps.incremental.AbstractJvmProtoComparisonTest
 import org.jetbrains.kotlin.kapt3.test.AbstractClassFileToSourceStubConverterTest
 import org.jetbrains.kotlin.kapt3.test.AbstractKotlinKaptContextTest
 import org.jetbrains.kotlin.noarg.AbstractBlackBoxCodegenTestForNoArg
@@ -185,11 +184,6 @@ fun main(args: Array<String>) {
         }
 
         testClass<AbstractJavaAgainstKotlinSourceCheckerTest> {
-            model("kotlinAndJavaChecker/javaAgainstKotlin")
-            model("kotlinAndJavaChecker/javaWithKotlin")
-        }
-
-        testClass<AbstractJavaAgainstKotlinSourceCheckerWithUltraLightTest> {
             model("kotlinAndJavaChecker/javaAgainstKotlin")
             model("kotlinAndJavaChecker/javaWithKotlin")
         }
@@ -647,15 +641,6 @@ fun main(args: Array<String>) {
             model("debugger/tinyApp/src/evaluate/multipleBreakpoints", testMethod = "doMultipleBreakpointsTest")
         }
 
-        testClass<AbstractFileRankingTest> {
-            model("debugger/fileRanking")
-        }
-
-        testClass<AbstractSequenceTraceTestCase> {
-            // We need to implement mapping logic for terminal operations
-            model("debugger/tinyApp/src/streams/sequence", excludeDirs = listOf("terminal"))
-        }
-
         testClass<AbstractStubBuilderTest> {
             model("stubs", extension = "kt")
         }
@@ -798,6 +783,9 @@ fun main(args: Array<String>) {
         }
     }
 
+    /*
+    // Maven and Gradle are not relevent for AS branch
+
     testGroup("idea/idea-maven/test", "idea/idea-maven/testData") {
         testClass<AbstractMavenConfigureProjectByChangingFileTest> {
             model("configurator/jvm", extension = null, recursive = false, testMethod = "doTestWithMaven")
@@ -816,6 +804,8 @@ fun main(args: Array<String>) {
         }
     }
 
+    */
+
     testGroup("idea/tests", "compiler/testData") {
         testClass<AbstractResolveByStubTest> {
             model("loadJava/compiledKotlin")
@@ -827,13 +817,6 @@ fun main(args: Array<String>) {
 
         testClass<AbstractIdeLightClassTest> {
             model("asJava/lightClasses", excludeDirs = listOf("delegation"), pattern = KT_OR_KTS_WITHOUT_DOTS_IN_NAME)
-        }
-
-        testClass<AbstractUltraLightClassSanityTest> {
-            model("asJava/lightClasses", pattern = KT_OR_KTS)
-        }
-        testClass<AbstractUltraLightClassLoadingTest> {
-            model("asJava/ultraLightClasses", pattern = KT_OR_KTS)
         }
 
         testClass<AbstractIdeCompiledLightClassTest> {
@@ -951,72 +934,9 @@ fun main(args: Array<String>) {
             model("fileOrElement", extension = "java")
         }
     }
-
-    testGroup("jps-plugin/jps-tests/test", "jps-plugin/testData") {
-        testClass<AbstractIncrementalJpsTest> {
-            model("incremental/multiModule/common", extension = null, excludeParentDirs = true)
-            model("incremental/multiModule/jvm", extension = null, excludeParentDirs = true)
-            model("incremental/multiModule/multiplatform/custom", extension = null, excludeParentDirs = true)
-            model("incremental/pureKotlin", extension = null, recursive = false)
-            model("incremental/withJava", extension = null, excludeParentDirs = true)
-            model("incremental/inlineFunCallSite", extension = null, excludeParentDirs = true)
-            model("incremental/classHierarchyAffected", extension = null, excludeParentDirs = true)
-        }
-
-        actualizeMppJpsIncTestCaseDirs(testDataRoot, "incremental/multiModule/multiplatform/withGeneratedContent")
-
-        testClass<AbstractIncrementalJsJpsTest> {
-            model("incremental/multiModule/common", extension = null, excludeParentDirs = true)
-        }
-
-        testClass<AbstractMultiplatformJpsTestWithGeneratedContent> {
-            model(
-                "incremental/multiModule/multiplatform/withGeneratedContent", extension = null, excludeParentDirs = true,
-                testClassName = "MultiplatformMultiModule", recursive = true
-            )
-        }
-
-        testClass<AbstractJvmLookupTrackerTest> {
-            model("incremental/lookupTracker/jvm", extension = null, recursive = false)
-        }
-        testClass<AbstractJsLookupTrackerTest> {
-            model("incremental/lookupTracker/js", extension = null, recursive = false)
-        }
-
-        testClass<AbstractIncrementalLazyCachesTest> {
-            model("incremental/lazyKotlinCaches", extension = null, excludeParentDirs = true)
-            model("incremental/changeIncrementalOption", extension = null, excludeParentDirs = true)
-        }
-
-        testClass<AbstractIncrementalCacheVersionChangedTest> {
-            model("incremental/cacheVersionChanged", extension = null, excludeParentDirs = true)
-        }
-
-        testClass<AbstractDataContainerVersionChangedTest> {
-            model("incremental/cacheVersionChanged", extension = null, excludeParentDirs = true)
-        }
-    }
-
-    testGroup("jps-plugin/jps-tests/test", "jps-plugin/testData") {
-        fun TestGroup.TestClass.commonProtoComparisonTests() {
-            model("comparison/classSignatureChange", extension = null, excludeParentDirs = true)
-            model("comparison/classPrivateOnlyChange", extension = null, excludeParentDirs = true)
-            model("comparison/classMembersOnlyChanged", extension = null, excludeParentDirs = true)
-            model("comparison/packageMembers", extension = null, excludeParentDirs = true)
-            model("comparison/unchanged", extension = null, excludeParentDirs = true)
-        }
-
-        testClass<AbstractJvmProtoComparisonTest> {
-            commonProtoComparisonTests()
-            model("comparison/jvmOnly", extension = null, excludeParentDirs = true)
-        }
-
-        testClass<AbstractJsProtoComparisonTest> {
-            commonProtoComparisonTests()
-            model("comparison/jsOnly", extension = null, excludeParentDirs = true)
-        }
-    }
-
+/*  There is no jps in AS
+    ....
+*/
     testGroup("compiler/incremental-compilation-impl/test", "jps-plugin/testData") {
         testClass<AbstractIncrementalJvmCompilerRunnerTest> {
             model("incremental/pureKotlin", extension = null, recursive = false)
@@ -1037,10 +957,10 @@ fun main(args: Array<String>) {
         }
 
         testClass<AbstractIncrementalMultiplatformJvmCompilerRunnerTest> {
-            model("incremental/singleModule/common", extension = null, excludeParentDirs = true)
+            model("incremental/multiplatform", extension = null, excludeParentDirs = true)
         }
         testClass<AbstractIncrementalMultiplatformJsCompilerRunnerTest> {
-            model("incremental/singleModule/common", extension = null, excludeParentDirs = true)
+            model("incremental/multiplatform", extension = null, excludeParentDirs = true)
         }
     }
 
@@ -1154,10 +1074,6 @@ fun main(args: Array<String>) {
             model("android/quickfix", pattern = """^(\w+)\.((before\.Main\.\w+)|(test))$""", testMethod = "doTestWithExtraFile")
         }
 
-        testClass<AbstractKotlinLintTest> {
-            model("android/lint", excludeParentDirs = true)
-        }
-
         testClass<AbstractAndroidLintQuickfixTest> {
             model("android/lintQuickfix", pattern = "^([\\w\\-_]+)\\.kt$")
         }
@@ -1170,10 +1086,11 @@ fun main(args: Array<String>) {
             model("android/gutterIcon")
         }
     }
-
+/*
     testGroup("plugins/android-extensions/android-extensions-jps/test", "plugins/android-extensions/android-extensions-jps/testData") {
         testClass<AbstractAndroidJpsTestCase> {
             model("android", recursive = false, extension = null)
         }
     }
+*/
 }

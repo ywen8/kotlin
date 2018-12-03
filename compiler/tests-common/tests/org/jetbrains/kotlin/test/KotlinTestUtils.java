@@ -24,7 +24,6 @@ import com.intellij.psi.impl.PsiFileFactoryImpl;
 import com.intellij.rt.execution.junit.FileComparisonFailure;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.TestDataFile;
-import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import junit.framework.TestCase;
 import kotlin.collections.CollectionsKt;
@@ -35,7 +34,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.kotlin.CoroutineTestUtilKt;
 import org.jetbrains.kotlin.analyzer.AnalysisResult;
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
@@ -76,6 +74,7 @@ import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice;
 import org.jetbrains.kotlin.util.slicedMap.SlicedMap;
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
+import org.jetbrains.kotlin.utils.PathUtil;
 import org.junit.Assert;
 
 import javax.tools.*;
@@ -102,10 +101,6 @@ public class KotlinTestUtils {
 
     private static final boolean PRINT_STACKTRACE_FOR_IGNORED_TESTS =
             Boolean.getBoolean("org.jetbrains.kotlin.print.stacktrace.for.ignored.tests");
-
-    private static final boolean DONT_IGNORE_TESTS_WORKING_ON_COMPATIBLE_BACKEND =
-            Boolean.getBoolean("org.jetbrains.kotlin.dont.ignore.tests.working.on.compatible.backend");
-
 
     private static final boolean AUTOMATICALLY_UNMUTE_PASSED_TESTS = false;
     private static final boolean AUTOMATICALLY_MUTE_FAILED_TESTS = false;
@@ -395,7 +390,7 @@ public class KotlinTestUtils {
     }
 
     public static String getAndroidSdkSystemIndependentPath() {
-        return PathUtil.toSystemIndependentName(findAndroidSdk().getAbsolutePath());
+        return com.intellij.util.PathUtil.toSystemIndependentName(findAndroidSdk().getAbsolutePath());
     }
 
     public static File getAnnotationsJar() {
@@ -578,8 +573,8 @@ public class KotlinTestUtils {
         else if (jdkKind == TestJdkKind.FULL_JDK_9) {
             configuration.put(JVMConfigurationKeys.JDK_HOME, getJdk9Home());
         }
-        else if (SystemInfo.IS_AT_LEAST_JAVA9) {
-            configuration.put(JVMConfigurationKeys.JDK_HOME, new File(System.getProperty("java.home")));
+        else {
+            JvmContentRootsKt.addJvmClasspathRoots(configuration, PathUtil.getJdkClassesRootsFromCurrentJre());
         }
 
         if (configurationKind.getWithCoroutines()) {
@@ -794,15 +789,33 @@ public class KotlinTestUtils {
             if (coroutinesPackage.isEmpty()) {
                 coroutinesPackage = "kotlin.coroutines.experimental";
             }
-
-            boolean isReleaseCoroutines =
-                    !coroutinesPackage.contains("experimental") ||
-                    isDirectiveDefined(expectedText, "LANGUAGE_VERSION: 1.3") ||
-                    isDirectiveDefined(expectedText, "!LANGUAGE: +ReleaseCoroutines");
-
             testFiles.add(factory.createFile(supportModule,
                                              "CoroutineUtil.kt",
-                                             CoroutineTestUtilKt.createTextForHelpers(isReleaseCoroutines),
+                                             "package helpers\n" +
+                                             "import " + coroutinesPackage + ".*\n" +
+                                             "fun <T> handleResultContinuation(x: (T) -> Unit): Continuation<T> = object: Continuation<T> {\n" +
+                                             "    override val context = EmptyCoroutineContext\n" +
+                                             "    override fun resumeWithException(exception: Throwable) {\n" +
+                                             "        throw exception\n" +
+                                             "    }\n" +
+                                             "\n" +
+                                             "    override fun resume(data: T) = x(data)\n" +
+                                             "}\n" +
+                                             "\n" +
+                                             "fun handleExceptionContinuation(x: (Throwable) -> Unit): Continuation<Any?> = object: Continuation<Any?> {\n" +
+                                             "    override val context = EmptyCoroutineContext\n" +
+                                             "    override fun resumeWithException(exception: Throwable) {\n" +
+                                             "        x(exception)\n" +
+                                             "    }\n" +
+                                             "\n" +
+                                             "    override fun resume(data: Any?) { }\n" +
+                                             "}\n" +
+                                             "\n" +
+                                             "open class EmptyContinuation(override val context: CoroutineContext = EmptyCoroutineContext) : Continuation<Any?> {\n" +
+                                             "    companion object : EmptyContinuation()\n" +
+                                             "    override fun resume(data: Any?) {}\n" +
+                                             "    override fun resumeWithException(exception: Throwable) { throw exception }\n" +
+                                             "}",
                                              directives
             ));
         }
@@ -1043,13 +1056,6 @@ public class KotlinTestUtils {
         File testDataFile = new File(testDataFilePath);
 
         boolean isIgnored = isIgnoredTarget(targetBackend, testDataFile);
-
-        if (DONT_IGNORE_TESTS_WORKING_ON_COMPATIBLE_BACKEND) {
-            // Only ignore if it is ignored for both backends
-            // Motivation: this backend works => all good, even if compatible backend fails
-            // This backend fails, compatible works => need to know
-            isIgnored &= isIgnoredTarget(targetBackend.getCompatibleWith(), testDataFile);
-        }
 
         try {
             test.invoke(testDataFilePath);

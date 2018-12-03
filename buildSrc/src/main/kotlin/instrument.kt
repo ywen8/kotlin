@@ -54,7 +54,7 @@ fun Project.configureInstrumentation() {
     val instrumentationClasspathCfg = configurations.create("instrumentationClasspath")
 
     dependencies {
-        instrumentationClasspathCfg(intellijDep()) { includeJars("javac2", "jdom", "asm-all", rootProject = rootProject) }
+        instrumentationClasspathCfg(intellijDep()) { includeJars("javac2", "jdom", "asm-all", "jgoodies-forms", rootProject = rootProject) }
     }
 
     afterEvaluate {

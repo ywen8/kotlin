@@ -10,5 +10,5 @@ import com.intellij.codeInsight.intention.QuickFixFactory
 import com.intellij.openapi.project.Project
 
 fun createAddToDependencyInjectionAnnotationsFix(project: Project, fqName: String): IntentionAction {
-    return QuickFixFactory.getInstance().createAddToDependencyInjectionAnnotationsFix(project, fqName)
+    return QuickFixFactory.getInstance().createAddToDependencyInjectionAnnotationsFix(project, fqName, "declarations")
 }

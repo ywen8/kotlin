@@ -6,12 +6,17 @@
 package org.jetbrains.kotlin.idea.run
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.kotlin.idea.caches.project.implementingModules
 import org.jetbrains.kotlin.idea.project.platform
+import org.jetbrains.kotlin.platform.impl.isCommon
 import org.jetbrains.kotlin.platform.impl.isJvm
 
 fun Module.asJvmModule(): Module? {
     if (platform.isJvm) return this
 
+    if (platform.isCommon) {
+        return implementingModules.firstOrNull { it.platform.isJvm }
+    }
     return null
 }
 

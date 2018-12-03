@@ -102,12 +102,12 @@ public class ConfigureKotlinTest extends AbstractConfigureKotlinTest {
         Module[] modules = getModules();
         for (Module module : modules) {
             if (module.getName().equals("module1")) {
-                configure(module, KotlinWithLibraryConfigurator.FileState.DO_NOT_COPY, Companion.getJAVA_CONFIGURATOR());
+                Companion.configure(module, KotlinWithLibraryConfigurator.FileState.DO_NOT_COPY, Companion.getJAVA_CONFIGURATOR());
                 Companion.assertConfigured(module, Companion.getJAVA_CONFIGURATOR());
             }
             else if (module.getName().equals("module2")) {
                 Companion.assertNotConfigured(module, Companion.getJAVA_CONFIGURATOR());
-                configure(module, KotlinWithLibraryConfigurator.FileState.EXISTS, Companion.getJAVA_CONFIGURATOR());
+                Companion.configure(module, KotlinWithLibraryConfigurator.FileState.EXISTS, Companion.getJAVA_CONFIGURATOR());
                 Companion.assertConfigured(module, Companion.getJAVA_CONFIGURATOR());
             }
         }
@@ -118,8 +118,8 @@ public class ConfigureKotlinTest extends AbstractConfigureKotlinTest {
 
         // Move fake runtime jar to default library path to pretend library is already configured
         FileUtil.copy(
-                new File(getProject().getBasePath() + "/lib/kotlin-stdlib.jar"),
-                new File(Companion.getJAVA_CONFIGURATOR().getDefaultPathToJarFile(getProject()) + "/kotlin-stdlib.jar"));
+                new File(getProject().getBasePath() + "/lib/kotlin-runtime.jar"),
+                new File(Companion.getJAVA_CONFIGURATOR().getDefaultPathToJarFile(getProject()) + "/kotlin-runtime.jar"));
 
         Companion.assertNotConfigured(module, Companion.getJAVA_CONFIGURATOR());
         Companion.getJAVA_CONFIGURATOR().configure(myProject, Collections.<Module>emptyList());
@@ -161,7 +161,7 @@ public class ConfigureKotlinTest extends AbstractConfigureKotlinTest {
     }
 
     public void testJsLibraryWrongKind() {
-        doTestOneJsModule(KotlinWithLibraryConfigurator.FileState.EXISTS);
+        AbstractConfigureKotlinTest.Companion.assertProperlyConfigured(getModule(), AbstractConfigureKotlinTest.Companion.getJS_CONFIGURATOR());
         assertEquals(1, ModuleRootManager.getInstance(getModule()).orderEntries().process(new LibraryCountingRootPolicy(), 0).intValue());
     }
 
