@@ -83,7 +83,7 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
         }
         modelBuilder.checkRefs()
 
-        with(DistModelFlattener(rootProject)) {
+        with(DistModelFlattener()) {
             with(DistModelIdeaArtifactBuilder(rootProject)) {
                 File(reportsDir, "03-flattened-vfs.txt").printWriter().use { report ->
                     fun getFlattenned(vfsPath: String): DistVFile =

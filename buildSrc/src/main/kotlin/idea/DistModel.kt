@@ -1,5 +1,6 @@
 package org.jetbrains.kotlin.buildUtils.idea
 
+import com.google.gson.stream.JsonWriter
 import org.gradle.api.Action
 import org.gradle.api.file.FileCopyDetails
 import java.io.File
@@ -54,9 +55,31 @@ class DistVFile(
         }
     }
 
+    fun toJson(writer: JsonWriter) {
+        writer.beginObject()
+        writer.name("@id").value(file.path)
+        writer.name("name").value(name)
+        writer.name("contents")
+        writer.beginArray()
+        for (item in contents) {
+            writer.beginObject()
+            item.toJson(writer)
+            writer.endObject()
+        }
+        writer.endArray()
+        writer.name("children")
+        writer.beginArray()
+        child.values.forEach {
+            it.toJson(writer)
+        }
+        writer.endArray()
+        writer.endObject()
+    }
 }
 
-sealed class DistContentElement(val targetDir: DistVFile)
+sealed class DistContentElement(val targetDir: DistVFile) {
+    abstract fun toJson(writer: JsonWriter)
+}
 
 ///////
 
@@ -73,6 +96,12 @@ class DistCopy(
     override fun toString(): String =
             "COPY OF ${src.file}" +
                     if (customTargetName != null) " -> $customTargetName" else ""
+
+    override fun toJson(writer: JsonWriter) {
+        writer.name("@type").value("copy")
+                .name("src").value(src.file.path)
+                .name("customTargetName").value(customTargetName)
+    }
 }
 
 class DistModuleOutput(parent: DistVFile, val projectId: String) : DistContentElement(parent) {
@@ -95,5 +124,10 @@ class DistModuleOutput(parent: DistVFile, val projectId: String) : DistContentEl
 
     override fun hashCode(): Int {
         return projectId.hashCode()
+    }
+
+    override fun toJson(writer: JsonWriter) {
+        writer.name("@type").value("compile")
+                .name("project").value(projectId)
     }
 }

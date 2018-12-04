@@ -5,10 +5,7 @@
 
 package org.jetbrains.kotlin.buildUtils.idea
 
-import org.gradle.api.Project
-import java.io.PrintWriter
-
-class DistModelFlattener(val rootProject: Project) {
+class DistModelFlattener() {
     val stack = mutableSetOf<DistVFile>()
     val visited = mutableMapOf<DistVFile, String>()
     val common = mutableSetOf<DistVFile>()
@@ -19,7 +16,12 @@ class DistModelFlattener(val rootProject: Project) {
         return new
     }
 
+
     private fun DistVFile.copyFlattenedContentsTo(new: DistVFile, inJar: Boolean = false) {
+        if (new.name == "kotlin-jps-plugin.jar") {
+//            println("debug")
+        }
+
         if (!stack.add(this)) {
             println("SKIPPED RECUESIVE ARTIFACT:\n - ${stack.joinToString("\n - ") { it.file.path }}\n - ${new.file.path}")
             return
@@ -27,22 +29,25 @@ class DistModelFlattener(val rootProject: Project) {
 
         try {
             contents.forEach {
-                when (it) {
-                    is DistCopy -> {
-                        val srcName = it.customTargetName ?: it.src.name
-                        if (it.src.file.exists()) {
-                            DistCopy(new, it.src, srcName)
-                        }
+                if (!shouldSkip(new, it)) {
+                    when (it) {
+                        is DistCopy -> {
+                            val srcName = it.customTargetName ?: it.src.name
+                            if (it.src.file.exists()) {
+                                DistCopy(new, it.src, srcName)
+                            }
 
-                        if (!inJar && srcName.endsWith(".jar")) {
-                            val newChild = new.getOrCreateChild(srcName)
-                            it.src.copyFlattenedContentsTo(newChild, inJar = true)
-                        } else {
-                            it.src.copyFlattenedContentsTo(new, inJar)
+                            if (!inJar && srcName.endsWith(".jar")) {
+                                val newChild = new.getOrCreateChild(srcName)
+                                it.src.copyFlattenedContentsTo(newChild, inJar = true)
+                            } else {
+                                it.src.copyFlattenedContentsTo(new, inJar)
+                            }
                         }
+                        is DistModuleOutput -> DistModuleOutput(new, it.projectId)
                     }
-                    is DistModuleOutput -> DistModuleOutput(new, it.projectId)
                 }
+
             }
 
             child.values.forEach { oldChild ->
@@ -57,5 +62,11 @@ class DistModelFlattener(val rootProject: Project) {
             stack.remove(this)
         }
     }
+
+    private fun shouldSkip(
+        new: DistVFile,
+        content: DistContentElement
+    ) =
+        new.name == "kotlin-jps-plugin.jar" && content is DistCopy && content.customTargetName == "kotlin-compiler-runner.jar"
 }
 
