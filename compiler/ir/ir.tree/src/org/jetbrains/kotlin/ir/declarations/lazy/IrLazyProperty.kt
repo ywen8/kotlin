@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.ir.util.TypeTranslator
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyExternal
+import org.jetbrains.kotlin.resolve.hasBackingField
 
 class IrLazyProperty(
     startOffset: Int,
@@ -33,7 +35,8 @@ class IrLazyProperty(
     override val isDelegated: Boolean,
     override val isExternal: Boolean,
     private val stubGenerator: DeclarationStubGenerator,
-    typeTranslator: TypeTranslator
+    typeTranslator: TypeTranslator,
+    private val bindingContext: BindingContext? = null
 ) :
     IrLazyDeclarationBase(startOffset, endOffset, origin, stubGenerator, typeTranslator),
     IrProperty {
@@ -44,7 +47,8 @@ class IrLazyProperty(
         origin: IrDeclarationOrigin,
         descriptor: PropertyDescriptor,
         stubGenerator: DeclarationStubGenerator,
-        typeTranslator: TypeTranslator
+        typeTranslator: TypeTranslator,
+        bindingContext: BindingContext?
     ) : this(
         startOffset, endOffset, origin, descriptor,
         descriptor.name, descriptor.visibility, descriptor.modality,
@@ -54,17 +58,26 @@ class IrLazyProperty(
         isDelegated = descriptor.isDelegated,
         isExternal = descriptor.isEffectivelyExternal(),
         stubGenerator = stubGenerator,
-        typeTranslator = typeTranslator
+        typeTranslator = typeTranslator,
+        bindingContext = bindingContext
     )
 
     override var backingField: IrField? = null
+        get() = field ?: if (descriptor.hasBackingField(bindingContext)) {
+            stubGenerator.generateFieldStub(descriptor, bindingContext).apply {
+                correspondingProperty = this@IrLazyProperty
+                field = this
+            }
+        } else null
     override var getter: IrSimpleFunction? = null
         get() = field ?: descriptor.getter?.let { stubGenerator.generateFunctionStub(it, createPropertyIfNeeded = false) }?.apply {
             correspondingProperty = this@IrLazyProperty
+            field = this
         }
     override var setter: IrSimpleFunction? = null
         get() = field ?: descriptor.setter?.let { stubGenerator.generateFunctionStub(it, createPropertyIfNeeded = false)}?.apply {
             correspondingProperty = this@IrLazyProperty
+            field = this
         }
 
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R =

@@ -85,15 +85,11 @@ class DeclarationStubGenerator(
     ): IrProperty = symbolTable.referenceProperty(descriptor) {
         IrLazyProperty(
             UNDEFINED_OFFSET, UNDEFINED_OFFSET, origin, descriptor,
-            this, typeTranslator
-        ).also { irProperty ->
-            if (descriptor.hasBackingField(bindingContext)) {
-                irProperty.backingField = generateFieldStub(descriptor)
-            }
-        }
+            this, typeTranslator, bindingContext
+        )
     }
 
-    private fun generateFieldStub(descriptor: PropertyDescriptor): IrField {
+    fun generateFieldStub(descriptor: PropertyDescriptor, bindingContext: BindingContext? = null): IrField {
         val referenced = symbolTable.referenceField(descriptor)
         if (referenced.isBound) {
             return referenced.owner
@@ -111,6 +107,7 @@ class DeclarationStubGenerator(
             descriptor.original,
             descriptor.type.toIrType()
         ).apply {
+            correspondingProperty = generatePropertyStub(descriptor, bindingContext)
             initializer = descriptor.compileTimeInitializer?.let {
                 IrExpressionBodyImpl(
                     constantValueGenerator.generateConstantValueAsExpression(
