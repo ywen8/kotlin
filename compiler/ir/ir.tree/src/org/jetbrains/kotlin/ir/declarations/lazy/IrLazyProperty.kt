@@ -32,7 +32,7 @@ class IrLazyProperty(
     override val isLateinit: Boolean,
     override val isDelegated: Boolean,
     override val isExternal: Boolean,
-    stubGenerator: DeclarationStubGenerator,
+    private val stubGenerator: DeclarationStubGenerator,
     typeTranslator: TypeTranslator
 ) :
     IrLazyDeclarationBase(startOffset, endOffset, origin, stubGenerator, typeTranslator),
@@ -59,7 +59,13 @@ class IrLazyProperty(
 
     override var backingField: IrField? = null
     override var getter: IrSimpleFunction? = null
+        get() = field ?: descriptor.getter?.let { stubGenerator.generateFunctionStub(it, createPropertyIfNeeded = false) }?.apply {
+            correspondingProperty = this@IrLazyProperty
+        }
     override var setter: IrSimpleFunction? = null
+        get() = field ?: descriptor.setter?.let { stubGenerator.generateFunctionStub(it, createPropertyIfNeeded = false)}?.apply {
+            correspondingProperty = this@IrLazyProperty
+        }
 
     override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R =
         visitor.visitProperty(this, data)
