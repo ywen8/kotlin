@@ -52,6 +52,6 @@ abstract class VirtualFileFinder : KotlinClassFinder {
 
     companion object SERVICE {
         fun getInstance(project: Project): VirtualFileFinder =
-                VirtualFileFinderFactory.getInstance(project).create(GlobalSearchScope.allScope(project))
+                VirtualFileFinderFactory.getInstance(project).create(GlobalSearchScope.everythingScope(project))
     }
 }
