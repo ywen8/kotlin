@@ -41,6 +41,11 @@ public class ScratchRunActionTestGenerated extends AbstractScratchRunActionTest 
             runTest("idea/testData/scratch/generics.kts");
         }
 
+        @TestMetadata("inlineFunNoModule.kts")
+        public void testInlineFunNoModule() throws Exception {
+            runTest("idea/testData/scratch/inlineFunNoModule.kts");
+        }
+
         @TestMetadata("klass.kts")
         public void testKlass() throws Exception {
             runTest("idea/testData/scratch/klass.kts");
@@ -117,6 +122,11 @@ public class ScratchRunActionTestGenerated extends AbstractScratchRunActionTest 
         @TestMetadata("generics.kts")
         public void testGenerics() throws Exception {
             runTest("idea/testData/scratch/generics.kts");
+        }
+
+        @TestMetadata("inlineFunNoModule.kts")
+        public void testInlineFunNoModule() throws Exception {
+            runTest("idea/testData/scratch/inlineFunNoModule.kts");
         }
 
         @TestMetadata("klass.kts")
