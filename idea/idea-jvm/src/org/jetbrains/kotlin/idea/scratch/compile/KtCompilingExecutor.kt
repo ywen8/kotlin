@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithAllCompilerChecks
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.core.script.ScriptDependenciesManager
 import org.jetbrains.kotlin.idea.debugger.DebuggerUtils
 import org.jetbrains.kotlin.idea.refactoring.getLineNumber
 import org.jetbrains.kotlin.idea.scratch.*
@@ -63,7 +64,7 @@ class KtCompilingExecutor(file: ScratchFile) : ScratchExecutor(file) {
     override fun execute() {
         handler.onStart(file)
 
-        val module = file.getModule() ?: return errorOccurs("Module should be selected", isFatal = true)
+        val module = file.getModule()
         val psiFile = file.getPsiFile() as? KtFile ?: return errorOccurs("Couldn't find KtFile for current editor", isFatal = true)
 
         if (!checkForErrors(psiFile)) return
