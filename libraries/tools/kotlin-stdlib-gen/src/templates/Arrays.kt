@@ -70,6 +70,8 @@ object ArrayOps : TemplateGroupBase() {
             """
             Returns `true` if the two specified arrays are *structurally* equal to one another,
             i.e. contain the same number of the same elements in the same order.
+
+            The elements are compared for equality with the [equals][Any.equals] function.
             """
         }
         returns("Boolean")
@@ -106,6 +108,8 @@ object ArrayOps : TemplateGroupBase() {
 
             If two corresponding elements are nested arrays, they are also compared deeply.
             If any of arrays contains itself on any nesting level the behavior is undefined.
+
+            The elements of other types are compared for equality with the [equals][Any.equals] function.
             """
         }
         returns("Boolean")

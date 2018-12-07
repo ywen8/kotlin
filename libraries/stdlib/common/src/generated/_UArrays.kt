@@ -206,6 +206,8 @@ public inline fun ShortArray.asUShortArray(): UShortArray {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.3")
 @ExperimentalUnsignedTypes
@@ -216,6 +218,8 @@ public infix fun UIntArray.contentEquals(other: UIntArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.3")
 @ExperimentalUnsignedTypes
@@ -226,6 +230,8 @@ public infix fun ULongArray.contentEquals(other: ULongArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.3")
 @ExperimentalUnsignedTypes
@@ -236,6 +242,8 @@ public infix fun UByteArray.contentEquals(other: UByteArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.3")
 @ExperimentalUnsignedTypes

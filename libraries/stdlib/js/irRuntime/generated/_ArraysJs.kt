@@ -97,6 +97,8 @@ public actual fun CharArray.asList(): List<Char> {
  * 
  * If two corresponding elements are nested arrays, they are also compared deeply.
  * If any of arrays contains itself on any nesting level the behavior is undefined.
+ * 
+ * The elements of other types are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun <T> Array<out T>.contentDeepEquals(other: Array<out T>): Boolean {
@@ -131,6 +133,8 @@ public actual fun <T> Array<out T>.contentDeepToString(): String {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun <T> Array<out T>.contentEquals(other: Array<out T>): Boolean {
@@ -140,6 +144,8 @@ public actual infix fun <T> Array<out T>.contentEquals(other: Array<out T>): Boo
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun ByteArray.contentEquals(other: ByteArray): Boolean {
@@ -149,6 +155,8 @@ public actual infix fun ByteArray.contentEquals(other: ByteArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun ShortArray.contentEquals(other: ShortArray): Boolean {
@@ -158,6 +166,8 @@ public actual infix fun ShortArray.contentEquals(other: ShortArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun IntArray.contentEquals(other: IntArray): Boolean {
@@ -167,6 +177,8 @@ public actual infix fun IntArray.contentEquals(other: IntArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun LongArray.contentEquals(other: LongArray): Boolean {
@@ -176,6 +188,8 @@ public actual infix fun LongArray.contentEquals(other: LongArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun FloatArray.contentEquals(other: FloatArray): Boolean {
@@ -185,6 +199,8 @@ public actual infix fun FloatArray.contentEquals(other: FloatArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun DoubleArray.contentEquals(other: DoubleArray): Boolean {
@@ -194,6 +210,8 @@ public actual infix fun DoubleArray.contentEquals(other: DoubleArray): Boolean {
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun BooleanArray.contentEquals(other: BooleanArray): Boolean {
@@ -203,6 +221,8 @@ public actual infix fun BooleanArray.contentEquals(other: BooleanArray): Boolean
 /**
  * Returns `true` if the two specified arrays are *structurally* equal to one another,
  * i.e. contain the same number of the same elements in the same order.
+ * 
+ * The elements are compared for equality with the [equals][Any.equals] function.
  */
 @SinceKotlin("1.1")
 public actual infix fun CharArray.contentEquals(other: CharArray): Boolean {
