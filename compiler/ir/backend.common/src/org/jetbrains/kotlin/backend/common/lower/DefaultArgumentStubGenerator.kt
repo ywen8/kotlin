@@ -448,6 +448,7 @@ private fun buildFunctionDeclaration(irFunction: IrFunction, origin: IrDeclarati
                 name,
                 irFunction.visibility,
                 if (irFunction.modality === Modality.ABSTRACT) Modality.OPEN else irFunction.modality,
+                irFunction.returnType,
                 irFunction.isInline,
                 false,
                 false,
