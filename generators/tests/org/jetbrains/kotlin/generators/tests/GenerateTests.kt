@@ -655,6 +655,10 @@ fun main(args: Array<String>) {
             model("debugger/tinyApp/src/evaluate/multipleBreakpoints", testMethod = "doMultipleBreakpointsTest")
         }
 
+        testClass<AbstractAsyncStackTraceTest> {
+            model("debugger/tinyApp/src/asyncStackTrace")
+        }
+
         testClass<AbstractFileRankingTest> {
             model("debugger/fileRanking")
         }
