@@ -13,8 +13,10 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.gradle.ext.TopLevelArtifact
 import java.io.File
 
+fun path(vararg components: String) = components.joinToString(File.separator)
+
 fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObjectContainer<TopLevelArtifact>) {
-    val reportsDir = File("${rootProject.buildDir}/reports/idea-artifacts-cfg")
+    val reportsDir = File(path(rootProject.buildDir.path, "reports", "idea-artifacts-cfg"))
     reportsDir.mkdirs()
     val projectDir = rootProject.projectDir
 
@@ -27,6 +29,7 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
                 val name2 = when (name1) {
                     "kotlin-runtime-common.jar" -> "kotlin-runtime.jar"
                     "kotlin-compiler-before-proguard.jar" -> "kotlin-compiler.jar"
+                    "kotlin-main-kts-before-proguard.jar" -> "kotlin-main-kts.jar"
                     "kotlin-allopen-compiler-plugin.jar" -> "allopen-compiler-plugin.jar"
                     "kotlin-noarg-compiler-plugin.jar" -> "noarg-compiler-plugin.jar"
                     "kotlin-sam-with-receiver-compiler-plugin.jar" -> "sam-with-receiver-compiler-plugin.jar"
@@ -74,8 +77,8 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
 
         // proguard
         DistCopy(
-                target = modelBuilder.requirePath("$projectDir/libraries/reflect/build/libs/kotlin-reflect-proguard.jar"),
-                src = modelBuilder.requirePath("$projectDir/libraries/reflect/build/libs/kotlin-reflect-shadow.jar")
+            target = modelBuilder.requirePath(path(projectDir.path, "libraries", "reflect", "build", "libs", "kotlin-reflect-proguard.jar")),
+            src = modelBuilder.requirePath(path(projectDir.path, "libraries", "reflect", "build", "libs", "kotlin-reflect-shadow.jar"))
         )
 
         File(reportsDir, "02-vfs.txt").printWriter().use {
@@ -87,7 +90,7 @@ fun generateIdeArtifacts(rootProject: Project, artifactsFactory: NamedDomainObje
             with(DistModelIdeaArtifactBuilder(rootProject)) {
                 File(reportsDir, "03-flattened-vfs.txt").printWriter().use { report ->
                     fun getFlattenned(vfsPath: String): DistVFile =
-                        modelBuilder.vfsRoot.relativePath("$projectDir/$vfsPath")
+                        modelBuilder.vfsRoot.relativePath(path(projectDir.path, vfsPath))
                             .flatten()
 
                     val all = getFlattenned("dist")
