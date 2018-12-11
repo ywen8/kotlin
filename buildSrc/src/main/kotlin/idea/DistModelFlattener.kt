@@ -52,7 +52,10 @@ class DistModelFlattener() {
 
             child.values.forEach { oldChild ->
                 if (inJar) {
-                    oldChild.copyFlattenedContentsTo(new, inJar = true)
+                    val newChild =
+                        if (oldChild.name.endsWith(".jar")) new
+                        else new.getOrCreateChild(oldChild.name)
+                    oldChild.copyFlattenedContentsTo(newChild, inJar = true)
                 } else {
                     val newChild = new.getOrCreateChild(oldChild.name)
                     oldChild.copyFlattenedContentsTo(newChild)
