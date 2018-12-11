@@ -62,6 +62,7 @@ class ScratchTopPanel private constructor(val scratchFile: ScratchFile) : JPanel
     private val isReplCheckbox: JCheckBox
     private val isMakeBeforeRunCheckbox: JCheckBox
 
+    private val moduleSeparator: JSeparator
     private val actionsToolbar: ActionToolbar
 
     init {
@@ -80,7 +81,10 @@ class ScratchTopPanel private constructor(val scratchFile: ScratchFile) : JPanel
             }
         }
 
-        add(JSeparator(SwingConstants.VERTICAL))
+        moduleSeparator = JSeparator(SwingConstants.VERTICAL)
+        add(moduleSeparator)
+
+        changeMakeModuleCheckboxVisibility(false)
 
         isReplCheckbox = JCheckBox("Use REPL")
         add(isReplCheckbox)
@@ -107,6 +111,9 @@ class ScratchTopPanel private constructor(val scratchFile: ScratchFile) : JPanel
     fun addModuleListener(f: (PsiFile, Module?) -> Unit) {
         moduleChooser.addActionListener {
             val selectedModule = moduleChooser.selectedModule
+
+            changeMakeModuleCheckboxVisibility(selectedModule != null)
+
             val psiFile = scratchFile.getPsiFile()
             if (psiFile != null) {
                 f(psiFile, selectedModule)
@@ -122,6 +129,11 @@ class ScratchTopPanel private constructor(val scratchFile: ScratchFile) : JPanel
     @TestOnly
     fun setMakeBeforeRun(isSelected: Boolean) {
         isMakeBeforeRunCheckbox.isSelected = isSelected
+    }
+
+    private fun changeMakeModuleCheckboxVisibility(isVisible: Boolean) {
+        isMakeBeforeRunCheckbox.isVisible = isVisible
+        moduleSeparator.isVisible = isVisible
     }
 
     fun updateToolbar() {
