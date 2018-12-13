@@ -77,6 +77,7 @@ dependencies {
     testCompile(project(":kotlin-sam-with-receiver-compiler-plugin")) { isTransitive = false }
 
     testRuntime(project(":plugins:android-extensions-compiler"))
+    testRuntimeOnly(project(":kotlin-android-extensions-runtime")) // TODO(jps): fix idea import
     testRuntime(project(":plugins:android-extensions-ide")) { isTransitive = false }
     testRuntime(project(":allopen-ide-plugin")) { isTransitive = false }
     testRuntime(project(":kotlin-allopen-compiler-plugin"))
@@ -118,6 +119,8 @@ dependencies {
     testRuntime(intellijPluginDep("android"))
     testRuntime(intellijPluginDep("smali"))
     testRuntime(intellijPluginDep("testng"))
+
+    if (System.getProperty("idea.active") != null) testRuntimeOnly(files("dist/kotlinc/lib/kotlin-reflect.jar"))
 }
 
 sourceSets {
