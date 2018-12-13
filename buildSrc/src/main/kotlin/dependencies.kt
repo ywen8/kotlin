@@ -68,15 +68,16 @@ fun DependencyHandler.projectClasses(name: String): ProjectDependency = project(
 val protobufLiteProject = ":custom-dependencies:protobuf-lite"
 val protobufRelocatedProject = ":custom-dependencies:protobuf-relocated"
 fun DependencyHandler.protobufLite(): FileCollection {
+
     return project(protobufLiteProject, configuration = "default").apply { isTransitive = false }
-        .dependencyProject.files("/Users/jetbrains/repo/protobuf-2.6.1-lite.jar")
+        .dependencyProject.files("../../bootstrap/protobuf-2.6.1-lite.jar")
 }
 
 val protobufLiteTask = "$protobufLiteProject:prepare"
 
 fun DependencyHandler.protobufFull(): FileCollection {
     return project(protobufRelocatedProject, configuration = "default").apply { isTransitive = false }
-        .dependencyProject.files("/Users/jetbrains/repo/protobuf-java-relocated-2.6.1.jar")
+        .dependencyProject.files("../../bootstrap/protobuf-java-relocated-2.6.1.jar")
 }
 
 fun File.matchMaybeVersionedArtifact(baseName: String) = name.matches(baseName.toMaybeVersionedJarRegex())
