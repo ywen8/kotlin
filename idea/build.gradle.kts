@@ -121,9 +121,8 @@ dependencies {
     testRuntime(intellijPluginDep("smali"))
     testRuntime(intellijPluginDep("testng"))
 
-    if (System.getProperty("idea.active") != null) testRuntimeOnly(files("dist/kotlinc/lib/kotlin-reflect.jar"))
+    if (System.getProperty("idea.active") != null) testRuntimeOnly(files("${rootProject.projectDir}/dist/kotlinc/lib/kotlin-reflect.jar"))
 }
-
 sourceSets {
     "main" {
         projectDefault()
@@ -147,6 +146,7 @@ sourceSets {
     }
 
 }
+
 
 val performanceTestCompile by configurations.creating {
     extendsFrom(configurations["testCompile"])
