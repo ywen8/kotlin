@@ -31,7 +31,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/buildSrc/prepare-deps/intellij-sdk/build/repo/kotlin.build.custom.deps/183.4588.61/intellij/lib/lz4-1.3.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/buildSrc/prepare-deps/intellij-sdk/build/repo/kotlin.build.custom.deps/183.4588.61/intellij/lib/oro-2.0.8.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/buildSrc/prepare-deps/intellij-sdk/build/repo/kotlin.build.custom.deps/183.4588.61/intellij/lib/picocontainer-1.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/repo/protobuf-java-relocated-2.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/bootstrap/protobuf-java-relocated-2.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/buildSrc/prepare-deps/intellij-sdk/build/repo/kotlin.build.custom.deps/183.4588.61/intellij/lib/streamex-0.6.7.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/buildSrc/prepare-deps/intellij-sdk/build/repo/kotlin.build.custom.deps/183.4588.61/intellij/lib/trove4j.jar" path-in-jar="/" />
       <element id="module-output" name="backend-common_main" />

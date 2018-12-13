@@ -8,7 +8,7 @@
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/prepare/idea-plugin/build/tmp/shadowJar/MANIFEST.MF" />
       </element>
-      <element id="extracted-dir" path="$USER_HOME$/repo/protobuf-java-relocated-2.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/bootstrap/protobuf-java-relocated-2.6.1.jar" path-in-jar="/" />
       <element id="module-output" name="annotation-based-compiler-plugins-ide-support_main" />
       <element id="module-output" name="backend-common_main" />
       <element id="module-output" name="backend_main" />
