@@ -643,8 +643,17 @@ class ExpressionCodegen(
         //TODO don't generate condition for else branch - java verifier fails with empty stack
         val elseBranch = branch is IrElseBranch
         if (!elseBranch) {
-            gen(condition, data)
-            BranchedValue.condJump(StackValue.onStack(condition.asmType), elseLabel, true, mv)
+            var jumpIfFalse = true
+            if (condition is IrCall && condition.symbol == classCodegen.context.irBuiltIns.booleanNotSymbol) {
+                // Instead of materializing a negated value when used for control flow, flip the branch
+                // targets instead. This significantly cuts down the amount of branches and loads of
+                // const_0 and const_1 in the generated java bytecode.
+                gen(condition.getValueArgument(0)!!, data)
+                jumpIfFalse = false
+            } else {
+                gen(condition, data)
+            }
+            BranchedValue.condJump(StackValue.onStack(condition.asmType), elseLabel, jumpIfFalse, mv)
         }
 
         val end = Label()
