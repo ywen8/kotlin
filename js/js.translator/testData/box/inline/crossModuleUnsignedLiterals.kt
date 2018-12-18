@@ -1,4 +1,5 @@
 // EXPECTED_REACHABLE_NODES: 1625
+// MODULE: lib
 // FILE: lib.kt
 
 
@@ -6,8 +7,8 @@ inline fun tenUInt() = 10U
 
 inline fun tenULong() = 10UL
 
+// MODULE: main(lib)
 // FILE: main.kt
-// RECOMPILE
 
 fun box(): String {
 
