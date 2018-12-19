@@ -358,8 +358,8 @@ class CompileKotlinAgainstCustomBinariesTest : AbstractKotlinCompilerIntegration
         compileKotlin("sourceInline.kt", tmpdir)
 
         val inlineFunClass = File(tmpdir.absolutePath, "test/A.class")
-        val cw = ClassWriter(Opcodes.ASM5)
-        ClassReader(inlineFunClass.readBytes()).accept(object : ClassVisitor(Opcodes.ASM5, cw) {
+        val cw = ClassWriter(Opcodes.API_VERSION)
+        ClassReader(inlineFunClass.readBytes()).accept(object : ClassVisitor(Opcodes.API_VERSION, cw) {
             override fun visitSource(source: String?, debug: String?) {
                 //skip debug info
             }
@@ -374,7 +374,7 @@ class CompileKotlinAgainstCustomBinariesTest : AbstractKotlinCompilerIntegration
 
         var debugInfo: String? = null
         val resultFile = File(tmpdir.absolutePath, "test/B.class")
-        ClassReader(resultFile.readBytes()).accept(object : ClassVisitor(Opcodes.ASM5) {
+        ClassReader(resultFile.readBytes()).accept(object : ClassVisitor(Opcodes.API_VERSION) {
             override fun visitSource(source: String?, debug: String?) {
                 debugInfo = debug
             }
@@ -574,7 +574,7 @@ class CompileKotlinAgainstCustomBinariesTest : AbstractKotlinCompilerIntegration
         private fun stripSuspensionMarksToImitateLegacyCompiler(bytes: ByteArray): Pair<ByteArray, Int> {
             val writer = ClassWriter(0)
             var removedCounter = 0
-            ClassReader(bytes).accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+            ClassReader(bytes).accept(object : ClassVisitor(Opcodes.API_VERSION, writer) {
                 override fun visitMethod(
                     access: Int,
                     name: String?,
@@ -583,7 +583,7 @@ class CompileKotlinAgainstCustomBinariesTest : AbstractKotlinCompilerIntegration
                     exceptions: Array<out String>?
                 ): MethodVisitor {
                     val superMV = super.visitMethod(access, name, desc, signature, exceptions)
-                    return object : MethodNode(Opcodes.ASM5, access, name, desc, signature, exceptions) {
+                    return object : MethodNode(Opcodes.API_VERSION, access, name, desc, signature, exceptions) {
                         override fun visitEnd() {
                             val removeList = instructions.asSequence()
                                 .flatMap { suspendMarkerInsns(it).asSequence() }.toList()
