@@ -1,7 +1,7 @@
 @file:Suppress("unused") // usages in build scripts are not tracked properly
 
 import org.gradle.api.logging.Logger
-import org.objectweb.asm.*
+import org.jetbrains.org.objectweb.asm.*
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
