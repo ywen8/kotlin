@@ -7,12 +7,14 @@ plugins {
     kotlin("jvm")
 }
 
+val kotlinpAsmVersion = "7.0"
+
 val shadows by configurations.creating
 
 dependencies {
     compileOnly(project(":kotlinx-metadata"))
     compileOnly(project(":kotlinx-metadata-jvm"))
-    compile("org.ow2.asm:asm:6.0")
+    compile("org.ow2.asm:asm:$kotlinpAsmVersion")
 
     testCompileOnly(project(":kotlinx-metadata"))
     testCompileOnly(project(":kotlinx-metadata-jvm"))
@@ -22,7 +24,7 @@ dependencies {
     testRuntime(project(":kotlinx-metadata-jvm", configuration = "runtime"))
 
     shadows(project(":kotlinx-metadata-jvm", configuration = "runtime"))
-    shadows("org.ow2.asm:asm:6.0")
+    shadows("org.ow2.asm:asm:$kotlinpAsmVersion")
 }
 
 sourceSets {
