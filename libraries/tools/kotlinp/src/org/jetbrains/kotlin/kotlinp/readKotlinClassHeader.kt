@@ -6,7 +6,7 @@
 package org.jetbrains.kotlin.kotlinp
 
 import kotlinx.metadata.jvm.KotlinClassHeader
-import org.objectweb.asm.*
+import org.jetbrains.org.objectweb.asm.*
 import java.io.File
 import java.io.FileInputStream
 
@@ -15,7 +15,7 @@ internal fun File.readKotlinClassHeader(): KotlinClassHeader? {
 
     try {
         val metadataDesc = Type.getDescriptor(Metadata::class.java)
-        ClassReader(FileInputStream(this)).accept(object : ClassVisitor(Opcodes.ASM7) {
+        ClassReader(FileInputStream(this)).accept(object : ClassVisitor(Opcodes.API_VERSION) {
             override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? =
                 if (desc == metadataDesc) readMetadataVisitor { header = it }
                 else null
