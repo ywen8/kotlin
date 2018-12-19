@@ -23,7 +23,7 @@ fun stripMetadata(logger: Logger, classNamePattern: String, inFile: File, outFil
 
         var changed = false
         val classWriter = ClassWriter(0)
-        val classVisitor = object : ClassVisitor(Opcodes.ASM5, classWriter) {
+        val classVisitor = object : ClassVisitor(Opcodes.ASM7, classWriter) {
             override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
                 if (Type.getType(desc).internalName == "kotlin/Metadata") {
                     changed = true
