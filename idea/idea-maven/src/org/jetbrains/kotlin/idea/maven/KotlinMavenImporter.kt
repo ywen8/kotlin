@@ -47,10 +47,9 @@ import org.jetbrains.kotlin.idea.maven.configuration.KotlinMavenConfigurator
 import org.jetbrains.kotlin.idea.platform.tooling
 import org.jetbrains.kotlin.platform.IdePlatform
 import org.jetbrains.kotlin.platform.IdePlatformKind
-import org.jetbrains.kotlin.platform.impl.CommonIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.JsIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.JvmIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.isCommon
+import org.jetbrains.kotlin.platform.impl.*
+import org.jetbrains.kotlin.statistics.KotlinMavenTargetTrigger
+import org.jetbrains.kotlin.statistics.KotlinStatisticsTrigger
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.io.File
@@ -254,6 +253,15 @@ class KotlinMavenImporter : MavenImporter(KOTLIN_PLUGIN_GROUP_ID, KOTLIN_PLUGIN_
 
         // TODO There should be a way to figure out the correct platform version
         val platform = detectPlatform(mavenProject)?.defaultPlatform
+        KotlinStatisticsTrigger.trigger(
+                KotlinMavenTargetTrigger::class.java,
+                when {
+                    platform.isJvm -> "jvm"
+                    platform.isJavaScript -> "javascript"
+                    platform.isCommon -> "common"
+                    else -> "unknown"
+                }
+        )
 
         kotlinFacet.configureFacet(compilerVersion, LanguageFeature.Coroutines.defaultState, platform, modifiableModelsProvider)
         val facetSettings = kotlinFacet.configuration.settings

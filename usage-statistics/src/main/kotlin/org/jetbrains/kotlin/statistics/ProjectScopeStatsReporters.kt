@@ -21,10 +21,13 @@ open class KotlinStatisticsTrigger(private val groupIdSufix: String) : Applicati
 open class KotlinIdeStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("ide.$groupIdSufix")
 
 open class KotlinGradlePluginStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("gradle.$groupIdSufix")
+open class KotlinMavenPluginStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("maven.$groupIdSufix")
 
 class KotlinVersionTrigger : KotlinGradlePluginStatisticsTrigger("kotlin_version")
 
 class KotlinTargetTrigger : KotlinGradlePluginStatisticsTrigger("target")
+
+class KotlinMavenTargetTrigger : KotlinMavenPluginStatisticsTrigger("target")
 
 class KotlinProjectLibraryUsageTrigger : KotlinGradlePluginStatisticsTrigger("library")
 
