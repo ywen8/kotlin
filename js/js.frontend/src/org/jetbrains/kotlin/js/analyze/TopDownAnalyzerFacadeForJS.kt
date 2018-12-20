@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.analyzer.JsAnalysisResult
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.config.JsConfig
-import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.js.resolve.MODULE_KIND
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtFile
@@ -47,21 +46,23 @@ object TopDownAnalyzerFacadeForJS {
         moduleDescriptors: List<ModuleDescriptorImpl>,
         friendModuleDescriptors: List<ModuleDescriptorImpl>
     ): JsAnalysisResult {
-
         val moduleName = configuration[CommonConfigurationKeys.MODULE_NAME]!!
-        val context = ContextForNewModule(ProjectContext(project), Name.special("<$moduleName>"), JsPlatform.builtIns, null)
+
+        val trace = BindingTraceContext()
+
+        // TODO: stdlib might not be the first module
+        // TODO: use "poisoned" compiler built-ins if there are no libraries in dependencies
+        val builtIns = moduleDescriptors.first().builtIns
+
+        val context = ContextForNewModule(ProjectContext(project), Name.special("<$moduleName>"), builtIns, null)
 
         context.module.setDependencies(
-            listOf(context.module) +
-                    moduleDescriptors +
-                    listOf(JsPlatform.builtIns.builtInsModule),
+            listOf(context.module) + moduleDescriptors,
             friendModuleDescriptors.toSet()
         )
 
-        val moduleKind = configuration.get(JSConfigurationKeys.MODULE_KIND, ModuleKind.PLAIN)
+        trace.record(MODULE_KIND, context.module, configuration.get(JSConfigurationKeys.MODULE_KIND, ModuleKind.PLAIN))
 
-        val trace = BindingTraceContext()
-        trace.record(MODULE_KIND, context.module, moduleKind)
         return analyzeFilesWithGivenTrace(files, trace, context, configuration)
     }
 

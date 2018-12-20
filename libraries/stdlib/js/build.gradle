@@ -131,8 +131,10 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile) {
 }
 
 compileBuiltinsKotlin2Js {
+    dependsOn(":core:builtins:serialize")
     dependsOn prepareComparableSource
     kotlinOptions {
+        // TODO (!): libraryFiles += files("${rootDir}/dist/builtins")
         metaInfo = false
         outputFile = "${buildDir}/classes/builtins/kotlin.js"
         sourceMap = true
@@ -141,8 +143,10 @@ compileBuiltinsKotlin2Js {
 }
 
 compileKotlin2Js {
+    dependsOn(":core:builtins:serialize")
     dependsOn prepareBuiltinsSources
     kotlinOptions {
+        // TODO (!): libraryFiles += files("${rootDir}/dist/builtins")
         outputFile = "${buildDir}/classes/main/kotlin.js"
         sourceMap = true
         sourceMapPrefix = "./"
@@ -286,6 +290,7 @@ task mergedJar(type: Jar, dependsOn: compileJs) {
 
     includeEmptyDirs false
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    from "${rootDir}/dist/builtins"
     from jsOutputFile
     from jsOutputMetaFile
     from "${jsOutputFile}.map"

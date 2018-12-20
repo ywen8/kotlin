@@ -16,11 +16,13 @@
 
 package org.jetbrains.kotlin.js.config;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileSystem;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.SmartList;
 import com.intellij.util.io.URLUtil;
 import kotlin.collections.CollectionsKt;
@@ -28,12 +30,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.builtins.js.JsBuiltInsPackageFragmentProvider;
 import org.jetbrains.kotlin.config.*;
+import org.jetbrains.kotlin.descriptors.NotFoundClasses;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
+import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.incremental.components.LookupTracker;
+import org.jetbrains.kotlin.load.kotlin.MetadataFinderFactory;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.CompilerDeserializationConfiguration;
+import org.jetbrains.kotlin.serialization.deserialization.KotlinMetadataFinder;
 import org.jetbrains.kotlin.serialization.js.*;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.utils.JsMetadataVersion;
@@ -237,23 +244,8 @@ public class JsConfig {
         }
 
         if (metadataCache != null) {
-            LanguageVersionSettings languageVersionSettings = CommonConfigurationKeysKt.getLanguageVersionSettings(configuration);
             for (JsModuleDescriptor<KotlinJavaScriptLibraryParts> cached : metadataCache) {
-                KotlinBuiltIns builtIns = new DefaultBuiltIns(false);
-                ModuleDescriptorImpl moduleDescriptor = new ModuleDescriptorImpl(
-                        Name.special("<" + cached.getName() + ">"), storageManager, builtIns
-                );
-                builtIns.setBuiltInsModule(moduleDescriptor);
-
-                KotlinJavaScriptLibraryParts parts = cached.getData();
-                PackageFragmentProvider provider = KotlinJavascriptPackageFragmentProviderKt.createKotlinJavascriptPackageFragmentProvider(
-                        storageManager, moduleDescriptor, parts.getHeader(), parts.getBody(), parts.getMetadataVersion(),
-                        new CompilerDeserializationConfiguration(languageVersionSettings),
-                        LookupTracker.DO_NOTHING.INSTANCE
-                );
-
-                moduleDescriptor.initialize(provider);
-                moduleDescriptors.add(moduleDescriptor);
+                moduleDescriptors.add(createModuleDescriptor(cached.getName(), cached.getData()));
             }
         }
 
@@ -300,22 +292,33 @@ public class JsConfig {
                    languageVersionSettings.getFlag(AnalysisFlags.getSkipMetadataVersionCheck()) :
                     "Expected JS metadata version " + JsMetadataVersion.INSTANCE + ", but actual metadata version is " + m.getVersion();
 
-            KotlinBuiltIns builtIns = new DefaultBuiltIns(false);
-            ModuleDescriptorImpl moduleDescriptor = new ModuleDescriptorImpl(
-                    Name.special("<" + m.getModuleName() + ">"), storageManager, builtIns
-            );
-            builtIns.setBuiltInsModule(moduleDescriptor);
-
-            LookupTracker lookupTracker = configuration.get(CommonConfigurationKeys.LOOKUP_TRACKER, LookupTracker.DO_NOTHING.INSTANCE);
             KotlinJavaScriptLibraryParts parts = KotlinJavascriptSerializationUtil.readModuleAsProto(m.getBody(), m.getVersion());
-            PackageFragmentProvider provider = KotlinJavascriptPackageFragmentProviderKt.createKotlinJavascriptPackageFragmentProvider(
-                    storageManager, moduleDescriptor, parts.getHeader(), parts.getBody(), m.getVersion(),
-                    new CompilerDeserializationConfiguration(languageVersionSettings),
-                    lookupTracker
-            );
-
-            moduleDescriptor.initialize(provider);
-            return moduleDescriptor;
+            return createModuleDescriptor(m.getModuleName(), parts);
         });
+    }
+
+    @NotNull
+    private ModuleDescriptorImpl createModuleDescriptor(@NotNull String moduleName, @NotNull KotlinJavaScriptLibraryParts parts) {
+        KotlinBuiltIns builtIns = new DefaultBuiltIns(false);
+        ModuleDescriptorImpl module = new ModuleDescriptorImpl(Name.special("<" + moduleName + ">"), storageManager, builtIns);
+        builtIns.setBuiltInsModule(module);
+
+        LanguageVersionSettings languageVersionSettings = CommonConfigurationKeysKt.getLanguageVersionSettings(configuration);
+        LookupTracker lookupTracker = configuration.get(CommonConfigurationKeys.LOOKUP_TRACKER, LookupTracker.DO_NOTHING.INSTANCE);
+        PackageFragmentProvider provider = KotlinJavascriptPackageFragmentProviderKt.createKotlinJavascriptPackageFragmentProvider(
+                storageManager, module, parts.getHeader(), parts.getBody(), parts.getMetadataVersion(),
+                new CompilerDeserializationConfiguration(languageVersionSettings),
+                lookupTracker
+        );
+
+        KotlinMetadataFinder finder =
+                ServiceManager.getService(project, MetadataFinderFactory.class).create(GlobalSearchScope.allScope(project));
+
+        module.initialize(new CompositePackageFragmentProvider(Arrays.asList(
+                provider,
+                new JsBuiltInsPackageFragmentProvider(storageManager, finder, module, new NotFoundClasses(storageManager, module))
+        )));
+
+        return module;
     }
 }
