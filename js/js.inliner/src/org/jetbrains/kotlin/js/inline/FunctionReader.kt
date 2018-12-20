@@ -36,7 +36,6 @@ import org.jetbrains.kotlin.js.translate.utils.JsDescriptorUtils.getModuleName
 import org.jetbrains.kotlin.resolve.descriptorUtil.isExtension
 import org.jetbrains.kotlin.resolve.inline.InlineStrategy
 import org.jetbrains.kotlin.utils.JsLibraryUtils
-import org.jetbrains.kotlin.utils.sure
 import java.io.File
 import java.io.StringReader
 
@@ -91,7 +90,7 @@ class FunctionReader(
     private val moduleNameToInfo by lazy {
         val result = HashMultimap.create<String, ModuleInfo>()
 
-        JsLibraryUtils.traverseJsLibraries(config.libraries.map(::File)) { (content, path, sourceMapContent, file) ->
+        JsLibraryUtils.traverseJsLibraries(config.libraries) { (content, path, sourceMapContent, file) ->
             var current = 0
 
             while (true) {

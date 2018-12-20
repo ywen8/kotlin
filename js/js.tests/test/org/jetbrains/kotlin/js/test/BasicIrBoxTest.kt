@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.js.test
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.ir.backend.js.Result
 import org.jetbrains.kotlin.ir.backend.js.compile
-import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.config.JsConfig
 import org.jetbrains.kotlin.js.facade.MainCallParameters
 import org.jetbrains.kotlin.js.facade.TranslationUnit
@@ -166,7 +165,7 @@ abstract class BasicIrBoxTest(
             runtimeFile.write(runtimeResult!!.generatedCode)
         }
 
-        val dependencyNames = config.configuration[JSConfigurationKeys.LIBRARIES]!!.map { File(it).name }
+        val dependencyNames = config.libraries.map(File::getName)
         val dependencies = listOf(runtimeResult!!.moduleDescriptor) + dependencyNames.mapNotNull { compilationCache[it]?.moduleDescriptor }
         val irDependencies = listOf(runtimeResult!!.moduleFragment) + compilationCache.values.map { it.moduleFragment }
 
