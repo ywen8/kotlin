@@ -813,6 +813,10 @@ if (ideaActive) {
         afterEvaluate {
             val curProj = this
             if (curProj.path.startsWith(":kotlin-stdlib")) {
+                curProj.sourceSets.forEach {
+                    println(it.allSource.srcDirs)
+                    it.allSource.srcDirs.clear()
+                }
             } else {
                 configurations.forEach { configuration ->
                     try {
@@ -863,7 +867,7 @@ if (ideaActive) {
             project {
                 val settings = (this@project as ExtensionAware).extensions["settings"] as org.jetbrains.gradle.ext.ProjectSettings
                 val ideArtifactsFactory = (settings as ExtensionAware).extensions["ideArtifacts"] as NamedDomainObjectContainer<org.jetbrains.gradle.ext.TopLevelArtifact>
-                org.jetbrains.kotlin.buildUtils.idea.generateIdeArtifacts(rootProject, ideArtifactsFactory)
+//                org.jetbrains.kotlin.buildUtils.idea.generateIdeArtifacts(rootProject, ideArtifactsFactory)
             }
         }
     }
