@@ -19,18 +19,19 @@ package org.jetbrains.kotlin.contracts.interpretation
 import org.jetbrains.kotlin.contracts.description.*
 import org.jetbrains.kotlin.contracts.description.expressions.ConstantReference
 import org.jetbrains.kotlin.contracts.description.expressions.VariableReference
-import org.jetbrains.kotlin.contracts.model.functors.SubstitutingFunctor
-import org.jetbrains.kotlin.contracts.model.structure.ESConstant
-import org.jetbrains.kotlin.contracts.model.structure.ESVariable
 import org.jetbrains.kotlin.contracts.model.ESEffect
 import org.jetbrains.kotlin.contracts.model.ESExpression
 import org.jetbrains.kotlin.contracts.model.Functor
+import org.jetbrains.kotlin.contracts.model.functors.SubstitutingFunctor
+import org.jetbrains.kotlin.contracts.model.structure.ESConstant
+import org.jetbrains.kotlin.contracts.model.structure.ESVariable
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 
 /**
  * This class manages conversion of [ContractDescription] to [Functor]
  */
-class ContractInterpretationDispatcher {
+class ContractInterpretationDispatcher(internal val module: ModuleDescriptor) {
     private val constantsInterpreter = ConstantValuesInterpreter()
     private val conditionInterpreter = ConditionInterpreter(this)
     private val conditionalEffectInterpreter = ConditionalEffectInterpreter(this)
@@ -53,7 +54,7 @@ class ContractInterpretationDispatcher {
             }
         }
 
-        return SubstitutingFunctor(resultingClauses, contractDescription.ownerFunction)
+        return SubstitutingFunctor(resultingClauses, contractDescription.ownerFunction, module.builtIns)
     }
 
     internal fun interpretEffect(effectDeclaration: EffectDeclaration): ESEffect? {

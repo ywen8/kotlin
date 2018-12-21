@@ -16,7 +16,7 @@
 
 package org.jetbrains.kotlin.contracts
 
-import org.jetbrains.kotlin.builtins.DefaultBuiltIns
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.contracts.interpretation.ContractInterpretationDispatcher
 import org.jetbrains.kotlin.contracts.model.Computation
 import org.jetbrains.kotlin.contracts.model.ConditionalEffect
@@ -53,6 +53,8 @@ class EffectsExtractingVisitor(
     private val moduleDescriptor: ModuleDescriptor,
     private val dataFlowValueFactory: DataFlowValueFactory
 ) : KtVisitor<Computation, Unit>() {
+    private val builtIns: KotlinBuiltIns = moduleDescriptor.builtIns
+
     fun extractOrGetCached(element: KtElement): Computation {
         trace[BindingContext.EXPRESSION_EFFECTS, element]?.let { return it }
         return element.accept(this, Unit).also { trace.record(BindingContext.EXPRESSION_EFFECTS, element, it) }
@@ -67,7 +69,7 @@ class EffectsExtractingVisitor(
         val descriptor = resolvedCall.resultingDescriptor
         return when {
             descriptor.isEqualsDescriptor() -> CallComputation(
-                DefaultBuiltIns.Instance.booleanType,
+                builtIns.booleanType,
                 EqualsFunctor(false).invokeWithArguments(arguments)
             )
             descriptor is ValueDescriptor -> ESDataFlowValue(
@@ -111,7 +113,7 @@ class EffectsExtractingVisitor(
         val rightType: KotlinType = trace[BindingContext.TYPE, expression.typeReference] ?: return UNKNOWN_COMPUTATION
         val arg = extractOrGetCached(expression.leftHandSide)
         return CallComputation(
-            DefaultBuiltIns.Instance.booleanType,
+            builtIns.booleanType,
             IsFunctor(rightType, expression.isNegated).invokeWithArguments(listOf(arg))
         )
     }
@@ -137,10 +139,10 @@ class EffectsExtractingVisitor(
         val args = listOf(left, right)
 
         return when (expression.operationToken) {
-            KtTokens.EXCLEQ -> CallComputation(DefaultBuiltIns.Instance.booleanType, EqualsFunctor(true).invokeWithArguments(args))
-            KtTokens.EQEQ -> CallComputation(DefaultBuiltIns.Instance.booleanType, EqualsFunctor(false).invokeWithArguments(args))
-            KtTokens.ANDAND -> CallComputation(DefaultBuiltIns.Instance.booleanType, AndFunctor().invokeWithArguments(args))
-            KtTokens.OROR -> CallComputation(DefaultBuiltIns.Instance.booleanType, OrFunctor().invokeWithArguments(args))
+            KtTokens.EXCLEQ -> CallComputation(builtIns.booleanType, EqualsFunctor(true).invokeWithArguments(args))
+            KtTokens.EQEQ -> CallComputation(builtIns.booleanType, EqualsFunctor(false).invokeWithArguments(args))
+            KtTokens.ANDAND -> CallComputation(builtIns.booleanType, AndFunctor().invokeWithArguments(args))
+            KtTokens.OROR -> CallComputation(builtIns.booleanType, OrFunctor().invokeWithArguments(args))
             else -> UNKNOWN_COMPUTATION
         }
     }
@@ -148,7 +150,7 @@ class EffectsExtractingVisitor(
     override fun visitUnaryExpression(expression: KtUnaryExpression, data: Unit): Computation {
         val arg = extractOrGetCached(expression.baseExpression ?: return UNKNOWN_COMPUTATION)
         return when (expression.operationToken) {
-            KtTokens.EXCL -> CallComputation(DefaultBuiltIns.Instance.booleanType, NotFunctor().invokeWithArguments(arg))
+            KtTokens.EXCL -> CallComputation(builtIns.booleanType, NotFunctor().invokeWithArguments(arg))
             else -> UNKNOWN_COMPUTATION
         }
     }
@@ -170,7 +172,7 @@ class EffectsExtractingVisitor(
     private fun FunctionDescriptor.getFunctor(): Functor? {
         trace[BindingContext.FUNCTOR, this]?.let { return it }
 
-        val functor = ContractInterpretationDispatcher().resolveFunctor(this) ?: return null
+        val functor = ContractInterpretationDispatcher(moduleDescriptor).resolveFunctor(this) ?: return null
         trace.record(BindingContext.FUNCTOR, this, functor)
         return functor
     }
