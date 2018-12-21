@@ -16,14 +16,13 @@
 
 package org.jetbrains.kotlin.contracts.model.functors
 
-import org.jetbrains.kotlin.contracts.model.structure.ESReturns
 import org.jetbrains.kotlin.contracts.model.*
 import org.jetbrains.kotlin.contracts.model.structure.*
 import org.jetbrains.kotlin.types.KotlinType
 
 class IsFunctor(val type: KotlinType, val isNegated: Boolean) : AbstractReducingFunctor() {
     override fun doInvocation(arguments: List<Computation>): List<ESEffect> {
-        assert(arguments.size == 1, { "Wrong size of arguments list for Unary operator: expected 1, got ${arguments.size}" })
+        assert(arguments.size == 1) { "Wrong size of arguments list for Unary operator: expected 1, got ${arguments.size}" }
         return invokeWithArguments(arguments[0])
     }
 
@@ -32,7 +31,7 @@ class IsFunctor(val type: KotlinType, val isNegated: Boolean) : AbstractReducing
             invokeWithValue(arg, null)
         else
             arg.effects.flatMap {
-                if (it !is ConditionalEffect || it.simpleEffect !is ESReturns || it.simpleEffect.value == ESConstant.WILDCARD)
+                if (it !is ConditionalEffect || it.simpleEffect !is ESReturns || it.simpleEffect.value.isWildcard)
                     listOf(it)
                 else
                     invokeWithValue(it.simpleEffect.value, it.condition)
