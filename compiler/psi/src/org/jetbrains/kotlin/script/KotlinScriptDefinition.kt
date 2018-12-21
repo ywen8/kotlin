@@ -48,6 +48,9 @@ open class KotlinScriptDefinition(open val template: KClass<out Any>) : UserData
     open val fileExtension: String
         get() = "kts"
 
+    open val platform: String
+        get() = "JVM"
+
     open val dependencyResolver: DependenciesResolver get() = DependenciesResolver.NoDependencies
 
     open val acceptedAnnotations: List<KClass<out Annotation>> get() = emptyList()
