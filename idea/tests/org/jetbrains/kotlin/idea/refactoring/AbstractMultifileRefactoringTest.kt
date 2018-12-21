@@ -24,6 +24,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -33,12 +34,14 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.kotlin.idea.core.script.ScriptDependenciesManager
 import org.jetbrains.kotlin.idea.jsonUtils.getNullableString
 import org.jetbrains.kotlin.idea.refactoring.rename.loadTestConfiguration
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.KotlinLightProjectDescriptor
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
 import org.jetbrains.kotlin.idea.test.extractMultipleMarkerOffsets
+import org.jetbrains.kotlin.parsing.KotlinParserDefinition
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import java.io.File
 
@@ -64,6 +67,10 @@ abstract class AbstractMultifileRefactoringTest : KotlinLightCodeInsightFixtureT
     protected fun doTest(path: String) {
         val testFile = File(path)
         val config = JsonParser().parse(FileUtil.loadFile(testFile, true)) as JsonObject
+
+        if (testFile.extension == KotlinParserDefinition.STD_SCRIPT_SUFFIX) {
+            ScriptDependenciesManager.updateScriptDependenciesSynchronously(VfsUtil.findFileByIoFile(testFile, true)!!, project)
+        }
 
         doTestCommittingDocuments(testFile) { rootDir ->
             runRefactoring(path, config, rootDir, project)
