@@ -241,7 +241,7 @@ public class Long internal constructor(
     public override fun toDouble(): Double = toNumber()
 
     // TODO: is it still needed?
-    private fun valueOf() = toDouble()
+    protected fun valueOf() = toDouble()
 
     override fun equals(other: Any?): Boolean = other is Long && equalsLong(other)
 
