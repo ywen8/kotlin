@@ -292,6 +292,7 @@ public fun CharArray.binarySearch(element: Char, fromIndex: Int = 0, toIndex: In
  * If any of arrays contains itself on any nesting level the behavior is undefined.
  * 
  * The elements of other types are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @JvmName("contentDeepEqualsInline")
@@ -343,6 +344,7 @@ public actual inline fun <T> Array<out T>.contentDeepToString(): String {
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -355,6 +357,7 @@ public actual inline infix fun <T> Array<out T>.contentEquals(other: Array<out T
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -367,6 +370,7 @@ public actual inline infix fun ByteArray.contentEquals(other: ByteArray): Boolea
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -379,6 +383,7 @@ public actual inline infix fun ShortArray.contentEquals(other: ShortArray): Bool
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -391,6 +396,7 @@ public actual inline infix fun IntArray.contentEquals(other: IntArray): Boolean 
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -403,6 +409,7 @@ public actual inline infix fun LongArray.contentEquals(other: LongArray): Boolea
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -415,6 +422,7 @@ public actual inline infix fun FloatArray.contentEquals(other: FloatArray): Bool
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -427,6 +435,7 @@ public actual inline infix fun DoubleArray.contentEquals(other: DoubleArray): Bo
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly
@@ -439,6 +448,7 @@ public actual inline infix fun BooleanArray.contentEquals(other: BooleanArray): 
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 @kotlin.internal.InlineOnly

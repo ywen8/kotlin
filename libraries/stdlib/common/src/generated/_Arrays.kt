@@ -5619,6 +5619,7 @@ public expect fun CharArray.asList(): List<Char>
  * If any of arrays contains itself on any nesting level the behavior is undefined.
  * 
  * The elements of other types are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun <T> Array<out T>.contentDeepEquals(other: Array<out T>): Boolean
@@ -5649,6 +5650,7 @@ public expect fun <T> Array<out T>.contentDeepToString(): String
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun <T> Array<out T>.contentEquals(other: Array<out T>): Boolean
@@ -5658,6 +5660,7 @@ public expect infix fun <T> Array<out T>.contentEquals(other: Array<out T>): Boo
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun ByteArray.contentEquals(other: ByteArray): Boolean
@@ -5667,6 +5670,7 @@ public expect infix fun ByteArray.contentEquals(other: ByteArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun ShortArray.contentEquals(other: ShortArray): Boolean
@@ -5676,6 +5680,7 @@ public expect infix fun ShortArray.contentEquals(other: ShortArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun IntArray.contentEquals(other: IntArray): Boolean
@@ -5685,6 +5690,7 @@ public expect infix fun IntArray.contentEquals(other: IntArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun LongArray.contentEquals(other: LongArray): Boolean
@@ -5694,6 +5700,7 @@ public expect infix fun LongArray.contentEquals(other: LongArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun FloatArray.contentEquals(other: FloatArray): Boolean
@@ -5703,6 +5710,7 @@ public expect infix fun FloatArray.contentEquals(other: FloatArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun DoubleArray.contentEquals(other: DoubleArray): Boolean
@@ -5712,6 +5720,7 @@ public expect infix fun DoubleArray.contentEquals(other: DoubleArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun BooleanArray.contentEquals(other: BooleanArray): Boolean
@@ -5721,6 +5730,7 @@ public expect infix fun BooleanArray.contentEquals(other: BooleanArray): Boolean
  * i.e. contain the same number of the same elements in the same order.
  * 
  * The elements are compared for equality with the [equals][Any.equals] function.
+ * For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
  */
 @SinceKotlin("1.1")
 public expect infix fun CharArray.contentEquals(other: CharArray): Boolean

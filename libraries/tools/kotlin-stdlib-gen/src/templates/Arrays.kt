@@ -70,14 +70,18 @@ object ArrayOps : TemplateGroupBase() {
             """
             Returns `true` if the two specified arrays are *structurally* equal to one another,
             i.e. contain the same number of the same elements in the same order.
-
-            The elements are compared for equality with the [equals][Any.equals] function.
             """
         }
         returns("Boolean")
         if (family == ArraysOfUnsigned) {
             body { "return storage.contentEquals(other.storage)" }
             return@builder
+        }
+        doc {
+            doc + """
+            The elements are compared for equality with the [equals][Any.equals] function.
+            For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
+            """
         }
         on(Platform.JVM) {
             inlineOnly()
@@ -110,6 +114,7 @@ object ArrayOps : TemplateGroupBase() {
             If any of arrays contains itself on any nesting level the behavior is undefined.
 
             The elements of other types are compared for equality with the [equals][Any.equals] function.
+            For floating point numbers it means that `NaN` is equal to itself and `-0.0` is not equal to `0.0`.
             """
         }
         returns("Boolean")
