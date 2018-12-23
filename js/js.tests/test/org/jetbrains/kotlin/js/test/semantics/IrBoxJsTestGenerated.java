@@ -4105,6 +4105,11 @@ public class IrBoxJsTestGenerated extends AbstractIrBoxJsTest {
             runTest("js/js.translator/testData/box/inline/params.kt");
         }
 
+        @TestMetadata("privateProperty.kt")
+        public void testPrivateProperty() throws Exception {
+            runTest("js/js.translator/testData/box/inline/privateProperty.kt");
+        }
+
         @TestMetadata("rootConstructor.kt")
         public void testRootConstructor() throws Exception {
             runTest("js/js.translator/testData/box/inline/rootConstructor.kt");
