@@ -66,7 +66,7 @@ object PluginCliParser {
             this::class.java.classLoader
         )
 
-        val componentRegistrars = ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
+        val componentRegistrars = ServiceLoader.load(ComponentRegistrar::class.java, classLoader).toList()
         configuration.addAll(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, componentRegistrars)
 
         processPluginOptions(pluginOptions, configuration, classLoader)
