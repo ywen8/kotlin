@@ -69,6 +69,7 @@
       <element id="module-output" name="serialization_main" />
       <element id="module-output" name="util.runtime_main" />
       <element id="module-output" name="util_main" />
+      <element id="module-output" name="frontend.common_main" />
     </root>
   </artifact>
 </component>

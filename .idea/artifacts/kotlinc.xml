@@ -146,7 +146,6 @@
         <element id="archive" name="kotlin-test-js.jar">
           <element id="module-output" name="kotlin-test-js_main" />
           <element id="dir-copy" path="$PROJECT_DIR$/libraries/kotlin.test/js/build/classes/main" />
-          <element id="directory" name="kotlin-test.js" />
           <element id="directory" name="META-INF">
             <element id="file-copy" path="$PROJECT_DIR$/libraries/kotlin.test/js/build/tmp/jar/MANIFEST.MF" />
           </element>
@@ -232,12 +231,17 @@
         <element id="file-copy" path="$PROJECT_DIR$/bootstrap/kotlin-stdlib-js.jar" />
         <element id="file-copy" path="$PROJECT_DIR$/bootstrap/kotlin-stdlib-sources.jar" />
         <element id="file-copy" path="$PROJECT_DIR$/bootstrap/kotlin-stdlib.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/bootstrap/kotlin-stdlib-common.jar" />
         <element id="artifact" artifact-name="kotlin-compiler.jar" />
         <element id="artifact" artifact-name="kotlin-reflect.jar" />
         <element id="artifact" artifact-name="kotlin-daemon-client.jar" />
         <element id="artifact" artifact-name="kotlin-main-kts.jar" />
         <element id="artifact" artifact-name="kotlin-imports-dumper-compiler-plugin.jar" />
+        <element id="archive" name="jvm-abi-gen.jar">
+          <element id="module-output" name="jvm-abi-gen_main" />
+          <element id="directory" name="META-INF">
+            <element id="file-copy" path="$PROJECT_DIR$/plugins/jvm-abi-gen/build/tmp/jar/MANIFEST.MF" />
+          </element>
+        </element>
       </element>
       <element id="directory" name="license">
         <element id="dir-copy" path="$PROJECT_DIR$/license" />

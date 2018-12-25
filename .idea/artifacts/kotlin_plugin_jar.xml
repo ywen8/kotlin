@@ -52,6 +52,7 @@
       <element id="module-output" name="util.runtime_main" />
       <element id="module-output" name="util_main" />
       <element id="file-copy" path="$PROJECT_DIR$/resources/kotlinManifest.properties" />
+      <element id="module-output" name="frontend.common_main" />
     </root>
   </artifact>
 </component>

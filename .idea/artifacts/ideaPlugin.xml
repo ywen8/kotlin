@@ -205,6 +205,12 @@
           <element id="file-copy" path="$PROJECT_DIR$/bootstrap/kotlin-stdlib-common.jar" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" />
           <element id="artifact" artifact-name="kotlin-daemon-client.jar" />
+          <element id="archive" name="usage-statistics.jar">
+            <element id="directory" name="META-INF">
+              <element id="file-copy" path="$PROJECT_DIR$/usage-statistics/build/tmp/jar/MANIFEST.MF" />
+            </element>
+            <element id="module-output" name="usage-statistics_main" />
+          </element>
         </element>
         <element id="directory" name="kotlinc">
           <element id="artifact" artifact-name="kotlinc" />
