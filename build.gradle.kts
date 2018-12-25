@@ -808,7 +808,9 @@ allprojects {
 val ideaActive: Boolean
     get() = System.getProperty("idea.active") != null
 
-if (ideaActive) {
+val useBootstrapStdlib = true  // ideaActive
+
+if (useBootstrapStdlib) {
     allprojects {
         afterEvaluate {
             val curProj = this
