@@ -96,11 +96,17 @@ internal class AnnotationsAndParameterCollectorMethodVisitor(
                 BinaryJavaAnnotation.addTypeAnnotation(it, desc, context, signatureParser)
             }
 
-            TypeReference.METHOD_FORMAL_PARAMETER ->
-                    BinaryJavaAnnotation.addTypeAnnotation(
-                            member.valueParameters[typeReference.formalParameterIndex].type,
-                            desc, context, signatureParser
-                    )
+            TypeReference.METHOD_FORMAL_PARAMETER -> {
+                val absoluteParameterIndex =
+                    typeReference.formalParameterIndex + parametersCountInMethodDesc - if (visible) visibleAnnotableParameterCount else invisibleAnnotableParameterCount
+                val index = absoluteParameterIndex - parametersToSkipNumber
+                if (index < 0) return null
+
+                BinaryJavaAnnotation.addTypeAnnotation(
+                    member.valueParameters[index].type,
+                    desc, context, signatureParser
+                )
+            }
 
             else -> null
         }
