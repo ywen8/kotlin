@@ -22,12 +22,15 @@ open class KotlinIdeStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTr
 
 open class KotlinGradlePluginStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("gradle.$groupIdSufix")
 open class KotlinMavenPluginStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("maven.$groupIdSufix")
+open class KotlinJPSPluginStatisticsTrigger(groupIdSufix: String) : KotlinStatisticsTrigger("jps.$groupIdSufix")
 
 class KotlinVersionTrigger : KotlinGradlePluginStatisticsTrigger("kotlin_version")
 
 class KotlinTargetTrigger : KotlinGradlePluginStatisticsTrigger("target")
 
 class KotlinMavenTargetTrigger : KotlinMavenPluginStatisticsTrigger("target")
+
+class KotlinJPSTargetTrigger : KotlinJPSPluginStatisticsTrigger("target")
 
 class KotlinProjectLibraryUsageTrigger : KotlinGradlePluginStatisticsTrigger("library")
 
