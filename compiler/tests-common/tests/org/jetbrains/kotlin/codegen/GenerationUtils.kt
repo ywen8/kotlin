@@ -67,7 +67,14 @@ object GenerationUtils {
         trace: BindingTrace = NoScopeRecordCliBindingTrace()
     ): GenerationState {
         val analysisResult =
-            JvmResolveUtil.analyzeAndCheckForErrors(files.first().project, files, configuration, packagePartProvider, trace)
+            try {
+                JvmResolveUtil.analyzeAndCheckForErrors(files.first().project, files, configuration, packagePartProvider, trace)
+            } catch (e: IllegalStateException) {
+                throw TestsCompiletimeError(e)
+            } catch (e: IllegalArgumentException) {
+                throw TestsCompiletimeError(e)
+            }
+
         analysisResult.throwIfError()
 
         val state = GenerationState.Builder(
