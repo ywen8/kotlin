@@ -24,6 +24,8 @@ import org.jetbrains.kotlin.diagnostics.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.jetbrains.kotlin.diagnostics.rendering.Renderers.TO_STRING;
+
 public final class DiagnosticFactoryToRendererMap {
     private final Map<DiagnosticFactory<?>, DiagnosticRenderer<?>> map = new HashMap<>();
     private boolean immutable = false;
@@ -82,6 +84,10 @@ public final class DiagnosticFactoryToRendererMap {
 
     @Nullable
     public DiagnosticRenderer<?> get(@NotNull DiagnosticFactory<?> factory) {
+        if (factory instanceof DiagnosticFactory1 && map.get(factory) == null) {
+            return new DiagnosticWithParameters1Renderer("{0}", TO_STRING);
+        }
+
         return map.get(factory);
     }
 

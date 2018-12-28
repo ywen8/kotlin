@@ -16,10 +16,13 @@ import org.jetbrains.kotlin.checkers.diagnostics.*
 import org.jetbrains.kotlin.checkers.diagnostics.factories.DebugInfoDiagnosticFactory
 import org.jetbrains.kotlin.checkers.diagnostics.factories.DebugInfoDiagnosticFactory0
 import org.jetbrains.kotlin.checkers.diagnostics.factories.DebugInfoDiagnosticFactory1
+import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.MultiTargetPlatform
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import java.util.*
 import java.util.regex.Pattern
 
@@ -42,7 +45,10 @@ object CheckerTestUtil {
         root: PsiElement,
         markDynamicCalls: Boolean,
         dynamicCallDescriptors: MutableList<DeclarationDescriptor>,
-        withNewInference: Boolean
+        withNewInference: Boolean,
+        languageVersionSettings: LanguageVersionSettings,
+        dataFlowValueFactory: DataFlowValueFactory,
+        moduleDescriptor: ModuleDescriptorImpl
     ): List<ActualDiagnostic> {
         val result = getDiagnosticsIncludingSyntaxErrors(
             bindingContext,
@@ -50,7 +56,10 @@ object CheckerTestUtil {
             markDynamicCalls,
             dynamicCallDescriptors,
             null,
-            withNewInference
+            withNewInference,
+            languageVersionSettings,
+            dataFlowValueFactory,
+            moduleDescriptor
         )
         val sortedBindings = implementingModulesBindings.sortedBy { it.first }
 
@@ -64,7 +73,10 @@ object CheckerTestUtil {
                     markDynamicCalls,
                     dynamicCallDescriptors,
                     (platform as MultiTargetPlatform.Specific).platform,
-                    withNewInference
+                    withNewInference,
+                    languageVersionSettings,
+                    dataFlowValueFactory,
+                    moduleDescriptor
                 )
             )
         }
@@ -78,7 +90,10 @@ object CheckerTestUtil {
         markDynamicCalls: Boolean,
         dynamicCallDescriptors: MutableList<DeclarationDescriptor>,
         platform: String?,
-        withNewInference: Boolean
+        withNewInference: Boolean,
+        languageVersionSettings: LanguageVersionSettings,
+        dataFlowValueFactory: DataFlowValueFactory,
+        moduleDescriptor: ModuleDescriptorImpl
     ): MutableList<ActualDiagnostic> {
         val diagnostics: MutableList<ActualDiagnostic> = mutableListOf()
 
@@ -99,7 +114,10 @@ object CheckerTestUtil {
                 markDynamicCalls,
                 dynamicCallDescriptors,
                 platform,
-                withNewInference
+                withNewInference,
+                languageVersionSettings,
+                dataFlowValueFactory,
+                moduleDescriptor
             )
         )
 
@@ -112,7 +130,10 @@ object CheckerTestUtil {
         markDynamicCalls: Boolean,
         dynamicCallDescriptors: MutableList<DeclarationDescriptor>,
         platform: String?,
-        withNewInference: Boolean
+        withNewInference: Boolean,
+        languageVersionSettings: LanguageVersionSettings,
+        dataFlowValueFactory: DataFlowValueFactory,
+        moduleDescriptor: ModuleDescriptorImpl
     ): List<ActualDiagnostic> {
         val debugAnnotations = mutableListOf<ActualDiagnostic>()
 
@@ -145,7 +166,10 @@ object CheckerTestUtil {
                 if (PsiTreeUtil.isAncestor(root, expression, false)) {
                     val diagnostic = factory.createDiagnostic(
                         expression,
-                        bindingContext
+                        bindingContext,
+                        dataFlowValueFactory,
+                        languageVersionSettings,
+                        moduleDescriptor
                     )
                     debugAnnotations.add(ActualDiagnostic(diagnostic, platform, withNewInference))
                 }

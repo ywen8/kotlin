@@ -24,19 +24,19 @@ import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.cfg.WhenMissingCase
 import org.jetbrains.kotlin.cfg.hasUnknown
+import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptor
 import org.jetbrains.kotlin.diagnostics.rendering.TabledDescriptorRenderer.newTable
 import org.jetbrains.kotlin.diagnostics.rendering.TabledDescriptorRenderer.newText
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtNamedDeclaration
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
+import org.jetbrains.kotlin.renderer.DescriptorRenderer.Companion.DEBUG_TEXT
 import org.jetbrains.kotlin.renderer.PropertyAccessorRenderingPolicy
-import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.MemberComparator
-import org.jetbrains.kotlin.resolve.MultiTargetPlatform
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.calls.callUtil.getType
 import org.jetbrains.kotlin.resolve.calls.inference.*
 import org.jetbrains.kotlin.resolve.calls.inference.TypeBounds.Bound
 import org.jetbrains.kotlin.resolve.calls.inference.TypeBounds.BoundKind.LOWER_BOUND
@@ -45,9 +45,11 @@ import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.Constrain
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind.*
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.getValidityConstraintForConstituentType
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.jetbrains.kotlin.resolve.getMultiTargetPlatform
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.expressions.typeInfoFactory.noTypeInfo
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -679,6 +681,52 @@ object Renderers {
         receiverAfterName = false
         propertyAccessorRenderingPolicy = PropertyAccessorRenderingPolicy.PRETTY
     }.asRenderer()
+
+    @JvmStatic
+    fun renderExpressionType(
+        expression: PsiElement,
+        bindingContext: BindingContext,
+        dataFlowValueFactory: DataFlowValueFactory?,
+        languageVersionSettings: LanguageVersionSettings,
+        moduleDescriptor: ModuleDescriptorImpl?
+    ): String {
+        if (expression is KtCallableDeclaration) {
+            val descriptor = bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, expression] as? CallableDescriptor
+            if (descriptor != null) {
+                return descriptor.returnType?.let {
+                    DEBUG_TEXT.renderType(it)
+                } ?: "Type is unknown"
+            }
+        }
+
+        val expressionTypeInfo =
+            bindingContext[BindingContext.EXPRESSION_TYPE_INFO, expression as KtExpression] ?: noTypeInfo(DataFlowInfo.EMPTY)
+        val expressionType = expression.getType(bindingContext)
+        val result = expressionType?.let {
+            DEBUG_TEXT.renderType(it)
+        } ?: return "Type is unknown"
+
+        if (dataFlowValueFactory == null || moduleDescriptor == null)
+            return DEBUG_TEXT.renderType(expressionType)
+
+        val dataFlowValue = dataFlowValueFactory.createDataFlowValue(expression, expressionType, bindingContext, moduleDescriptor)
+        val types = expressionTypeInfo.dataFlowInfo.getStableTypes(dataFlowValue, languageVersionSettings)
+
+        if (!types.isNullOrEmpty()) {
+            val typesAsString = types.map { DEBUG_TEXT.renderType(it) }.toMutableSet().apply { add(result) }
+
+            return typesAsString.sorted().joinToString(separator = " & ")
+        }
+
+        val smartCast = bindingContext[BindingContext.SMARTCAST, expression]
+        if (smartCast != null && expression is KtReferenceExpression) {
+            val declaredType = (bindingContext[BindingContext.REFERENCE_TARGET, expression] as? CallableDescriptor)?.returnType
+            if (declaredType != null) {
+                return DEBUG_TEXT.renderType(declaredType) + " & $result"
+            }
+        }
+        return result
+    }
 }
 
 fun DescriptorRenderer.asRenderer() = SmartDescriptorRenderer(this)
