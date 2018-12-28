@@ -6,14 +6,10 @@
 package org.jetbrains.kotlin.checkers.diagnostics
 
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.SmartList
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.checkers.utils.CheckerTestUtil
-import org.jetbrains.kotlin.checkers.utils.CheckerTestUtil.INDIVIDUAL_PARAMETER_PATTERN
-import org.jetbrains.kotlin.checkers.utils.CheckerTestUtil.SHOULD_BE_ESCAPED
 import org.jetbrains.kotlin.diagnostics.rendering.AbstractDiagnosticWithParametersRenderer
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
-import java.util.regex.Pattern
 
 class TextDiagnostic(
     override val name: String,
@@ -76,7 +72,7 @@ class TextDiagnostic(
         result.append(name)
         if (parameters != null) {
             result.append("(")
-            result.append(StringUtil.join(parameters, { escape(it) }, "; "))
+            result.append("${StringUtil.join(parameters, { "\"$it\"" }, ", ")}")
             result.append(")")
         }
         return result.toString()
@@ -87,13 +83,6 @@ class TextDiagnostic(
     }
 
     companion object {
-        private fun escape(s: String): String {
-            return s.replace("([$SHOULD_BE_ESCAPED])".toRegex(), "\\\\$1")
-        }
-
-        private fun unescape(s: String): String {
-            return s.replace("\\\\([$SHOULD_BE_ESCAPED])".toRegex(), "$1")
-        }
         fun parseDiagnostic(text: String): TextDiagnostic {
             val matcher = CheckerTestUtil.individualDiagnosticPattern.matcher(text)
             if (!matcher.find())
@@ -116,11 +105,12 @@ class TextDiagnostic(
                 inference
             )
 
-            val parsedParameters = SmartList<String>()
-            val parametersMatcher = INDIVIDUAL_PARAMETER_PATTERN.matcher(parameters)
-            while (parametersMatcher.find())
-                parsedParameters.add(unescape(parametersMatcher.group().trim({ it <= ' ' })))
-            return TextDiagnostic(name, platform, parsedParameters, inference)
+            return TextDiagnostic(
+                name,
+                platform,
+                parameters.trim('"').split(Regex("""",\s*"""")),
+                inference
+            )
         }
 
         private fun computeInferenceCompatibility(abbreviation: String?): InferenceCompatibility {
