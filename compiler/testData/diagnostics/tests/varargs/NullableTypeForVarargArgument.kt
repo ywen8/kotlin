@@ -21,7 +21,7 @@ fun baz(s: String) {}
 fun f() {
     A().foo(1, <!OI;SPREAD_OF_NULLABLE!>*<!>args)
     bar(2, <!OI;SPREAD_OF_NULLABLE!>*<!><!TYPE_MISMATCH!>args<!>)
-    baz(<!OI;SPREAD_OF_NULLABLE, NON_VARARG_SPREAD!>*<!><!NI;TYPE_MISMATCH!>args<!>)
+    baz(<!NON_VARARG_SPREAD, OI;SPREAD_OF_NULLABLE!>*<!><!NI;TYPE_MISMATCH!>args<!>)
 }
 
 fun g(args: Array<String>?) {
