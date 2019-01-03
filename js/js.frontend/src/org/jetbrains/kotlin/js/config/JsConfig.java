@@ -26,11 +26,12 @@ import com.intellij.util.io.URLUtil;
 import kotlin.collections.CollectionsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.config.*;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.incremental.components.LookupTracker;
-import org.jetbrains.kotlin.js.resolve.JsPlatform;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.CompilerDeserializationConfiguration;
 import org.jetbrains.kotlin.serialization.js.*;
@@ -238,9 +239,11 @@ public class JsConfig {
         if (metadataCache != null) {
             LanguageVersionSettings languageVersionSettings = CommonConfigurationKeysKt.getLanguageVersionSettings(configuration);
             for (JsModuleDescriptor<KotlinJavaScriptLibraryParts> cached : metadataCache) {
+                KotlinBuiltIns builtIns = new DefaultBuiltIns(false);
                 ModuleDescriptorImpl moduleDescriptor = new ModuleDescriptorImpl(
-                        Name.special("<" + cached.getName() + ">"), storageManager, JsPlatform.INSTANCE.getBuiltIns()
+                        Name.special("<" + cached.getName() + ">"), storageManager, builtIns
                 );
+                builtIns.setBuiltInsModule(moduleDescriptor);
 
                 KotlinJavaScriptLibraryParts parts = cached.getData();
                 PackageFragmentProvider provider = KotlinJavascriptPackageFragmentProviderKt.createKotlinJavascriptPackageFragmentProvider(
@@ -255,7 +258,7 @@ public class JsConfig {
         }
 
         for (ModuleDescriptorImpl module : moduleDescriptors) {
-            setDependencies(module, moduleDescriptors);
+            module.setDependencies(moduleDescriptors);
         }
 
         return Collections.unmodifiableList(moduleDescriptors);
@@ -297,9 +300,11 @@ public class JsConfig {
                    languageVersionSettings.getFlag(AnalysisFlags.getSkipMetadataVersionCheck()) :
                     "Expected JS metadata version " + JsMetadataVersion.INSTANCE + ", but actual metadata version is " + m.getVersion();
 
+            KotlinBuiltIns builtIns = new DefaultBuiltIns(false);
             ModuleDescriptorImpl moduleDescriptor = new ModuleDescriptorImpl(
-                    Name.special("<" + m.getModuleName() + ">"), storageManager, JsPlatform.INSTANCE.getBuiltIns()
+                    Name.special("<" + m.getModuleName() + ">"), storageManager, builtIns
             );
+            builtIns.setBuiltInsModule(moduleDescriptor);
 
             LookupTracker lookupTracker = configuration.get(CommonConfigurationKeys.LOOKUP_TRACKER, LookupTracker.DO_NOTHING.INSTANCE);
             KotlinJavaScriptLibraryParts parts = KotlinJavascriptSerializationUtil.readModuleAsProto(m.getBody(), m.getVersion());
@@ -312,9 +317,5 @@ public class JsConfig {
             moduleDescriptor.initialize(provider);
             return moduleDescriptor;
         });
-    }
-
-    private static void setDependencies(ModuleDescriptorImpl module, List<ModuleDescriptorImpl> modules) {
-        module.setDependencies(CollectionsKt.plus(modules, JsPlatform.INSTANCE.getBuiltIns().getBuiltInsModule()));
     }
 }
