@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.storage.MemoizedFunctionToNotNull;
 import org.jetbrains.kotlin.storage.NotNullLazyValue;
 import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.types.*;
-import org.jetbrains.kotlin.types.checker.KotlinTypeChecker;
+import org.jetbrains.kotlin.types.typeUtil.TypeUtilsKt;
 
 import java.util.*;
 
@@ -1096,7 +1096,7 @@ public abstract class KotlinBuiltIns {
     }
 
     public boolean isBooleanOrSubtype(@NotNull KotlinType type) {
-        return KotlinTypeChecker.DEFAULT.isSubtypeOf(type, getBooleanType());
+        return TypeUtilsKt.isSubtypeOf(type, getBooleanType());
     }
 
     public boolean isMemberOfAny(@NotNull DeclarationDescriptor descriptor) {

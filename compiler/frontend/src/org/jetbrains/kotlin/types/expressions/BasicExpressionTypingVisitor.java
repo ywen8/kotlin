@@ -73,6 +73,7 @@ import org.jetbrains.kotlin.types.checker.KotlinTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ControlStructureTypingUtils.ResolveConstruct;
 import org.jetbrains.kotlin.types.expressions.typeInfoFactory.TypeInfoFactoryKt;
 import org.jetbrains.kotlin.types.expressions.unqualifiedSuper.UnqualifiedSuperKt;
+import org.jetbrains.kotlin.types.typeUtil.TypeUtilsKt;
 import org.jetbrains.kotlin.util.OperatorNameConventions;
 
 import java.util.ArrayList;
@@ -570,7 +571,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
                 if (otherSupertypeClassifierDescriptor == resultClassifierDescriptor) {
                     continue;
                 }
-                if (KotlinTypeChecker.DEFAULT.isSubtypeOf(otherSupertype, result)) {
+                if (TypeUtilsKt.isSubtypeOf(otherSupertype, result)) {
                     trace.report(QUALIFIED_SUPERTYPE_EXTENDED_BY_OTHER_SUPERTYPE.on(superTypeQualifier, otherSupertype));
                     break;
                 }
@@ -784,7 +785,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
             }
             else {
                 KotlinType receiverType = receiver.getType();
-                if (!KotlinTypeChecker.DEFAULT.isSubtypeOf(returnType, receiverType)) {
+                if (!TypeUtilsKt.isSubtypeOf(returnType, receiverType)) {
                     context.trace.report(RESULT_TYPE_MISMATCH.on(operationSign, name.asString(), receiverType, returnType));
                 }
                 else {
@@ -1117,7 +1118,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
     private static boolean isIdentityComparedWithImplicitBoxing(KotlinType leftType, KotlinType rightType) {
         return KotlinBuiltIns.isPrimitiveType(leftType) &&
                !KotlinBuiltIns.isPrimitiveType(rightType) &&
-               KotlinTypeChecker.DEFAULT.isSubtypeOf(leftType, rightType);
+               TypeUtilsKt.isSubtypeOf(leftType, rightType);
     }
 
     private KotlinTypeInfo visitEquality(

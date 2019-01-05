@@ -925,7 +925,7 @@ class DeclarationsChecker(
         val nullableNothing = callableDescriptor.builtIns.nullableNothingType
         for (parameter in varargParameters) {
             val varargElementType = parameter.varargElementType!!.upperIfFlexible()
-            if (KotlinTypeChecker.DEFAULT.isSubtypeOf(varargElementType, nullableNothing) ||
+            if (varargElementType.isSubtypeOf(nullableNothing) ||
                 (varargElementType.isInlineClassType() && !UnsignedTypes.isUnsignedType(varargElementType))
             ) {
                 val parameterDeclaration = DescriptorToSourceUtils.descriptorToDeclaration(parameter) as? KtParameter ?: continue
