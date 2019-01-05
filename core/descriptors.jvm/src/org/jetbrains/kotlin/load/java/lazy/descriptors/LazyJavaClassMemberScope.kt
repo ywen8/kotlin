@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.storage.NotNullLazyValue
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.utils.SmartSet
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
@@ -231,7 +232,7 @@ class LazyJavaClassMemberScope(
         return functions(Name.identifier(getterName)).firstNotNullResult factory@{ descriptor ->
             if (descriptor.valueParameters.size != 0) return@factory null
 
-            descriptor.takeIf { KotlinTypeChecker.DEFAULT.isSubtypeOf(descriptor.returnType ?: return@takeIf false, type) }
+            descriptor.takeIf { (descriptor.returnType ?: return@takeIf false).isSubtypeOf(type) }
         }
     }
 

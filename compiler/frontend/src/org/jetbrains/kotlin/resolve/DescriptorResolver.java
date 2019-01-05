@@ -1329,7 +1329,7 @@ public class DescriptorResolver {
     ) {
         for (KotlinType bound : typeParameterDescriptor.getUpperBounds()) {
             KotlinType substitutedBound = substitutor.safeSubstitute(bound, Variance.INVARIANT);
-            if (!KotlinTypeChecker.DEFAULT.isSubtypeOf(typeArgument, substitutedBound)) {
+            if (!TypeUtilsKt.isSubtypeOf(typeArgument, substitutedBound)) {
                 trace.report(UPPER_BOUND_VIOLATED.on(jetTypeArgument, substitutedBound, typeArgument));
             }
         }
@@ -1344,7 +1344,7 @@ public class DescriptorResolver {
     ) {
         for (KotlinType bound : typeParameterDescriptor.getUpperBounds()) {
             KotlinType substitutedBound = substitutor.safeSubstitute(bound, Variance.INVARIANT);
-            if (!KotlinTypeChecker.DEFAULT.isSubtypeOf(typeArgument, substitutedBound)) {
+            if (!TypeUtilsKt.isSubtypeOf(typeArgument, substitutedBound)) {
                 reportStrategy.boundsViolationInSubstitution(substitutedBound, unsubstitutedArgument, typeArgument, typeParameterDescriptor);
             }
         }
