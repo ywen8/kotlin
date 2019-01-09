@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.fir.resolve.FirSymbolProvider
 import org.jetbrains.kotlin.fir.scopes.FirPosition
 import org.jetbrains.kotlin.fir.scopes.FirScope
 import org.jetbrains.kotlin.fir.symbols.ConeSymbol
+import org.jetbrains.kotlin.fir.symbols.UnresolvedClassLikeSymbol
 import org.jetbrains.kotlin.name.Name
 
 abstract class FirAbstractSimpleImportingScope(val session: FirSession) : FirScope {
@@ -31,7 +32,9 @@ abstract class FirAbstractSimpleImportingScope(val session: FirSession) : FirSco
                 return false
             }
         }
-        return true
+        // By default, we use the first import
+        val unresolvedSymbol = UnresolvedClassLikeSymbol(imports.first().resolvedFqName)
+        return processor(unresolvedSymbol)
     }
 
 }
