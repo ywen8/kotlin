@@ -67,6 +67,9 @@ class InnerClassesLowering(val context: BackendContext) : ClassLoweringPass {
             val loweredConstructor = context.declarationFactory.getInnerClassConstructorWithOuterThisParameter(irConstructor)
             val outerThisValueParameter = loweredConstructor.valueParameters[0].symbol
 
+            irConstructor.extensionReceiverParameter?.let {
+                oldConstructorParameterToNew[it] = loweredConstructor.extensionReceiverParameter!!
+            }
             irConstructor.valueParameters.forEach { old ->
                 oldConstructorParameterToNew[old] = loweredConstructor.valueParameters[old.index + 1]
             }
