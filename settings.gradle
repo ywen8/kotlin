@@ -217,11 +217,11 @@ include ":kotlin-build-common",
 def includeCidr = hasProperty("cidrPluginsEnabled") && cidrPluginsEnabled != 'false'
 if (includeCidr) {
     include ":kotlin-ultimate:prepare:cidr-plugin",
-            ":kotlin-ultimate:prepare:clion-plugin",
             ":kotlin-ultimate:prepare:appcode-plugin",
+            ":kotlin-ultimate:prepare:clion-plugin",
             ":kotlin-ultimate:cidr-native",
-            ":kotlin-ultimate:clion-native",
-            ":kotlin-ultimate:appcode-native"
+            ":kotlin-ultimate:appcode-native",
+            ":kotlin-ultimate:clion-native"
 }
 
 def isTeamcityBuild = hasProperty("teamcity") || System.getenv("TEAMCITY_VERSION") != null
