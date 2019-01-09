@@ -71,7 +71,6 @@ allprojects {
 
 extra["kotlin_root"] = rootDir
 
-val cidrKotlinPlugin by configurations.creating
 val appcodeKotlinPlugin by configurations.creating
 val clionKotlinPlugin by configurations.creating
 
@@ -79,7 +78,6 @@ val includeCidr by extra(project.getBooleanProperty("cidrPluginsEnabled") ?: fal
 
 dependencies {
     if (includeCidr) {
-        cidrKotlinPlugin(project(":kotlin-ultimate:prepare:cidr-plugin", "runtimeJar"))
         appcodeKotlinPlugin(project(":kotlin-ultimate:prepare:appcode-plugin", "runtimeJar"))
         clionKotlinPlugin(project(":kotlin-ultimate:prepare:clion-plugin", "runtimeJar"))
     }
@@ -654,54 +652,51 @@ val zipPlugin by task<Zip> {
     }
 }
 
-fun cidrPlugin(product: String, pluginDir: String) = tasks.creating(Copy::class.java) {
-    if (!includeCidr) {
-        throw GradleException("CIDR plugins require 'cidrPluginsEnabled' property turned on")
-    }
-    val childCurrentPluginTasks = (getTasksByName(product.toLowerCase() + "Plugin", true) - this)
-
-    dependsOn(ideaPlugin)
-    dependsOn(childCurrentPluginTasks)
-
-    into(pluginDir)
-    from(ideaPluginDir) {
-        exclude("lib/kotlin-plugin.jar")
-
-        exclude("lib/android-lint.jar")
-        exclude("lib/android-ide.jar")
-        exclude("lib/android-output-parser-ide.jar")
-        exclude("lib/android-extensions-ide.jar")
-        exclude("lib/android-extensions-compiler.jar")
-        exclude("lib/kapt3-idea.jar")
-        exclude("lib/jps-ide.jar")
-        exclude("lib/jps/**")
-        exclude("kotlinc/**")
-        exclude("lib/maven-ide.jar")
-    }
-    from(cidrKotlinPlugin) { into("lib") }
-    from(configurations[product.toLowerCase() + "KotlinPlugin"]) { into("lib") }
-}
-
-fun zipCidrPlugin(product: String, productVersion: String) = tasks.creating(Zip::class.java) {
-    // Note: "cidrPluginVersion" has different format and semantics from "pluginVersion" used in IJ and AS plugins.
-    val cidrPluginVersion = project.findProperty("cidrPluginVersion") as String? ?: "beta-1"
-    val destPath = project.findProperty("pluginZipPath") as String?
-            ?: "$distDir/artifacts/kotlin-plugin-$kotlinVersion-$product-$cidrPluginVersion-$productVersion.zip"
-    val destFile = File(destPath)
-
-    destinationDir = destFile.parentFile
-    archiveName = destFile.name
-
-    from(tasks[product.toLowerCase() + "Plugin"])
-    into("Kotlin")
-    setExecutablePermissions()
-
-    doLast {
-        logger.lifecycle("Plugin artifacts packed to $archivePath")
-    }
-}
-
 if (includeCidr) {
+
+    fun cidrPlugin(product: String, pluginDir: String) = tasks.creating(Copy::class.java) {
+        val childCurrentPluginTasks = (getTasksByName(product.toLowerCase() + "Plugin", true) - this)
+
+        dependsOn(ideaPlugin)
+        dependsOn(childCurrentPluginTasks)
+
+        into(pluginDir)
+        from(ideaPluginDir) {
+            exclude("lib/kotlin-plugin.jar")
+
+            exclude("lib/android-lint.jar")
+            exclude("lib/android-ide.jar")
+            exclude("lib/android-output-parser-ide.jar")
+            exclude("lib/android-extensions-ide.jar")
+            exclude("lib/android-extensions-compiler.jar")
+            exclude("lib/kapt3-idea.jar")
+            exclude("lib/jps-ide.jar")
+            exclude("lib/jps/**")
+            exclude("kotlinc/**")
+            exclude("lib/maven-ide.jar")
+        }
+        from(configurations[product.toLowerCase() + "KotlinPlugin"]) { into("lib") }
+    }
+
+    fun zipCidrPlugin(product: String, productVersion: String) = tasks.creating(Zip::class.java) {
+        // Note: "cidrPluginVersion" has different format and semantics from "pluginVersion" used in IJ and AS plugins.
+        val cidrPluginVersion = project.findProperty("cidrPluginVersion") as String? ?: "beta-1"
+        val destPath = project.findProperty("pluginZipPath") as String?
+            ?: "$distDir/artifacts/kotlin-plugin-$kotlinVersion-$product-$cidrPluginVersion-$productVersion.zip"
+        val destFile = File(destPath)
+
+        destinationDir = destFile.parentFile
+        archiveName = destFile.name
+
+        from(tasks[product.toLowerCase() + "Plugin"])
+        into("Kotlin")
+        setExecutablePermissions()
+
+        doLast {
+            logger.lifecycle("Plugin artifacts packed to $archivePath")
+        }
+    }
+
     val appcodePlugin by cidrPlugin("AppCode", appcodePluginDir)
     val appcodeVersion = extra["versions.appcode"] as String
     val zipAppCodePlugin by zipCidrPlugin("AppCode", appcodeVersion)
