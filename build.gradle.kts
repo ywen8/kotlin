@@ -96,7 +96,6 @@ val clionSandboxDir = "$commonLocalDataDir/clionSandbox"
 val appcodeSandboxDir = "$commonLocalDataDir/appcodeSandbox"
 val ideaPluginDir = "$distDir/artifacts/ideaPlugin/Kotlin"
 val ideaUltimatePluginDir = "$distDir/artifacts/ideaUltimatePlugin/Kotlin"
-val cidrPluginDir = "$distDir/artifacts/cidrPlugin/Kotlin"
 val appcodePluginDir = "$distDir/artifacts/appcodePlugin/Kotlin"
 val clionPluginDir = "$distDir/artifacts/clionPlugin/Kotlin"
 
@@ -110,7 +109,6 @@ extra["clionSandboxDir"] = project.file(ideaSandboxDir)
 extra["appcodeSandboxDir"] = project.file(ideaSandboxDir)
 extra["ideaPluginDir"] = project.file(ideaPluginDir)
 extra["ideaUltimatePluginDir"] = project.file(ideaUltimatePluginDir)
-extra["cidrPluginDir"] = project.file(cidrPluginDir)
 extra["appcodePluginDir"] = project.file(appcodePluginDir)
 extra["clionPluginDir"] = project.file(clionPluginDir)
 extra["isSonatypeRelease"] = false
@@ -443,7 +441,6 @@ tasks {
         doLast {
             delete(ideaPluginDir)
             delete(ideaUltimatePluginDir)
-            delete(cidrPluginDir)
             delete(appcodePluginDir)
             delete(clionPluginDir)
         }
@@ -661,12 +658,9 @@ fun cidrPlugin(product: String, pluginDir: String) = tasks.creating(Copy::class.
     if (!includeCidr) {
         throw GradleException("CIDR plugins require 'cidrPluginsEnabled' property turned on")
     }
-    val childCidrPluginTasks = getTasksByName("cidrPlugin", true)
     val childCurrentPluginTasks = (getTasksByName(product.toLowerCase() + "Plugin", true) - this)
-    childCurrentPluginTasks.forEach { it.mustRunAfter(childCidrPluginTasks) }
 
     dependsOn(ideaPlugin)
-    dependsOn(childCidrPluginTasks)
     dependsOn(childCurrentPluginTasks)
 
     into(pluginDir)
