@@ -79,9 +79,9 @@ val includeCidr by extra(project.getBooleanProperty("cidrPluginsEnabled") ?: fal
 
 dependencies {
     if (includeCidr) {
-        cidrKotlinPlugin(project(":prepare:cidr-plugin", "runtimeJar"))
-        appcodeKotlinPlugin(project(":prepare:appcode-plugin", "runtimeJar"))
-        clionKotlinPlugin(project(":prepare:clion-plugin", "runtimeJar"))
+        cidrKotlinPlugin(project(":kotlin-ultimate:prepare:cidr-plugin", "runtimeJar"))
+        appcodeKotlinPlugin(project(":kotlin-ultimate:prepare:appcode-plugin", "runtimeJar"))
+        clionKotlinPlugin(project(":kotlin-ultimate:prepare:clion-plugin", "runtimeJar"))
     }
 }
 

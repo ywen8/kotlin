@@ -140,7 +140,6 @@ include ":kotlin-build-common",
         ":prepare:formatter",
         ":prepare:ide-lazy-resolver",
         ":prepare:idea-plugin",
-        ":prepare:cidr-plugin",
         ":android-lint",
         ":kotlin-compiler",
         ":kotlin-compiler-embeddable",
@@ -217,12 +216,12 @@ include ":kotlin-build-common",
 
 def includeCidr = hasProperty("cidrPluginsEnabled") && cidrPluginsEnabled != 'false'
 if (includeCidr) {
-    include ":kotlin-ultimate:cidr-native",
-            ":kotlin-ultimate:appcode-native",
+    include ":kotlin-ultimate:prepare:cidr-plugin",
+            ":kotlin-ultimate:prepare:clion-plugin",
+            ":kotlin-ultimate:prepare:appcode-plugin",
+            ":kotlin-ultimate:cidr-native",
             ":kotlin-ultimate:clion-native",
-            ":prepare:cidr-plugin",
-            ":prepare:appcode-plugin",
-            ":prepare:clion-plugin"
+            ":kotlin-ultimate:appcode-native"
 }
 
 def isTeamcityBuild = hasProperty("teamcity") || System.getenv("TEAMCITY_VERSION") != null
