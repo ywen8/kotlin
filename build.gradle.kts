@@ -661,13 +661,13 @@ fun cidrPlugin(product: String, pluginDir: String) = tasks.creating(Copy::class.
     if (!includeCidr) {
         throw GradleException("CIDR plugins require 'cidrPluginsEnabled' property turned on")
     }
-    val prepareCidrPlugin = getTasksByName("cidrPlugin", true)
-    val prepareCurrentPlugin = (getTasksByName(product.toLowerCase() + "Plugin", true) - this)
-    prepareCurrentPlugin.forEach { it.mustRunAfter(prepareCidrPlugin) }
+    val childCidrPluginTasks = getTasksByName("cidrPlugin", true)
+    val childCurrentPluginTasks = (getTasksByName(product.toLowerCase() + "Plugin", true) - this)
+    childCurrentPluginTasks.forEach { it.mustRunAfter(childCidrPluginTasks) }
 
     dependsOn(ideaPlugin)
-    dependsOn(prepareCidrPlugin)
-    dependsOn(prepareCurrentPlugin)
+    dependsOn(childCidrPluginTasks)
+    dependsOn(childCurrentPluginTasks)
 
     into(pluginDir)
     from(ideaPluginDir) {
