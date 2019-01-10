@@ -31,6 +31,7 @@ fun doFirResolveTestBench(firFiles: List<FirFile>, transformers: List<FirTransfo
 
     try {
         for (transformer in transformers) {
+            println("Transformer started: ${transformer::class.java}")
             for (firFile in firFiles) {
                 val time = measureNanoTime {
                     try {
