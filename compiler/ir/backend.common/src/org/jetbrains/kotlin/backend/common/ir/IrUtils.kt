@@ -31,6 +31,8 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrTypeParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
 import org.jetbrains.kotlin.ir.descriptors.IrBuiltIns
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
 import org.jetbrains.kotlin.ir.expressions.IrFunctionReference
 import org.jetbrains.kotlin.ir.expressions.impl.IrBlockBodyImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
@@ -160,7 +162,10 @@ fun IrValueParameter.copyTo(
     origin: IrDeclarationOrigin = this.origin,
     name: Name = this.name,
     type: IrType = this.type.remapTypeParameters(this.parent as IrTypeParametersContainer, irFunction),
-    varargElementType: IrType? = this.varargElementType
+    varargElementType: IrType? = this.varargElementType,
+    defaultValue: IrExpressionBody? = this.defaultValue,
+    isCrossinline: Boolean = this.isCrossinline,
+    isNoinline: Boolean = this.isNoinline
 ): IrValueParameter {
     // You cannot specify both index and nontrivial shift.
     assert(index == null || shift == 0)
