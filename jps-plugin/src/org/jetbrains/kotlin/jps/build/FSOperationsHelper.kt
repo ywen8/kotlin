@@ -19,7 +19,9 @@ package org.jetbrains.kotlin.jps.build
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.BuildRootDescriptor
 import org.jetbrains.jps.builders.BuildTarget
+import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.builders.java.dependencyView.Mappings
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.FSOperations
@@ -27,6 +29,15 @@ import org.jetbrains.jps.incremental.ModuleBuildTarget
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import java.io.File
 import java.util.HashMap
+import kotlin.collections.HashSet
+import kotlin.collections.Iterable
+import kotlin.collections.Set
+import kotlin.collections.filter
+import kotlin.collections.filterTo
+import kotlin.collections.forEach
+import kotlin.collections.getOrPut
+import kotlin.collections.setOf
+import kotlin.collections.single
 
 /**
  * Entry point for safely marking files as dirty.
@@ -78,8 +89,12 @@ class FSOperationsHelper(
 
         val targetDirtyFiles = dirtyFilesHolder.byTarget[target]!!
         files.forEach {
-            val root = compileContext.projectDescriptor.buildRootIndex.findJavaRootDescriptor(compileContext, it)!!
-            targetDirtyFiles._markDirty(it, root)
+            val root = compileContext.projectDescriptor.buildRootIndex
+                .findAllParentDescriptors<BuildRootDescriptor>(it, null, compileContext)
+                .filter { sourceRoot -> sourceRoot.target == target }
+                .single()
+
+            targetDirtyFiles._markDirty(it, root as JavaSourceRootDescriptor)
         }
 
         markFilesImpl(files, currentRound = true) { it.exists() }
