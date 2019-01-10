@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.contracts.description.expressions
 import org.jetbrains.kotlin.contracts.description.BooleanExpression
 import org.jetbrains.kotlin.contracts.description.ContractDescriptionElement
 import org.jetbrains.kotlin.contracts.description.ContractDescriptionVisitor
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 
 
@@ -56,4 +57,18 @@ open class VariableReference(val descriptor: ParameterDescriptor) : ContractDesc
 class BooleanVariableReference(descriptor: ParameterDescriptor) : VariableReference(descriptor), BooleanExpression {
     override fun <R, D> accept(contractDescriptionVisitor: ContractDescriptionVisitor<R, D>, data: D): R =
         contractDescriptionVisitor.visitBooleanVariableReference(this, data)
+}
+
+interface FunctionReference : ContractDescriptionValue {
+    val descriptor: FunctionDescriptor
+
+    override fun <R, D> accept(contractDescriptionVisitor: ContractDescriptionVisitor<R, D>, data: D): R =
+        contractDescriptionVisitor.visitFunctionReference(this, data)
+}
+
+class FunctionReferenceImpl(override val descriptor: FunctionDescriptor) : FunctionReference
+
+class ReceiverReference(val variableReference: VariableReference) : ContractDescriptionValue {
+    override fun <R, D> accept(contractDescriptionVisitor: ContractDescriptionVisitor<R, D>, data: D): R =
+        contractDescriptionVisitor.visitReceiverReference(this, data)
 }
