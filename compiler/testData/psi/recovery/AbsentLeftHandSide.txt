@@ -14,19 +14,15 @@ KtFile: AbsentLeftHandSide.kt
     BLOCK
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
-      BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
-          PsiElement(IDENTIFIER)('import')
-        PsiWhiteSpace(' ')
-        OPERATION_REFERENCE
-          PsiElement(IDENTIFIER)('a')
-        BINARY_EXPRESSION
-          PsiErrorElement:Expecting an element
-            PsiElement(DOT)('.')
-          OPERATION_REFERENCE
-            PsiElement(MUL)('*')
-          PsiErrorElement:Expecting an element
-            <empty list>
+      REFERENCE_EXPRESSION
+        PsiElement(IDENTIFIER)('import')
+      PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('a')
+        PsiElement(DOT)('.')
+        PsiElement(MUL)('*')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
   PsiWhiteSpace('\n\n')

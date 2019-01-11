@@ -58,53 +58,53 @@ KtFile: UnsignedLiteral.kt
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            FLOAT_CONSTANT
-              PsiElement(FLOAT_CONSTANT)('3.14')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          FLOAT_CONSTANT
+            PsiElement(FLOAT_CONSTANT)('3.14')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            FLOAT_CONSTANT
-              PsiElement(FLOAT_CONSTANT)('1e1')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          FLOAT_CONSTANT
+            PsiElement(FLOAT_CONSTANT)('1e1')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            FLOAT_CONSTANT
-              PsiElement(FLOAT_CONSTANT)('1.0e1')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          FLOAT_CONSTANT
+            PsiElement(FLOAT_CONSTANT)('1.0e1')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            FLOAT_CONSTANT
-              PsiElement(FLOAT_CONSTANT)('2_2.0f')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          FLOAT_CONSTANT
+            PsiElement(FLOAT_CONSTANT)('2_2.0f')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            FLOAT_CONSTANT
-              PsiElement(FLOAT_CONSTANT)('6.022_137e+2_3f')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          FLOAT_CONSTANT
+            PsiElement(FLOAT_CONSTANT)('6.022_137e+2_3f')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
@@ -118,43 +118,43 @@ KtFile: UnsignedLiteral.kt
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            INTEGER_CONSTANT
-              PsiElement(INTEGER_LITERAL)('1u')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('U')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          INTEGER_CONSTANT
+            PsiElement(INTEGER_LITERAL)('1u')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('U')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            INTEGER_CONSTANT
-              PsiElement(INTEGER_LITERAL)('1U')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          INTEGER_CONSTANT
+            PsiElement(INTEGER_LITERAL)('1U')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            INTEGER_CONSTANT
-              PsiElement(INTEGER_LITERAL)('1L')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('u')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          INTEGER_CONSTANT
+            PsiElement(INTEGER_LITERAL)('1L')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('u')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            INTEGER_CONSTANT
-              PsiElement(INTEGER_LITERAL)('1L')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('U')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          INTEGER_CONSTANT
+            PsiElement(INTEGER_LITERAL)('1L')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('U')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT

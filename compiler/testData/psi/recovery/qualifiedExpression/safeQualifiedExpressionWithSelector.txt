@@ -40,19 +40,16 @@ KtFile: safeQualifiedExpressionWithSelector.kt
               PsiElement(IDENTIFIER)('Companion')
           OPERATION_REFERENCE
             PsiElement(LT)('<')
-          BINARY_EXPRESSION
-            PsiErrorElement:Expecting an element
-              PsiElement(DIV)('/')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('warning')
-            PsiErrorElement:Expecting an element
-              PsiElement(GT)('>')
-            PsiElement(SAFE_ACCESS)('?.')
-            SAFE_ACCESS_EXPRESSION
-              REFERENCE_EXPRESSION
-                PsiElement(IDENTIFIER)('test')
-              PsiElement(SAFE_ACCESS)('?.')
-              REFERENCE_EXPRESSION
-                PsiElement(IDENTIFIER)('test')
+          PsiErrorElement:Expecting an element
+            PsiElement(DIV)('/')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('warning')
+        PsiElement(GT)('>')
+        PsiElement(SAFE_ACCESS)('?.')
+        PsiElement(IDENTIFIER)('test')
+        PsiElement(SAFE_ACCESS)('?.')
+        PsiElement(IDENTIFIER)('test')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

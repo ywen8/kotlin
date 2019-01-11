@@ -153,15 +153,15 @@ KtFile: newModifiers.kt
           PsiElement(LPAR)('(')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n    ')
-      BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
-          PsiElement(IDENTIFIER)('inline')
+      REFERENCE_EXPRESSION
+        PsiElement(IDENTIFIER)('inline')
+      PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('data')
         PsiWhiteSpace(' ')
-        OPERATION_REFERENCE
-          PsiElement(IDENTIFIER)('data')
-        PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
-          PsiElement(IDENTIFIER)('annotation')
+        PsiElement(annotation)('annotation')
       PsiWhiteSpace(' ')
       PsiComment(EOL_COMMENT)('// infix call')
       PsiWhiteSpace('\n')

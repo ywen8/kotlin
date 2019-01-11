@@ -20,27 +20,25 @@ KtFile: ShebangIncorrect.kts
       PsiErrorElement:Expecting an element
         PsiElement(HASH)('#')
       SCRIPT_INITIALIZER
-        BINARY_EXPRESSION
-          PREFIX_EXPRESSION
-            OPERATION_REFERENCE
-              PsiElement(EXCL)('!')
-            PsiErrorElement:Expecting an element
-              PsiElement(DIV)('/')
+        PREFIX_EXPRESSION
           OPERATION_REFERENCE
-            PsiElement(IDENTIFIER)('usr')
+            PsiElement(EXCL)('!')
           PsiErrorElement:Expecting an element
-            <empty list>
+            PsiElement(DIV)('/')
+        PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+          <empty list>
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('usr')
       PsiWhiteSpace('\n\n')
       PsiErrorElement:Expecting an element
         PsiElement(HASH)('#')
       SCRIPT_INITIALIZER
-        BINARY_EXPRESSION
-          PREFIX_EXPRESSION
-            OPERATION_REFERENCE
-              PsiElement(EXCL)('!')
-            PsiErrorElement:Expecting an element
-              PsiElement(DIV)('/')
+        PREFIX_EXPRESSION
           OPERATION_REFERENCE
-            PsiElement(IDENTIFIER)('hi')
+            PsiElement(EXCL)('!')
           PsiErrorElement:Expecting an element
-            <empty list>
+            PsiElement(DIV)('/')
+        PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+          <empty list>
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('hi')

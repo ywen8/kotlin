@@ -755,24 +755,22 @@ KtFile: BinaryTree.kt
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
-                        BINARY_EXPRESSION
-                          BINARY_EXPRESSION
-                            BINARY_EXPRESSION
-                              REFERENCE_EXPRESSION
-                                PsiElement(IDENTIFIER)('ref')
-                              PsiWhiteSpace(' ')
-                              OPERATION_REFERENCE
-                                PsiElement(IDENTIFIER)('node')
-                              PsiErrorElement:Expecting an element
-                                PsiElement(DOT)('.')
-                            OPERATION_REFERENCE
+                        REFERENCE_EXPRESSION
+                          PsiElement(IDENTIFIER)('ref')
+                        PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+                          <empty list>
+                      PsiWhiteSpace(' ')
+                      VALUE_ARGUMENT
+                        DOT_QUALIFIED_EXPRESSION
+                          DOT_QUALIFIED_EXPRESSION
+                            REFERENCE_EXPRESSION
+                              PsiElement(IDENTIFIER)('node')
+                            PsiElement(DOT)('.')
+                            REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('value')
-                            PsiErrorElement:Expecting an element
-                              PsiElement(DOT)('.')
-                          OPERATION_REFERENCE
+                          PsiElement(DOT)('.')
+                          REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('left')
-                          PsiErrorElement:Expecting an element
-                            <empty list>
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
@@ -793,24 +791,22 @@ KtFile: BinaryTree.kt
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
-                        BINARY_EXPRESSION
-                          BINARY_EXPRESSION
-                            BINARY_EXPRESSION
-                              REFERENCE_EXPRESSION
-                                PsiElement(IDENTIFIER)('ref')
-                              PsiWhiteSpace(' ')
-                              OPERATION_REFERENCE
-                                PsiElement(IDENTIFIER)('node')
-                              PsiErrorElement:Expecting an element
-                                PsiElement(DOT)('.')
-                            OPERATION_REFERENCE
+                        REFERENCE_EXPRESSION
+                          PsiElement(IDENTIFIER)('ref')
+                        PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+                          <empty list>
+                      PsiWhiteSpace(' ')
+                      VALUE_ARGUMENT
+                        DOT_QUALIFIED_EXPRESSION
+                          DOT_QUALIFIED_EXPRESSION
+                            REFERENCE_EXPRESSION
+                              PsiElement(IDENTIFIER)('node')
+                            PsiElement(DOT)('.')
+                            REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('value')
-                            PsiErrorElement:Expecting an element
-                              PsiElement(DOT)('.')
-                          OPERATION_REFERENCE
+                          PsiElement(DOT)('.')
+                          REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('right')
-                          PsiErrorElement:Expecting an element
-                            <empty list>
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT

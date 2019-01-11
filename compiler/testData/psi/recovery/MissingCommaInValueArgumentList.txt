@@ -22,13 +22,13 @@ KtFile: MissingCommaInValueArgumentList.kt
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
         VALUE_ARGUMENT
-          BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
-              PsiElement(IDENTIFIER)('b')
-            PsiWhiteSpace('\n    ')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('c')
-            PsiErrorElement:Expecting an element
-              <empty list>
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('b')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+        PsiWhiteSpace('\n    ')
+        VALUE_ARGUMENT
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n')
         PsiElement(RPAR)(')')

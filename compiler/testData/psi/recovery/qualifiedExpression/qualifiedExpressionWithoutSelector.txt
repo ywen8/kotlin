@@ -40,24 +40,18 @@ KtFile: qualifiedExpressionWithoutSelector.kt
               PsiElement(IDENTIFIER)('Companion')
           OPERATION_REFERENCE
             PsiElement(LT)('<')
-          BINARY_EXPRESSION
-            BINARY_EXPRESSION
-              PsiErrorElement:Expecting an element
-                PsiElement(DIV)('/')
-              OPERATION_REFERENCE
-                PsiElement(IDENTIFIER)('warning')
-              PsiErrorElement:Expecting an element
-                PsiElement(GT)('>')
-              PsiElement(DOT)('.')
-              DOT_QUALIFIED_EXPRESSION
-                REFERENCE_EXPRESSION
-                  PsiElement(IDENTIFIER)('test')
-                PsiElement(DOT)('.')
-                PsiErrorElement:Expecting an element
-                  PsiElement(LT)('<')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('ff')
-            PsiErrorElement:Expecting an element
-              PsiElement(GT)('>')
+          PsiErrorElement:Expecting an element
+            PsiElement(DIV)('/')
+          PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+            <empty list>
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('warning')
+        PsiElement(GT)('>')
+        PsiElement(DOT)('.')
+        PsiElement(IDENTIFIER)('test')
+        PsiElement(DOT)('.')
+        PsiElement(LT)('<')
+        PsiElement(IDENTIFIER)('ff')
+        PsiElement(GT)('>')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

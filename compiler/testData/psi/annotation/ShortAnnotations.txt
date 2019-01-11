@@ -636,62 +636,52 @@ KtFile: ShortAnnotations.kt
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
         BINARY_EXPRESSION
-          BINARY_EXPRESSION
-            BINARY_EXPRESSION
-              BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
-                  PsiElement(IDENTIFIER)('foo')
-                PsiWhiteSpace(' ')
-                OPERATION_REFERENCE
-                  PsiElement(IDENTIFIER)('bar')
-                PARENTHESIZED
-                  PsiElement(LPAR)('(')
-                  INTEGER_CONSTANT
-                    PsiElement(INTEGER_LITERAL)('1')
-                  PsiElement(RPAR)(')')
-              PsiWhiteSpace(' ')
-              OPERATION_REFERENCE
-                PsiElement(IDENTIFIER)('buzz')
-              PsiErrorElement:Expecting an element
-                PsiElement(LT)('<')
-            OPERATION_REFERENCE
-              PsiElement(IDENTIFIER)('T')
-            CALL_EXPRESSION
-              PsiErrorElement:Expecting an element
-                PsiElement(GT)('>')
-              VALUE_ARGUMENT_LIST
-                PsiElement(LPAR)('(')
-                VALUE_ARGUMENT
-                  INTEGER_CONSTANT
-                    PsiElement(INTEGER_LITERAL)('1')
-                PsiElement(RPAR)(')')
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('foo')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE
-            PsiElement(IDENTIFIER)('zoo')
-          PsiWhiteSpace(' ')
-          PROPERTY
-            PsiElement(val)('val')
-            PsiWhiteSpace(' ')
-            PsiElement(IDENTIFIER)('a')
-            PsiWhiteSpace(' ')
-            PsiElement(EQ)('=')
-            PsiWhiteSpace(' ')
+            PsiElement(IDENTIFIER)('bar')
+          PARENTHESIZED
+            PsiElement(LPAR)('(')
             INTEGER_CONSTANT
               PsiElement(INTEGER_LITERAL)('1')
+            PsiElement(RPAR)(')')
+        PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+          <empty list>
+      PsiWhiteSpace(' ')
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('buzz')
+        PsiElement(LT)('<')
+        PsiElement(IDENTIFIER)('T')
+        PsiElement(GT)('>')
+        PsiElement(LPAR)('(')
+        PsiElement(INTEGER_LITERAL)('1')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
-        PsiElement(LBRACE)('{')
-        PsiWhiteSpace('\n    ')
-        WHEN_ENTRY
-          WHEN_CONDITION_WITH_EXPRESSION
+        PsiElement(IDENTIFIER)('zoo')
+        PsiWhiteSpace(' ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        PsiElement(IDENTIFIER)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQ)('=')
+        PsiWhiteSpace(' ')
+        PsiElement(INTEGER_LITERAL)('1')
+        PsiElement(RPAR)(')')
+      PsiWhiteSpace(' ')
+      LAMBDA_EXPRESSION
+        FUNCTION_LITERAL
+          PsiElement(LBRACE)('{')
+          PsiWhiteSpace('\n    ')
+          BLOCK
             INTEGER_CONSTANT
               PsiElement(INTEGER_LITERAL)('1')
-          PsiWhiteSpace(' ')
-          PsiElement(ARROW)('->')
-          PsiWhiteSpace(' ')
-          INTEGER_CONSTANT
-            PsiElement(INTEGER_LITERAL)('1')
-        PsiWhiteSpace('\n  ')
-        PsiElement(RBRACE)('}')
+            PsiWhiteSpace(' ')
+            PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+              PsiElement(ARROW)('->')
+              PsiWhiteSpace(' ')
+              PsiElement(INTEGER_LITERAL)('1')
+          PsiWhiteSpace('\n  ')
+          PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
