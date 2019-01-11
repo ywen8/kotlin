@@ -114,6 +114,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitElement(label, null)
     }
 
+    open fun visitMemberReference(memberReference: FirMemberReference) {
+        visitElement(memberReference, null)
+    }
+
     open fun visitPackageFragment(packageFragment: FirPackageFragment) {
         visitElement(packageFragment, null)
     }
@@ -144,6 +148,14 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     open fun visitDelegatedConstructorCall(delegatedConstructorCall: FirDelegatedConstructorCall) {
         visitCall(delegatedConstructorCall, null)
+    }
+
+    open fun visitMemberAccess(memberAccess: FirMemberAccess) {
+        visitCall(memberAccess, null)
+    }
+
+    open fun visitPropertyAccess(propertyAccess: FirPropertyAccess) {
+        visitMemberAccess(propertyAccess, null)
     }
 
     open fun <T> visitConstExpression(constExpression: FirConstExpression<T>) {
@@ -298,6 +310,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitLoopWithCondition(loopWithCondition)
     }
 
+    final override fun visitMemberAccess(memberAccess: FirMemberAccess, data: Nothing?) {
+        visitMemberAccess(memberAccess)
+    }
+
     final override fun visitMemberDeclaration(memberDeclaration: FirMemberDeclaration, data: Nothing?) {
         visitMemberDeclaration(memberDeclaration)
     }
@@ -386,6 +402,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitLabel(label)
     }
 
+    final override fun visitMemberReference(memberReference: FirMemberReference, data: Nothing?) {
+        visitMemberReference(memberReference)
+    }
+
     final override fun visitWhenBranch(whenBranch: FirWhenBranch, data: Nothing?) {
         visitWhenBranch(whenBranch)
     }
@@ -444,6 +464,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     final override fun visitWhileLoop(whileLoop: FirWhileLoop, data: Nothing?) {
         visitWhileLoop(whileLoop)
+    }
+
+    final override fun visitPropertyAccess(propertyAccess: FirPropertyAccess, data: Nothing?) {
+        visitPropertyAccess(propertyAccess)
     }
 
     final override fun visitTypeAlias(typeAlias: FirTypeAlias, data: Nothing?) {

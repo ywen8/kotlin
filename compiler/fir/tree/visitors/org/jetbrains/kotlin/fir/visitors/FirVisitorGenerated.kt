@@ -114,6 +114,10 @@ abstract class FirVisitor<out R, in D> {
         return visitElement(label, data)
     }
 
+    open fun visitMemberReference(memberReference: FirMemberReference, data: D): R {
+        return visitElement(memberReference, data)
+    }
+
     open fun visitPackageFragment(packageFragment: FirPackageFragment, data: D): R {
         return visitElement(packageFragment, data)
     }
@@ -144,6 +148,14 @@ abstract class FirVisitor<out R, in D> {
 
     open fun visitDelegatedConstructorCall(delegatedConstructorCall: FirDelegatedConstructorCall, data: D): R {
         return visitCall(delegatedConstructorCall, data)
+    }
+
+    open fun visitMemberAccess(memberAccess: FirMemberAccess, data: D): R {
+        return visitCall(memberAccess, data)
+    }
+
+    open fun visitPropertyAccess(propertyAccess: FirPropertyAccess, data: D): R {
+        return visitMemberAccess(propertyAccess, data)
     }
 
     open fun <T> visitConstExpression(constExpression: FirConstExpression<T>, data: D): R {

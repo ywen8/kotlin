@@ -114,6 +114,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformElement(label, data)
     }
 
+    open fun <E : FirElement> transformMemberReference(memberReference: E, data: D): CompositeTransformResult<E> {
+        return transformElement(memberReference, data)
+    }
+
     open fun <E : FirElement> transformPackageFragment(packageFragment: E, data: D): CompositeTransformResult<E> {
         return transformElement(packageFragment, data)
     }
@@ -144,6 +148,14 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     open fun transformDelegatedConstructorCall(delegatedConstructorCall: FirDelegatedConstructorCall, data: D): CompositeTransformResult<FirStatement> {
         return transformCall(delegatedConstructorCall, data)
+    }
+
+    open fun transformMemberAccess(memberAccess: FirMemberAccess, data: D): CompositeTransformResult<FirStatement> {
+        return transformCall(memberAccess, data)
+    }
+
+    open fun transformPropertyAccess(propertyAccess: FirPropertyAccess, data: D): CompositeTransformResult<FirStatement> {
+        return transformMemberAccess(propertyAccess, data)
     }
 
     open fun <T> transformConstExpression(constExpression: FirConstExpression<T>, data: D): CompositeTransformResult<FirStatement> {
@@ -298,6 +310,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformLoopWithCondition(loopWithCondition, data)
     }
 
+    final override fun visitMemberAccess(memberAccess: FirMemberAccess, data: D): CompositeTransformResult<FirElement> {
+        return transformMemberAccess(memberAccess, data)
+    }
+
     final override fun visitMemberDeclaration(memberDeclaration: FirMemberDeclaration, data: D): CompositeTransformResult<FirElement> {
         return transformMemberDeclaration(memberDeclaration, data)
     }
@@ -386,6 +402,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformLabel(label, data)
     }
 
+    final override fun visitMemberReference(memberReference: FirMemberReference, data: D): CompositeTransformResult<FirElement> {
+        return transformMemberReference(memberReference, data)
+    }
+
     final override fun visitWhenBranch(whenBranch: FirWhenBranch, data: D): CompositeTransformResult<FirElement> {
         return transformWhenBranch(whenBranch, data)
     }
@@ -444,6 +464,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     final override fun visitWhileLoop(whileLoop: FirWhileLoop, data: D): CompositeTransformResult<FirElement> {
         return transformWhileLoop(whileLoop, data)
+    }
+
+    final override fun visitPropertyAccess(propertyAccess: FirPropertyAccess, data: D): CompositeTransformResult<FirElement> {
+        return transformPropertyAccess(propertyAccess, data)
     }
 
     final override fun visitTypeAlias(typeAlias: FirTypeAlias, data: D): CompositeTransformResult<FirElement> {
