@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.backend.common.descriptors.WrappedValueParameterDesc
 import org.jetbrains.kotlin.backend.common.ir.DeclarationFactory
 import org.jetbrains.kotlin.backend.common.ir.copyTo
 import org.jetbrains.kotlin.backend.common.ir.copyTypeParametersFrom
+import org.jetbrains.kotlin.backend.common.ir.createParameterDeclarationsWithWrappedDescriptor
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
 import org.jetbrains.kotlin.backend.jvm.lower.createStaticFunctionWithReceivers
 import org.jetbrains.kotlin.builtins.CompanionObjectMapping.isMappedIntrinsicCompanionObject
@@ -204,6 +205,7 @@ class JvmDeclarationFactory(
             ).apply {
                 descriptor.bind(this)
                 parent = interfaceClass
+                createParameterDeclarationsWithWrappedDescriptor()
             }
         }
 }
