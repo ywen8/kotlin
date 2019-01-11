@@ -15945,6 +15945,11 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             public void testNamelessToplevelDeclarations() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/recovery/namelessToplevelDeclarations.kt");
             }
+
+            @TestMetadata("noCommaBetweenArguments.kt")
+            public void testNoCommaBetweenArguments() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/recovery/noCommaBetweenArguments.kt");
+            }
         }
 
         @TestMetadata("compiler/testData/diagnostics/tests/redeclarations")

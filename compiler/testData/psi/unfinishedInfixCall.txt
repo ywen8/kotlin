@@ -1,0 +1,35 @@
+KtFile: unfinishedInfixCall.kt
+  PACKAGE_DIRECTIVE
+    <empty list>
+  IMPORT_LIST
+    <empty list>
+  FUN
+    PsiElement(fun)('fun')
+    PsiWhiteSpace(' ')
+    PsiElement(IDENTIFIER)('foo')
+    VALUE_PARAMETER_LIST
+      PsiElement(LPAR)('(')
+      PsiElement(RPAR)(')')
+    PsiWhiteSpace(' ')
+    BLOCK
+      PsiElement(LBRACE)('{')
+      PsiWhiteSpace('\n    ')
+      REFERENCE_EXPRESSION
+        PsiElement(IDENTIFIER)('x')
+      PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
+        PsiElement(IDENTIFIER)('y')
+      PsiWhiteSpace('\n\n    ')
+      PROPERTY
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        PsiElement(IDENTIFIER)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(EQ)('=')
+        PsiWhiteSpace(' ')
+        INTEGER_CONSTANT
+          PsiElement(INTEGER_LITERAL)('1')
+      PsiWhiteSpace('\n')
+      PsiElement(RBRACE)('}')

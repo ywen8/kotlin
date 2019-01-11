@@ -68,14 +68,14 @@ KtFile: noCommaBetweenArguments.kt
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
-            BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
-                PsiElement(IDENTIFIER)('x')
-              PsiWhiteSpace(' ')
-              OPERATION_REFERENCE
-                PsiElement(IDENTIFIER)('y')
-              PsiErrorElement:Expecting an element
-                <empty list>
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('x')
+            PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+              <empty list>
+          PsiWhiteSpace(' ')
+          VALUE_ARGUMENT
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('y')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
@@ -84,14 +84,14 @@ KtFile: noCommaBetweenArguments.kt
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
-            BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
-                PsiElement(IDENTIFIER)('x')
-              PsiWhiteSpace('\n         ')
-              OPERATION_REFERENCE
-                PsiElement(IDENTIFIER)('y')
-              PsiErrorElement:Expecting an element
-                <empty list>
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('x')
+            PsiErrorElement:Incorrect infix call. Probably ',' or ';' are expected
+              <empty list>
+          PsiWhiteSpace('\n         ')
+          VALUE_ARGUMENT
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('y')
           PsiWhiteSpace('\n    ')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n    ')

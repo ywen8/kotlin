@@ -314,6 +314,12 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
         while (!interruptedWithNewLine() && atSet(precedence.getOperations())) {
             IElementType operation = tt();
 
+            if (operation == IDENTIFIER && !EXPRESSION_FIRST.contains(lookahead(1))) {
+                // The right operand can't be valid, but it's likely that there's a next value argument or something
+                error("Incorrect infix call. Probably ',' or ';' are expected");
+                break;
+            }
+
             parseOperationReference();
 
             KtNodeType resultType = precedence.parseRightHandSide(operation, this);

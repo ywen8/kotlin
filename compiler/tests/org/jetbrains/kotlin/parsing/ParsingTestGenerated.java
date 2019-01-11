@@ -706,6 +706,11 @@ public class ParsingTestGenerated extends AbstractParsingTest {
             runTest("compiler/testData/psi/TypealiasIsKeyword.kt");
         }
 
+        @TestMetadata("unfinishedInfixCall.kt")
+        public void testUnfinishedInfixCall() throws Exception {
+            runTest("compiler/testData/psi/unfinishedInfixCall.kt");
+        }
+
         @TestMetadata("UnsignedLiteral.kt")
         public void testUnsignedLiteral() throws Exception {
             runTest("compiler/testData/psi/UnsignedLiteral.kt");
