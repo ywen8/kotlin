@@ -28,9 +28,6 @@ abstract class Kapt3BaseIT : BaseGradleIT() {
         private val KAPT_SUCCESSFUL_REGEX = "Annotation processing complete, errors: 0".toRegex()
     }
 
-    override val defaultGradleVersion: GradleVersionRequired
-        get() = GradleVersionRequired.AtLeast("4.1")
-
     override fun defaultBuildOptions(): BuildOptions =
         super.defaultBuildOptions().copy(kaptOptions = kaptOptions())
 
