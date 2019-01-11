@@ -10,4 +10,4 @@ import javax.swing.JList
 
 // BUNCH: 181
 @Suppress("IncompatibleAPI")
-class PopupChooserBuilderWrapper<T>(list: JList): PopupChooserBuilder(list)
+class PopupChooserBuilderWrapper<T>(list: JList<T>) : PopupChooserBuilder(list)
