@@ -91,7 +91,7 @@ class KtCompilingExecutor(file: ScratchFile) : ScratchExecutor(file) {
                             ) ?: return
 
                             try {
-                                val commandLine = createCommandLine(module, result.mainClassName, tempDir.path)
+                                val commandLine = createCommandLine(psiFile, module, result.mainClassName, tempDir.path)
 
                                 LOG.printDebugMessage(commandLine.commandLineString)
 
@@ -177,16 +177,22 @@ class KtCompilingExecutor(file: ScratchFile) : ScratchExecutor(file) {
         return dir
     }
 
-    private fun createCommandLine(module: Module, mainClassName: String, tempOutDir: String): GeneralCommandLine {
+    private fun createCommandLine(originalFile: KtFile, module: Module?, mainClassName: String, tempOutDir: String): GeneralCommandLine {
         val javaParameters = KotlinConsoleKeeper.createJavaParametersWithSdk(module)
         javaParameters.mainClass = mainClassName
 
-        val compiledModulePath = CompilerPathsEx.getOutputPaths(arrayOf(module)).toList()
-        val moduleDependencies = OrderEnumerator.orderEntries(module).recursively().pathsList.pathList
-
         javaParameters.classPath.add(tempOutDir)
-        javaParameters.classPath.addAll(compiledModulePath)
-        javaParameters.classPath.addAll(moduleDependencies)
+
+        if (module != null) {
+            val compiledModulePath = CompilerPathsEx.getOutputPaths(arrayOf(module)).toList()
+            javaParameters.classPath.addAll(compiledModulePath)
+
+            val moduleDependencies = OrderEnumerator.orderEntries(module).recursively().pathsList.pathList
+            javaParameters.classPath.addAll(moduleDependencies)
+        }
+
+        val scriptDependencies = ScriptDependenciesManager.getInstance(originalFile.project).getScriptDependencies(originalFile.virtualFile)
+        javaParameters.classPath.addAll(scriptDependencies.classpath.map { it.absolutePath })
 
         return javaParameters.toCommandLine()
     }
