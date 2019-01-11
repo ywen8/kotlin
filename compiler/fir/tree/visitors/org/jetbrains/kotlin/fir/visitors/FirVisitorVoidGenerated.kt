@@ -14,6 +14,10 @@ import org.jetbrains.kotlin.fir.types.*
 abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
     abstract fun visitElement(element: FirElement)
 
+    open fun visitCatch(catch: FirCatch) {
+        visitElement(catch, null)
+    }
+
     open fun visitDeclaration(declaration: FirDeclaration) {
         visitElement(declaration, null)
     }
@@ -106,6 +110,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitImport(resolvedImport, null)
     }
 
+    open fun visitLabel(label: FirLabel) {
+        visitElement(label, null)
+    }
+
     open fun visitPackageFragment(packageFragment: FirPackageFragment) {
         visitElement(packageFragment, null)
     }
@@ -122,8 +130,8 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitStatement(expression, null)
     }
 
-    open fun visitBody(body: FirBody) {
-        visitExpression(body, null)
+    open fun visitBlock(block: FirBlock) {
+        visitExpression(block, null)
     }
 
     open fun visitCall(call: FirCall) {
@@ -144,6 +152,50 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     open fun visitErrorExpression(errorExpression: FirErrorExpression) {
         visitExpression(errorExpression, null)
+    }
+
+    open fun <E : FirTargetElement> visitJump(jump: FirJump<E>) {
+        visitExpression(jump, null)
+    }
+
+    open fun visitThrowExpression(throwExpression: FirThrowExpression) {
+        visitExpression(throwExpression, null)
+    }
+
+    open fun visitTryExpression(tryExpression: FirTryExpression) {
+        visitExpression(tryExpression, null)
+    }
+
+    open fun visitWhenExpression(whenExpression: FirWhenExpression) {
+        visitExpression(whenExpression, null)
+    }
+
+    open fun visitLoop(loop: FirLoop) {
+        visitStatement(loop, null)
+    }
+
+    open fun visitForLoop(forLoop: FirForLoop) {
+        visitLoop(forLoop, null)
+    }
+
+    open fun visitLoopWithCondition(loopWithCondition: FirLoopWithCondition) {
+        visitLoop(loopWithCondition, null)
+    }
+
+    open fun visitDoWhileLoop(doWhileLoop: FirDoWhileLoop) {
+        visitLoopWithCondition(doWhileLoop, null)
+    }
+
+    open fun visitWhileLoop(whileLoop: FirWhileLoop) {
+        visitLoopWithCondition(whileLoop, null)
+    }
+
+    open fun visitTargetElement(targetElement: FirTargetElement) {
+        visitElement(targetElement, null)
+    }
+
+    open fun visitLabeledElement(labeledElement: FirLabeledElement) {
+        visitTargetElement(labeledElement, null)
     }
 
     open fun visitType(type: FirType) {
@@ -198,6 +250,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitTypeProjection(typeProjectionWithVariance, null)
     }
 
+    open fun visitWhenBranch(whenBranch: FirWhenBranch) {
+        visitElement(whenBranch, null)
+    }
+
     final override fun visitCall(call: FirCall, data: Nothing?) {
         visitCall(call)
     }
@@ -234,6 +290,14 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitImport(import)
     }
 
+    final override fun visitLoop(loop: FirLoop, data: Nothing?) {
+        visitLoop(loop)
+    }
+
+    final override fun visitLoopWithCondition(loopWithCondition: FirLoopWithCondition, data: Nothing?) {
+        visitLoopWithCondition(loopWithCondition)
+    }
+
     final override fun visitMemberDeclaration(memberDeclaration: FirMemberDeclaration, data: Nothing?) {
         visitMemberDeclaration(memberDeclaration)
     }
@@ -252,6 +316,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     final override fun visitStatement(statement: FirStatement, data: Nothing?) {
         visitStatement(statement)
+    }
+
+    final override fun visitTargetElement(targetElement: FirTargetElement, data: Nothing?) {
+        visitTargetElement(targetElement)
     }
 
     final override fun visitType(type: FirType, data: Nothing?) {
@@ -310,8 +378,20 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitAnonymousInitializer(anonymousInitializer)
     }
 
-    final override fun visitBody(body: FirBody, data: Nothing?) {
-        visitBody(body)
+    final override fun visitCatch(catch: FirCatch, data: Nothing?) {
+        visitCatch(catch)
+    }
+
+    final override fun visitLabel(label: FirLabel, data: Nothing?) {
+        visitLabel(label)
+    }
+
+    final override fun visitWhenBranch(whenBranch: FirWhenBranch, data: Nothing?) {
+        visitWhenBranch(whenBranch)
+    }
+
+    final override fun visitBlock(block: FirBlock, data: Nothing?) {
+        visitBlock(block)
     }
 
     final override fun <T> visitConstExpression(constExpression: FirConstExpression<T>, data: Nothing?) {
@@ -320,6 +400,22 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     final override fun visitErrorExpression(errorExpression: FirErrorExpression, data: Nothing?) {
         visitErrorExpression(errorExpression)
+    }
+
+    final override fun <E : FirTargetElement> visitJump(jump: FirJump<E>, data: Nothing?) {
+        visitJump(jump)
+    }
+
+    final override fun visitThrowExpression(throwExpression: FirThrowExpression, data: Nothing?) {
+        visitThrowExpression(throwExpression)
+    }
+
+    final override fun visitTryExpression(tryExpression: FirTryExpression, data: Nothing?) {
+        visitTryExpression(tryExpression)
+    }
+
+    final override fun visitWhenExpression(whenExpression: FirWhenExpression, data: Nothing?) {
+        visitWhenExpression(whenExpression)
     }
 
     final override fun visitConstructor(constructor: FirConstructor, data: Nothing?) {
@@ -338,6 +434,18 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
         visitResolvedImport(resolvedImport)
     }
 
+    final override fun visitForLoop(forLoop: FirForLoop, data: Nothing?) {
+        visitForLoop(forLoop)
+    }
+
+    final override fun visitDoWhileLoop(doWhileLoop: FirDoWhileLoop, data: Nothing?) {
+        visitDoWhileLoop(doWhileLoop)
+    }
+
+    final override fun visitWhileLoop(whileLoop: FirWhileLoop, data: Nothing?) {
+        visitWhileLoop(whileLoop)
+    }
+
     final override fun visitTypeAlias(typeAlias: FirTypeAlias, data: Nothing?) {
         visitTypeAlias(typeAlias)
     }
@@ -352,6 +460,10 @@ abstract class FirVisitorVoid : FirVisitor<Unit, Nothing?>() {
 
     final override fun visitResolvedFunctionType(resolvedFunctionType: FirResolvedFunctionType, data: Nothing?) {
         visitResolvedFunctionType(resolvedFunctionType)
+    }
+
+    final override fun visitLabeledElement(labeledElement: FirLabeledElement, data: Nothing?) {
+        visitLabeledElement(labeledElement)
     }
 
     final override fun visitDelegatedType(delegatedType: FirDelegatedType, data: Nothing?) {

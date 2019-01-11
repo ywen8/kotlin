@@ -14,6 +14,10 @@ import org.jetbrains.kotlin.fir.types.*
 abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirElement>, D>() {
     abstract fun <E : FirElement> transformElement(element: E, data: D): CompositeTransformResult<E>
 
+    open fun <E : FirElement> transformCatch(catch: E, data: D): CompositeTransformResult<E> {
+        return transformElement(catch, data)
+    }
+
     open fun transformDeclaration(declaration: FirDeclaration, data: D): CompositeTransformResult<FirDeclaration> {
         return transformElement(declaration, data)
     }
@@ -106,6 +110,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformImport(resolvedImport, data)
     }
 
+    open fun <E : FirElement> transformLabel(label: E, data: D): CompositeTransformResult<E> {
+        return transformElement(label, data)
+    }
+
     open fun <E : FirElement> transformPackageFragment(packageFragment: E, data: D): CompositeTransformResult<E> {
         return transformElement(packageFragment, data)
     }
@@ -122,8 +130,8 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformStatement(expression, data)
     }
 
-    open fun transformBody(body: FirBody, data: D): CompositeTransformResult<FirStatement> {
-        return transformExpression(body, data)
+    open fun transformBlock(block: FirBlock, data: D): CompositeTransformResult<FirStatement> {
+        return transformExpression(block, data)
     }
 
     open fun transformCall(call: FirCall, data: D): CompositeTransformResult<FirStatement> {
@@ -144,6 +152,50 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     open fun transformErrorExpression(errorExpression: FirErrorExpression, data: D): CompositeTransformResult<FirStatement> {
         return transformExpression(errorExpression, data)
+    }
+
+    open fun <E : FirTargetElement> transformJump(jump: FirJump<E>, data: D): CompositeTransformResult<FirStatement> {
+        return transformExpression(jump, data)
+    }
+
+    open fun transformThrowExpression(throwExpression: FirThrowExpression, data: D): CompositeTransformResult<FirStatement> {
+        return transformExpression(throwExpression, data)
+    }
+
+    open fun transformTryExpression(tryExpression: FirTryExpression, data: D): CompositeTransformResult<FirStatement> {
+        return transformExpression(tryExpression, data)
+    }
+
+    open fun transformWhenExpression(whenExpression: FirWhenExpression, data: D): CompositeTransformResult<FirStatement> {
+        return transformExpression(whenExpression, data)
+    }
+
+    open fun transformLoop(loop: FirLoop, data: D): CompositeTransformResult<FirStatement> {
+        return transformStatement(loop, data)
+    }
+
+    open fun transformForLoop(forLoop: FirForLoop, data: D): CompositeTransformResult<FirStatement> {
+        return transformLoop(forLoop, data)
+    }
+
+    open fun transformLoopWithCondition(loopWithCondition: FirLoopWithCondition, data: D): CompositeTransformResult<FirStatement> {
+        return transformLoop(loopWithCondition, data)
+    }
+
+    open fun transformDoWhileLoop(doWhileLoop: FirDoWhileLoop, data: D): CompositeTransformResult<FirStatement> {
+        return transformLoopWithCondition(doWhileLoop, data)
+    }
+
+    open fun transformWhileLoop(whileLoop: FirWhileLoop, data: D): CompositeTransformResult<FirStatement> {
+        return transformLoopWithCondition(whileLoop, data)
+    }
+
+    open fun <E : FirElement> transformTargetElement(targetElement: E, data: D): CompositeTransformResult<E> {
+        return transformElement(targetElement, data)
+    }
+
+    open fun <E : FirTargetElement> transformLabeledElement(labeledElement: E, data: D): CompositeTransformResult<E> {
+        return transformTargetElement(labeledElement, data)
     }
 
     open fun transformType(type: FirType, data: D): CompositeTransformResult<FirType> {
@@ -198,6 +250,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformTypeProjection(typeProjectionWithVariance, data)
     }
 
+    open fun <E : FirElement> transformWhenBranch(whenBranch: E, data: D): CompositeTransformResult<E> {
+        return transformElement(whenBranch, data)
+    }
+
     final override fun visitCall(call: FirCall, data: D): CompositeTransformResult<FirElement> {
         return transformCall(call, data)
     }
@@ -234,6 +290,14 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformImport(import, data)
     }
 
+    final override fun visitLoop(loop: FirLoop, data: D): CompositeTransformResult<FirElement> {
+        return transformLoop(loop, data)
+    }
+
+    final override fun visitLoopWithCondition(loopWithCondition: FirLoopWithCondition, data: D): CompositeTransformResult<FirElement> {
+        return transformLoopWithCondition(loopWithCondition, data)
+    }
+
     final override fun visitMemberDeclaration(memberDeclaration: FirMemberDeclaration, data: D): CompositeTransformResult<FirElement> {
         return transformMemberDeclaration(memberDeclaration, data)
     }
@@ -252,6 +316,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     final override fun visitStatement(statement: FirStatement, data: D): CompositeTransformResult<FirElement> {
         return transformStatement(statement, data)
+    }
+
+    final override fun visitTargetElement(targetElement: FirTargetElement, data: D): CompositeTransformResult<FirElement> {
+        return transformTargetElement(targetElement, data)
     }
 
     final override fun visitType(type: FirType, data: D): CompositeTransformResult<FirElement> {
@@ -310,8 +378,20 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformAnonymousInitializer(anonymousInitializer, data)
     }
 
-    final override fun visitBody(body: FirBody, data: D): CompositeTransformResult<FirElement> {
-        return transformBody(body, data)
+    final override fun visitCatch(catch: FirCatch, data: D): CompositeTransformResult<FirElement> {
+        return transformCatch(catch, data)
+    }
+
+    final override fun visitLabel(label: FirLabel, data: D): CompositeTransformResult<FirElement> {
+        return transformLabel(label, data)
+    }
+
+    final override fun visitWhenBranch(whenBranch: FirWhenBranch, data: D): CompositeTransformResult<FirElement> {
+        return transformWhenBranch(whenBranch, data)
+    }
+
+    final override fun visitBlock(block: FirBlock, data: D): CompositeTransformResult<FirElement> {
+        return transformBlock(block, data)
     }
 
     final override fun <T> visitConstExpression(constExpression: FirConstExpression<T>, data: D): CompositeTransformResult<FirElement> {
@@ -320,6 +400,22 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     final override fun visitErrorExpression(errorExpression: FirErrorExpression, data: D): CompositeTransformResult<FirElement> {
         return transformErrorExpression(errorExpression, data)
+    }
+
+    final override fun <E : FirTargetElement> visitJump(jump: FirJump<E>, data: D): CompositeTransformResult<FirElement> {
+        return transformJump(jump, data)
+    }
+
+    final override fun visitThrowExpression(throwExpression: FirThrowExpression, data: D): CompositeTransformResult<FirElement> {
+        return transformThrowExpression(throwExpression, data)
+    }
+
+    final override fun visitTryExpression(tryExpression: FirTryExpression, data: D): CompositeTransformResult<FirElement> {
+        return transformTryExpression(tryExpression, data)
+    }
+
+    final override fun visitWhenExpression(whenExpression: FirWhenExpression, data: D): CompositeTransformResult<FirElement> {
+        return transformWhenExpression(whenExpression, data)
     }
 
     final override fun visitConstructor(constructor: FirConstructor, data: D): CompositeTransformResult<FirElement> {
@@ -338,6 +434,18 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
         return transformResolvedImport(resolvedImport, data)
     }
 
+    final override fun visitForLoop(forLoop: FirForLoop, data: D): CompositeTransformResult<FirElement> {
+        return transformForLoop(forLoop, data)
+    }
+
+    final override fun visitDoWhileLoop(doWhileLoop: FirDoWhileLoop, data: D): CompositeTransformResult<FirElement> {
+        return transformDoWhileLoop(doWhileLoop, data)
+    }
+
+    final override fun visitWhileLoop(whileLoop: FirWhileLoop, data: D): CompositeTransformResult<FirElement> {
+        return transformWhileLoop(whileLoop, data)
+    }
+
     final override fun visitTypeAlias(typeAlias: FirTypeAlias, data: D): CompositeTransformResult<FirElement> {
         return transformTypeAlias(typeAlias, data)
     }
@@ -352,6 +460,10 @@ abstract class FirTransformer<in D> : FirVisitor<CompositeTransformResult<FirEle
 
     final override fun visitResolvedFunctionType(resolvedFunctionType: FirResolvedFunctionType, data: D): CompositeTransformResult<FirElement> {
         return transformResolvedFunctionType(resolvedFunctionType, data)
+    }
+
+    final override fun visitLabeledElement(labeledElement: FirLabeledElement, data: D): CompositeTransformResult<FirElement> {
+        return transformLabeledElement(labeledElement, data)
     }
 
     final override fun visitDelegatedType(delegatedType: FirDelegatedType, data: D): CompositeTransformResult<FirElement> {
