@@ -157,9 +157,10 @@ class VariantAwareDependenciesIT : BaseGradleIT() {
 
     @Test
     fun testKtAppResolvesOldMpp() {
-        val outerProject = Project("multiplatformProject")
-        val innerJvmProject = Project("simpleProject")
-        val innerJsProject = Project("kotlin2JsInternalTest")
+        val gradleVersion = GradleVersionRequired.AtLeast("4.1")
+        val outerProject = Project("multiplatformProject", gradleVersion)
+        val innerJvmProject = Project("simpleProject", gradleVersion)
+        val innerJsProject = Project("kotlin2JsInternalTest", gradleVersion)
 
         with(outerProject) {
             embedProject(innerJvmProject)
