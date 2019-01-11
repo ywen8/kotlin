@@ -15,9 +15,14 @@ class DataCollector {
         override fun compareTo(other: NameWithTypeParameters): Int = name.compareTo(other.name)
 
         constructor(name: String, typeParameterString: String) :
-                this(name, typeParameterString.drop(1).dropLast(1).split(" ", "\t", ",").filter { it.isNotEmpty() })
+                this(name, typeParameterString.drop(1).dropLast(1).split(",").map { it.trim() }.filter { it.isNotBlank() })
 
         constructor(name: String) : this(name, emptyList())
+
+        fun asStringWithoutBounds(): String =
+            name + if (typeParameters.isEmpty()) "" else typeParameters.joinToString(prefix = "<", postfix = ">", separator = ", ") {
+                it.split(":")[0].trim()
+            }
 
         override fun toString(): String =
             name + if (typeParameters.isEmpty()) "" else typeParameters.joinToString(prefix = "<", postfix = ">", separator = ", ")

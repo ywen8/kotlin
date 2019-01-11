@@ -40,8 +40,8 @@ abstract class AbstractVisitorGenerator(val referencesData: DataCollector.Refere
         }
         printWithNoIndent(name, "(")
         parameters
-            .flatMap { (a, b) ->
-                listOf(a, ": ", b, ", ")
+            .flatMap { (parameterName, typeNameWithTypeParameters) ->
+                listOf(parameterName, ": ", typeNameWithTypeParameters.asStringWithoutBounds(), ", ")
             }.dropLast(1)
             .forEach {
                 printWithNoIndent(it)
