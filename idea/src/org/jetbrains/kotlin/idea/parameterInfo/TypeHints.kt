@@ -143,7 +143,7 @@ private fun isUnclearType(type: KotlinType, element: KtCallableDeclaration): Boo
             }
         }
 
-        if (initializer.receiverExpression.isClassReference() && isConstructorCall(selectorExpression)) {
+        if (initializer.receiverExpression.isClassOrPackageReference() && isConstructorCall(selectorExpression)) {
             return false
         }
     }
@@ -169,9 +169,9 @@ private fun isConstructorCall(initializer: KtExpression?): Boolean {
     return false
 }
 
-private fun KtExpression.isClassReference(): Boolean =
+private fun KtExpression.isClassOrPackageReference(): Boolean =
     when (this) {
         is KtNameReferenceExpression -> this.resolveMainReferenceToDescriptors().singleOrNull().let { it is ClassDescriptor || it is PackageViewDescriptor }
-        is KtDotQualifiedExpression -> this.selectorExpression?.isClassReference() ?: false
+        is KtDotQualifiedExpression -> this.selectorExpression?.isClassOrPackageReference() ?: false
         else -> false
     }
